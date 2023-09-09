@@ -17,9 +17,7 @@ package archive
 
 import (
 	"bytes"
-	"io"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,37 +35,11 @@ func TestExtract(t *testing.T) {
 	)
 
 	var (
-		dstDir = t.TempDir()
 		srcDir = t.TempDir()
+		dstDir = t.TempDir()
 	)
 
-	// Copy test files to srcDir.
-	err := filepath.WalkDir("testdata", func(path string, d fs.DirEntry, err error) error {
-		if !d.IsDir() {
-			src, err := os.Open(path)
-			if err != nil {
-				return err
-			}
-			defer src.Close()
-
-			dst, err := os.Create(filepath.Join(srcDir, filepath.Base(path)))
-			if err != nil {
-				return err
-			}
-			defer func() {
-				if err := dst.Close(); err != nil {
-					log.Fatal(err)
-				}
-			}()
-
-			_, err = io.Copy(dst, src)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
-
+	err := helpers.CopyDirectoryContent("testdata", srcDir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,6 +77,7 @@ func TestExtract(t *testing.T) {
 		// │   └── f4.txt
 		// ├── f1.txt
 		// └── f2.txt
+
 		err = filepath.WalkDir(dstDir, func(path string, d fs.DirEntry, err error) error {
 			if !d.IsDir() {
 				f, err := os.Open(path)
@@ -134,7 +107,7 @@ func TestExtract(t *testing.T) {
 
 		// Was the source file removed if the rm arg was true?
 		if tt.args.rm {
-			exists, _, err := helpers.Exists(tt.args.src)
+			exists, err := helpers.Exists(tt.args.src)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -144,16 +117,7 @@ func TestExtract(t *testing.T) {
 		}
 
 		// Clear the destination directory before the next test.
-		err = filepath.WalkDir(dstDir, func(path string, d fs.DirEntry, err error) error {
-			if path != dstDir && d.IsDir() {
-				err := os.RemoveAll(path)
-				if err != nil {
-					return err
-				}
-			}
-			return nil
-		})
-
+		err = helpers.RemoveDirectoryContent(dstDir)
 		if err != nil {
 			t.Fatal(err)
 		}
