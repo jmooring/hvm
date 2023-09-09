@@ -3,6 +3,7 @@
 [![test status](https://github.com/jmooring/hvm/actions/workflows/test.yaml/badge.svg)](https://github.com/jmooring/hvm/actions/workflows/test.yaml)
 [![latest release](https://img.shields.io/github/v/release/jmooring/hvm?logo=github)](https://github.com/jmooring/hvm/releases/latest)
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 
 Hugo Version Manager (hvm) allows you download multiple versions of the extended edition of the [Hugo] static site generator, and to specify which version to use in the current directory.
 
@@ -58,7 +59,7 @@ hugo() {
       >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
       return 1
     fi
-    if ! echo "${hugo_bin}" | grep -q hugo ; then
+    if ! echo "${hugo_bin}" | grep -q "hugo$"; then
       >&2 printf "The .hvm file in this directory is invalid.\\n"
       >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
       return 1
@@ -90,7 +91,7 @@ hugo() {
       >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
       return 1
     fi
-    if ! echo "${hugo_bin}" | grep -q hugo ; then
+    if ! echo "${hugo_bin}" | grep -q "hugo$"; then
       >&2 printf "The .hvm file in this directory is invalid.\\n"
       >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
       return 1
