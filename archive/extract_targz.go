@@ -19,10 +19,12 @@ import (
 	"archive/tar"
 	"bufio"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // extractTarGZ extracts a gzipped tarball (src) to the dst directory.
@@ -53,6 +55,10 @@ func extractTarGZ(src string, dst string) error {
 			return err
 		case th == nil:
 			continue
+		}
+
+		if strings.Contains(th.Name, "..") {
+			return fmt.Errorf("detected unsafe file in archive (zip slip)")
 		}
 
 		target := filepath.Join(dst, th.Name)

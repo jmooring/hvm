@@ -335,7 +335,7 @@ func (a *asset) downloadAsset() error {
 		}
 	}
 
-	// Writer the body to file
+	// Write the body to file.
 	_, err = io.Copy(out, resp.Body)
 	if err != nil {
 		return err
