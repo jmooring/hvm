@@ -357,5 +357,4 @@ func TestRemoveDirectoryContent(t *testing.T) {
 	if !empty {
 		t.Error("the directory was not emptied")
 	}
-
 }

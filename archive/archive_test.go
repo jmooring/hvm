@@ -79,25 +79,31 @@ func TestExtract(t *testing.T) {
 		// └── f2.txt
 
 		err = filepath.WalkDir(dstDir, func(path string, d fs.DirEntry, err error) error {
-			if !d.IsDir() {
-				f, err := os.Open(path)
-				if err != nil {
-					return err
-				}
-
-				buf := new(bytes.Buffer)
-				_, err = buf.ReadFrom(f)
-				if err != nil {
-					return err
-				}
-				f.Close()
-
-				actualContent := strings.TrimSpace(buf.String())
-				expectedContent := filepath.ToSlash(strings.TrimPrefix(path, dstDir))
-				if actualContent != expectedContent {
-					t.Errorf("Extract() error: expected content = %s, actual content = %s", expectedContent, actualContent)
-				}
+			if err != nil {
+				return err
 			}
+			if d.IsDir() {
+				return nil
+			}
+
+			f, err := os.Open(path)
+			if err != nil {
+				return err
+			}
+
+			buf := new(bytes.Buffer)
+			_, err = buf.ReadFrom(f)
+			if err != nil {
+				return err
+			}
+			f.Close()
+
+			actualContent := strings.TrimSpace(buf.String())
+			expectedContent := filepath.ToSlash(strings.TrimPrefix(path, dstDir))
+			if actualContent != expectedContent {
+				t.Errorf("Extract() error: expected content = %s, actual content = %s", expectedContent, actualContent)
+			}
+
 			return nil
 		})
 
