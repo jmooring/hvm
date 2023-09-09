@@ -1,0 +1,21 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+# Test
+exec hvm config
+stdout 'NumTagsToDisplay = 42\n'
+stdout 'Configuration file: '
+
+# Files for darwin
+-- home/Library/Application Support/hvm/config.toml --
+numtagstodisplay = 42
+
+# Files for linux and windows
+-- config/hvm/config.toml --
+numtagstodisplay = 42

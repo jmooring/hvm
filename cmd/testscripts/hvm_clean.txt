@@ -1,0 +1,24 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+# Test
+stdin input.txt
+exec hvm clean
+stdout 'This will delete cached versions of the Hugo executable.\n'
+stdout 'Are you sure you want to clean the cache\? \(y/N\): '
+stdout 'Cache cleaned.'
+
+-- input.txt --
+y
+-- home/Library/Caches/hvm/v0.117.0/hugo --
+darwin-exec-bytes
+-- cache/hvm/v0.117.0/hugo --
+linux-exec-bytes
+-- cache/hvm/v0.117.0/hugo.exe --
+windows-exec-bytes

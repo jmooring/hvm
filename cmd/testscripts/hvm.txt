@@ -1,0 +1,24 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+exec hvm
+stdout 'Hugo Version Manager \(hvm\) allows you to download multiple versions of the\n'
+stdout 'extended edition of the Hugo static site generator, and to specify which\n'
+stdout 'version to use in the current directory.\n\n'
+stdout 'If you do not specify a version to use in the current directory, the path to\n'
+stdout 'the hugo executable is determined by the PATH environment variable.\n'
+stdout 'clean\s+Clean the cache\n'
+stdout 'completion\s+Generate the autocompletion script for the specified shell\n'
+stdout 'config\s+Display the current configuration\n'
+stdout 'install\s+Install a default version to use when version management is disabled\n'
+stdout 'disable\s+Disable version management in the current directory\n'
+stdout 'help\s+Help about any command\n'
+stdout 'status\s+Display the status\n'
+stdout 'use\s+Select a version to use in the current directory\n'
+stdout 'version\s+Display the hvm version\n'

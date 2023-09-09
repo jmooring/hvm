@@ -1,0 +1,23 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+# https://github.com/actions/runner-images/issues/602
+[darwin] skip
+
+# Test
+stdin input.txt
+exec hvm use
+stdout 'Downloading v.*\.\.\. done.\n'
+
+exec hvm status
+stdout 'The current directory is configured to use Hugo v.*\n'
+
+# Files
+-- input.txt --
+1
