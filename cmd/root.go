@@ -29,7 +29,7 @@ import (
 )
 
 type config struct {
-	NumTagsToDisplay int
+	NumTagsToDisplay int `toml:"numtagstodisplay" comment:"The number of tags to display with the \"use\" and \"install\" commands."`
 }
 
 var Config config
