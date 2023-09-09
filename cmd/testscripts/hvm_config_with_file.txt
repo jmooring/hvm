@@ -9,7 +9,8 @@
 
 # Test
 exec hvm config
-stdout 'NumTagsToDisplay = 42\n'
+stdout '# The number of tags to display with the "use" and "install" commands.\n'
+stdout 'numtagstodisplay = 42\n'
 stdout 'Configuration file: '
 
 # Files for darwin
