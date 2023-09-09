@@ -29,7 +29,7 @@ To use a different version of Hugo in the same directory, run `hvm use` again. T
 
 Extracted release assets are cached. Run `hvm status` to display a list of cached assets, the size of the cache, and the cache location. Run `hvm clean` to clean the cache.
 
-The `hvm install` command installs a default version to use when version management is disabled in the current directory. You can use hvm as a Hugo installer, even if you skip the second step of the installation instructions below.
+The `hvm install` command installs a default version to use when version management is disabled in the current directory. You can use hvm as an installer, even if you skip the second step of the installation instructions below.
 
 ## Installation
 
@@ -146,12 +146,12 @@ Use "hvm [command] --help" for more information about a command.
 
 ## Configuration
 
-By default, `hvm use` displays the 30 most recent releases. To change the number of releases displayed:
+By default, `hvm use` and `hvm install` display the 30 most recent releases. To change the number of releases displayed:
 
 - Set `numtagstodisplay` in the configuration file (run `hvm config` to display the path)
 - Set the `HVM_NUMTAGSTODISPLAY` environment variable
 
-Display all releases since v0.54.0 by setting this to `-1`. Releases before v0.54.0 were not semantically versioned.
+Display all releases since v0.54.0 by setting this value to `-1`. Releases before v0.54.0 were not semantically versioned.
 
 ## Rate limiting
 

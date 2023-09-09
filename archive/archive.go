@@ -13,6 +13,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package archive implements routines for extracting archive files including
+// gzipped tarballs and zip files.
 package archive
 
 import (
@@ -22,7 +25,7 @@ import (
 )
 
 // Extract extracts an archive (src) to the dst directory. If rm is is true,
-// removes src when complete.
+// removes src when complete. Supports gzipped tarballs and zip files.
 func Extract(src string, dst string, rm bool) error {
 	switch {
 	case strings.HasSuffix(strings.ToLower(src), ".tar.gz"):
