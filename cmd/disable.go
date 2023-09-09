@@ -46,7 +46,7 @@ func disable() error {
 		return err
 	}
 
-	exists, _, err := helpers.Exists(filepath.Join(wd, dotFileName))
+	exists, err := helpers.Exists(filepath.Join(wd, dotFileName))
 	if err != nil {
 		return err
 	}

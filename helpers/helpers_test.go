@@ -16,56 +16,12 @@ limitations under the License.
 package helpers
 
 import (
-	"io/fs"
+	"bytes"
 	"os"
 	"path/filepath"
-	"reflect"
+	"strings"
 	"testing"
 )
-
-func TestIsDir(t *testing.T) {
-	t.Parallel()
-
-	dPath := t.TempDir()
-	fPath := filepath.Join(dPath, "exists.txt")
-
-	f, err := os.Create(fPath)
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			t.Error(err)
-		}
-	}()
-
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
-	}{
-		{"A", args{dPath}, true, false},
-		{"B", args{fPath}, false, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsDir(tt.args.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("IsDir() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("IsDir() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
 
 func TestIsFile(t *testing.T) {
 	t.Parallel()
@@ -94,7 +50,7 @@ func TestIsFile(t *testing.T) {
 	}{
 		{"A", args{dPath}, false, false},
 		{"B", args{fPath}, true, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, false},
+		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -105,6 +61,50 @@ func TestIsFile(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("IsFile() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsDir(t *testing.T) {
+	t.Parallel()
+
+	dPath := t.TempDir()
+	fPath := filepath.Join(dPath, "exists.txt")
+
+	f, err := os.Create(fPath)
+	if err != nil {
+		t.Error(err)
+	}
+	defer func() {
+		if err := f.Close(); err != nil {
+			t.Error(err)
+		}
+	}()
+
+	type args struct {
+		path string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    bool
+		wantErr bool
+	}{
+		{"A", args{dPath}, true, false},
+		{"B", args{fPath}, false, false},
+		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := IsDir(tt.args.path)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("IsDir() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("IsDir() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -126,9 +126,6 @@ func TestExists(t *testing.T) {
 		}
 	}()
 
-	dPathFi, _ := os.Stat(dPath)
-	fPathFi, _ := os.Stat(fPath)
-
 	type args struct {
 		path string
 	}
@@ -136,25 +133,21 @@ func TestExists(t *testing.T) {
 		name    string
 		args    args
 		want    bool
-		want1   fs.FileInfo
 		wantErr bool
 	}{
-		{"A", args{dPath}, true, dPathFi, false},
-		{"B", args{fPath}, true, fPathFi, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, nil, false},
+		{"A", args{dPath}, true, false},
+		{"B", args{fPath}, true, false},
+		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, got1, err := Exists(tt.args.path)
+			got, err := Exists(tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Exists() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
 				t.Errorf("Exists() got = %v, want %v", got, tt.want)
-			}
-			if !reflect.DeepEqual(got1, tt.want1) {
-				t.Errorf("Exists() got1 = %v, want %v", got1, tt.want1)
 			}
 		})
 	}
@@ -178,7 +171,11 @@ func TestIsEmpty(t *testing.T) {
 
 	dPathNotEmpty := t.TempDir()
 	fPathNotEmpty := filepath.Join(dPathNotEmpty, "not-empty-file.txt")
-	os.WriteFile(fPathNotEmpty, []byte("not empty"), 0644)
+
+	err = os.WriteFile(fPathNotEmpty, []byte("not empty"), 0644)
+	if err != nil {
+		t.Error(err)
+	}
 
 	type args struct {
 		path string
@@ -193,7 +190,7 @@ func TestIsEmpty(t *testing.T) {
 		{"B", args{fPathEmpty}, true, false},
 		{"C", args{dPathNotEmpty}, false, false},
 		{"D", args{fPathNotEmpty}, false, false},
-		{"E", args{filepath.Join(t.TempDir(), "does-not-exist.txt")}, true, true},
+		{"E", args{filepath.Join(t.TempDir(), "does-not-exist.txt")}, false, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -212,18 +209,11 @@ func TestIsEmpty(t *testing.T) {
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
 
-	dPath := t.TempDir()
-	fPath := filepath.Join(dPath, "source.txt")
+	srcIsDir := "testdata"
+	srcIsFile := "testdata/f1.txt"
+	srcDoesNotExist := "does-not-exist"
 
-	f, err := os.Create(fPath)
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			t.Error(err)
-		}
-	}()
+	dst := filepath.Join(t.TempDir(), "destination.txt")
 
 	type args struct {
 		src string
@@ -235,8 +225,9 @@ func TestCopyFile(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"A", args{fPath, filepath.Join(dPath, "destination.txt")}, false},
-		{"B", args{dPath, filepath.Join(dPath, "destination.txt")}, true},
+		{"A", args{srcIsDir, dst}, true},
+		{"B", args{srcDoesNotExist, dst}, true},
+		{"C", args{srcIsFile, dst}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -245,4 +236,126 @@ func TestCopyFile(t *testing.T) {
 			}
 		})
 	}
+
+	// Test C generated a file; now compare content.
+	fi, err := os.Open(dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fi.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(fi)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "f1.txt"
+	got := strings.TrimSpace(buf.String())
+	if want != got {
+		t.Errorf("file content is incorrect: want %q got %q", want, got)
+	}
+}
+
+func TestCopyDirectoryContent(t *testing.T) {
+	t.Parallel()
+
+	srcIsDir := "testdata"
+	srcIsFile := "testdata/f1.txt"
+	srcDoesNotExist := "does-not-exist"
+
+	dst := t.TempDir()
+
+	type args struct {
+		src string
+		dst string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"A", args{srcDoesNotExist, dst}, true},
+		{"B", args{srcIsFile, dst}, true},
+		{"C", args{srcIsDir, dst}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := CopyDirectoryContent(tt.args.src, tt.args.dst); (err != nil) != tt.wantErr {
+				t.Errorf("CopyDirectoryContent() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+
+	// Test C copied a directory; now compare content. Expected:
+	//
+	// dst/
+	// ├── d1/
+	// │   ├── f3.txt  <-- example: content = "d1/f3.txt\n"
+	// │   └── f4.txt
+	// ├── f1.txt
+	// └── f2.txt
+
+	fi, err := os.Open(filepath.Join(dst, "d1", "f3.txt"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fi.Close()
+
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(fi)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want := "d1/f3.txt"
+	got := strings.TrimSpace(buf.String())
+	if want != got {
+		t.Errorf("file content is incorrect: want %q got %q", want, got)
+	}
+
+}
+
+func TestRemoveDirectoryContent(t *testing.T) {
+	t.Parallel()
+
+	doesNotExist := "does-not-exist"
+	isFile := "testdata/f1.txt"
+
+	// Create a directory and stuff it with content.
+	dir := t.TempDir()
+	err := CopyDirectoryContent("testdata", dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	type args struct {
+		dir string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{"A", args{doesNotExist}, true},
+		{"B", args{isFile}, true},
+		{"C", args{dir}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := RemoveDirectoryContent(tt.args.dir); (err != nil) != tt.wantErr {
+				t.Errorf("RemoveDirectoryContent() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+
+	// Test C cleared the directory; verify.
+	empty, err := IsEmpty(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !empty {
+		t.Error("the directory was not emptied")
+	}
+
 }

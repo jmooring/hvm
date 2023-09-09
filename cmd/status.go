@@ -114,7 +114,7 @@ func status() error {
 // getVersionFromHvmFile returns the semver string from the .hvm file in the
 // current directory, or an empty string if the file does not exist.
 func getVersionFromDotHvmFile(path string) (string, error) {
-	exists, _, err := helpers.Exists(path)
+	exists, err := helpers.Exists(path)
 	if err != nil {
 		return "", err
 	}
@@ -148,7 +148,7 @@ func getVersionFromDotHvmFile(path string) (string, error) {
 		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", dotFileName, theFix)
 	}
 
-	exists, _, err = helpers.Exists(dotHvmContent)
+	exists, err = helpers.Exists(dotHvmContent)
 	if err != nil {
 		return "", err
 	}

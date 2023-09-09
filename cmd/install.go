@@ -76,7 +76,7 @@ func install() error {
 		return nil // the user did not select a tag; do nothing
 	}
 
-	exists, _, err := helpers.Exists(filepath.Join(cacheDir, asset.tag))
+	exists, err := helpers.Exists(filepath.Join(cacheDir, asset.tag))
 	if err != nil {
 		return err
 	}

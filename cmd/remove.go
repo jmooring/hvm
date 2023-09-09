@@ -41,7 +41,7 @@ func init() {
 
 func remove() error {
 	defaultDirPath := filepath.Join(cacheDir, defaultDirName)
-	exists, _, err := helpers.Exists(defaultDirPath)
+	exists, err := helpers.Exists(defaultDirPath)
 	if err != nil {
 		return err
 	}
