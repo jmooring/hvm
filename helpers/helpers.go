@@ -13,6 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+
+// Package helpers implements utility routines for working with the filesystem.
 package helpers
 
 import (
@@ -26,7 +28,7 @@ import (
 	"strings"
 )
 
-// IsFile returns true if path is regular file, and returns an error if path
+// IsFile reports whether path is a regular file, returning an error if path
 // does not exist.
 func IsFile(path string) (bool, error) {
 	fi, err := os.Stat(path)
@@ -40,8 +42,8 @@ func IsFile(path string) (bool, error) {
 	return false, nil
 }
 
-// IsDir returns true if path is a directory, and returns an error if path
-// does not exist.
+// IsDir reports whether path is a directory, returning an error if path does
+// not exist.
 func IsDir(path string) (bool, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
@@ -54,7 +56,7 @@ func IsDir(path string) (bool, error) {
 	return false, nil
 }
 
-// Exists returns true if path exists, and false if it does not.
+// Exists reports whether path exists.
 func Exists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if errors.Is(err, fs.ErrNotExist) {
@@ -67,8 +69,8 @@ func Exists(path string) (bool, error) {
 	return true, nil
 }
 
-// IsEmpty returns true if the given file or directory is empty, and returns an
-// error if path does not exist.
+// IsEmpty reports if the given file or directory is empty, returning an error
+// if path does not exist.
 func IsEmpty(path string) (bool, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
@@ -92,8 +94,8 @@ func IsEmpty(path string) (bool, error) {
 	return fi.Size() == 0, nil
 }
 
-// CopyFile copies a file from the src path to the dst path, overwriting an
-// existing file if present.
+// CopyFile copies a file from src to dst, overwriting an existing file if
+// present. Returns an error if src does not exist, or if src is a directory.
 func CopyFile(src string, dst string) error {
 	fi, err := os.Stat(src)
 	if err != nil {
@@ -135,7 +137,8 @@ func CopyFile(src string, dst string) error {
 }
 
 // CopyDirectoryContent copies the content of the src directory to the dst
-// directory. Returns an error if the src directory does not exist.
+// directory. Returns an error if src does not exist, or if src is not a
+// directory.
 func CopyDirectoryContent(src string, dst string) error {
 	fi, err := os.Stat(src)
 	if err != nil {
