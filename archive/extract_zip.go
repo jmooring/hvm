@@ -17,10 +17,12 @@ package archive
 
 import (
 	"archive/zip"
+	"fmt"
 	"io"
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // extractZip extracts a zip file (src) to the dst directory.
@@ -32,6 +34,10 @@ func extractZip(src string, dst string) error {
 	defer zrc.Close()
 
 	for _, f := range zrc.File {
+		if strings.Contains(f.Name, "..") {
+			return fmt.Errorf("detected unsafe file in archive (zip slip)")
+		}
+
 		target := filepath.Join(dst, f.Name)
 
 		if f.FileInfo().IsDir() {
