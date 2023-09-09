@@ -65,16 +65,15 @@ func status() error {
 	}
 
 	// Get tags; ignore defaultDirName.
-	var tags []string
 	sd, err := os.ReadDir(cacheDir)
 	if err != nil {
 		return err
 	}
+
+	var tags []string
 	for _, d := range sd {
-		if d.IsDir() {
-			if d.Name() != defaultDirName {
-				tags = append(tags, d.Name())
-			}
+		if d.IsDir() && d.Name() != defaultDirName {
+			tags = append(tags, d.Name())
 		}
 	}
 
@@ -93,7 +92,10 @@ func status() error {
 
 	// Determine cache size; ignore file in defaultDirName.
 	var size int64
-	fs.WalkDir(os.DirFS(cacheDir), ".", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(os.DirFS(cacheDir), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 		if !d.IsDir() && !strings.HasPrefix(path, defaultDirName) {
 			fi, err := d.Info()
 			if err != nil {
@@ -104,6 +106,10 @@ func status() error {
 
 		return nil
 	})
+
+	if err != nil {
+		return err
+	}
 
 	fmt.Println("Cache size:", size/1000000, "MB")
 	fmt.Println("Cache directory:", cacheDir)

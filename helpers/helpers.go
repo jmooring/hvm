@@ -149,6 +149,9 @@ func CopyDirectoryContent(src string, dst string) error {
 	}
 
 	err = filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 		if path == src {
 			return nil
 		}
@@ -206,17 +209,16 @@ func RemoveDirectoryContent(dir string) error {
 		return fmt.Errorf("%s is not a directory", dir)
 	}
 
-	err = filepath.WalkDir(dir, func(path string, d fs.DirEntry, err error) error {
-		if path != dir {
-			err := os.RemoveAll(path)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-	})
+	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
+	}
+
+	for _, e := range entries {
+		err = os.RemoveAll(filepath.Join(dir, e.Name()))
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
