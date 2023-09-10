@@ -52,21 +52,17 @@ valid .hvm file exists in the current directory.
 ```zsh
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
+  hvm_common_msg="Run 'hvm use' to fix or 'hvm disable' to disable version management."
   if [ -f ".hvm" ]; then
     hugo_bin=$(cat ".hvm" 2> /dev/null)
-    if [ -z "$hugo_bin" ]; then
-      >&2 printf "The .hvm file in this directory is empty.\\n"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
-      return 1
-    fi
     if ! echo "${hugo_bin}" | grep -q "hugo$"; then
       >&2 printf "The .hvm file in this directory is invalid.\\n"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
+      >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
     if [ ! -f "${hugo_bin}" ]; then
       >&2 printf "Unable to find %s.\\n" "${hugo_bin}"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
+      >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
   else
@@ -84,21 +80,17 @@ hugo() {
 ```bash
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
+  hvm_common_msg="Run 'hvm use' to fix or 'hvm disable' to disable version management."
   if [ -f ".hvm" ]; then
     hugo_bin=$(cat ".hvm" 2> /dev/null)
-    if [ -z "$hugo_bin" ]; then
-      >&2 printf "The .hvm file in this directory is empty.\\n"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
-      return 1
-    fi
     if ! echo "${hugo_bin}" | grep -q "hugo$"; then
       >&2 printf "The .hvm file in this directory is invalid.\\n"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
+      >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
     if [ ! -f "${hugo_bin}" ]; then
       >&2 printf "Unable to find %s.\\n" "${hugo_bin}"
-      >&2 printf "Run 'hvm use' or remove the .hvm file from this directory.\\n"
+      >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
   else
