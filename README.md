@@ -5,11 +5,11 @@
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 
-Hugo Version Manager (hvm) allows you download multiple versions of the extended edition of the [Hugo] static site generator, and to specify which version to use in the current directory.
+Hugo Version Manager (hvm) allows you to download and manage multiple versions of the extended edition of the [Hugo] static site generator. You can use hvm to specify which version of Hugo to use in the current directory.
 
 ![Demonstration](demo/hvm.gif)
 
-If you do not specify a version to use in the current directory, the path to the hugo executable is determined by the `PATH` environment variable.
+If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the `PATH` environment variable.
 
 Supported operating systems:
 
@@ -21,15 +21,15 @@ Use hvm in your development environment if you need to frequently switch between
 
 ## How it works
 
-When you run `hvm use` it displays a list of recent Hugo releases, prompting you to select a version to use in the current directory. It then downloads, extracts, and caches the release asset for your operating system and architecture, writing an .hvm file in the current directory. The .hvm file contains the path to the cached hugo executable.
+When you run the `hvm use` command, it will display a list of recent Hugo releases. You can then select a version to use in the current directory. The hvm application will download, extract, and cache the release asset for your operating system and architecture. It will also create an `.hvm` file in the current directory. This file contains the path to the cached Hugo executable.
 
-In the second step of the [installation instructions] below, you will create an alias for the `hugo` command that obtains the path to the cached hugo executable from the .hvm file.
+In the second step of the installation instructions, you will create an alias for the `hugo` command. This alias will obtain the path to the cached Hugo executable from the `.hvm` file.
 
-To use a different version of Hugo in the same directory, run `hvm use` again. To use the Hugo executable in your system `PATH`, run `hvm disable`.
+To use a different version of Hugo in the same directory, run the `hvm use` command again. To use the Hugo executable in your system PATH, run the `hvm disable` command.
 
-Extracted release assets are cached. Run `hvm status` to display a list of cached assets, the size of the cache, and the cache location. Run `hvm clean` to clean the cache.
+The extracted release assets are cached. You can run the `hvm status` command to display a list of cached assets, the size of the cache, and the cache location. You can also run the `hvm clean` command to clean the cache.
 
-The `hvm install` command installs a default version to use when version management is disabled in the current directory. You can use hvm as an installer, even if you skip the second step of the installation instructions below.
+The `hvm install` command installs a default version to use when version management is disabled in the current directory. You can use hvm as an installer, even if you skip the second step of the installation instructions.
 
 ## Installation
 
@@ -44,7 +44,7 @@ go install github.com/jmooring/hvm@latest
 ### Step 2 - Create an alias
 
 Create an alias for the `hugo` command that overrides the executable path if a
-valid .hvm file exists in the current directory.
+valid `.hvm` file exists in the current directory.
 
 <details>
 <summary>Darwin: add this function to $HOME/.zshrc</summary>
@@ -138,16 +138,16 @@ Use "hvm [command] --help" for more information about a command.
 
 ## Configuration
 
-By default, `hvm use` and `hvm install` display the 30 most recent releases. To change the number of releases displayed:
+By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To change the number of releases displayed, you can do one of the following:
 
-- Set `numtagstodisplay` in the configuration file (run `hvm config` to display the path)
+- Set the `numtagstodisplay` option in the hvm configuration file. You can find the path to the configuration file by running the `hvm config` command.
 - Set the `HVM_NUMTAGSTODISPLAY` environment variable
 
-Display all releases since v0.54.0 by setting this value to `-1`. Releases before v0.54.0 were not semantically versioned.
+To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned.
 
 ## Rate limiting
 
-GitHub imposes a rate limit on all API clients, limiting unauthenticated clients to 60 requests per hour. If you exceed the limit, hvm displays a message indicating when the limit will be reset, typically within minutes.
+GitHub limits the number of requests that can be made to its API per hour. Unauthenticated clients are limited to 60 requests per hour. If you exceed this limit, hvm will display a message indicating when the limit will be reset. This is typically within minutes.
 
 [go]: https://go.dev/doc/install
 [hugo]: https://github.com/gohugoio/hugo/#readme
