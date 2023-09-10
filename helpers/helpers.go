@@ -156,37 +156,47 @@ func CopyDirectoryContent(src string, dst string) error {
 			return nil
 		}
 
-		segments := strings.Split(path, string(os.PathSeparator))
-		target := filepath.Join(dst, filepath.Join(segments[1:]...))
-
-		if d.IsDir() {
-			err := os.MkdirAll(target, 0777)
-			if err != nil {
-				return err
-			}
-			return nil
-		}
-
-		src, err := os.Open(path)
+		target := filepath.Join(dst, strings.TrimPrefix(path, src))
+		err = os.MkdirAll(filepath.Dir(target), 0777)
 		if err != nil {
 			return err
 		}
-		defer src.Close()
 
-		dst, err := os.Create(target)
+		if d.IsDir() {
+			return nil
+		}
+
+		source, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer source.Close()
+
+		destination, err := os.Create(target)
 		if err != nil {
 			return err
 		}
 		defer func() {
-			if err := dst.Close(); err != nil {
+			if err := destination.Close(); err != nil {
 				log.Fatal(err)
 			}
 		}()
 
-		_, err = io.Copy(dst, src)
+		_, err = io.Copy(destination, source)
 		if err != nil {
 			return err
 		}
+
+		fi, err := d.Info()
+		if err != nil {
+			return err
+		}
+		srcPerm := fi.Mode().Perm()
+		err = destination.Chmod(srcPerm)
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
