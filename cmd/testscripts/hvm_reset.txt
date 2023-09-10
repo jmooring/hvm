@@ -7,19 +7,20 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
+[darwin] skip
+[windows] skip
+
+
 # Test
 stdin input.txt
-exec hvm clean
-stdout 'This will delete cached versions of the Hugo executable.\n'
-stdout 'Are you sure you want to clean the cache\? \(y/N\): '
-stdout 'Cache cleaned.'
+exec hvm reset
+! exists cache/v0.118.0/hugo
+! exists config/hvm/config.toml
 
 # Files
 -- input.txt --
 y
--- home/Library/Caches/hvm/v0.117.0/hugo --
-darwin-exec-bytes
--- cache/hvm/v0.117.0/hugo --
+-- cache/hvm/v0.118.0/hugo --
 linux-exec-bytes
--- cache/hvm/v0.117.0/hugo.exe --
-windows-exec-bytes
+-- config/hvm/config.toml --
+numtagstodisplay = 42
