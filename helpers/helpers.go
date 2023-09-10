@@ -23,6 +23,7 @@ import (
 	"io"
 	"io/fs"
 	"log"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -232,4 +233,56 @@ func RemoveDirectoryContent(dir string) error {
 	}
 
 	return nil
+}
+
+// IsInt reports whether i is an integer.
+func IsInt(i any) bool {
+	if i == nil {
+		return false
+	}
+	var v float64
+
+	switch s := i.(type) {
+	case int:
+		return true
+	case int64:
+		return true
+	case int32:
+		return true
+	case int16:
+		return true
+	case int8:
+		return true
+	case uint:
+		return true
+	case uint64:
+		return true
+	case uint32:
+		return true
+	case uint16:
+		return true
+	case uint8:
+		return true
+	case float32:
+		v = float64(s)
+	case float64:
+		v = s
+	default:
+		return false
+	}
+
+	if v == 0 || math.Mod(v, 1) == 0 {
+		return true
+	}
+
+	return false
+}
+
+// IsString reports whether i is a string.
+func IsString(i any) bool {
+	if _, ok := i.(string); ok {
+		return true
+	}
+	return false
+
 }

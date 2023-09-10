@@ -48,9 +48,9 @@ func TestIsFile(t *testing.T) {
 		want    bool
 		wantErr bool
 	}{
-		{"A", args{dPath}, false, false},
-		{"B", args{fPath}, true, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
+		{"a", args{dPath}, false, false},
+		{"b", args{fPath}, true, false},
+		{"c", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -91,9 +91,9 @@ func TestIsDir(t *testing.T) {
 		want    bool
 		wantErr bool
 	}{
-		{"A", args{dPath}, true, false},
-		{"B", args{fPath}, false, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
+		{"a", args{dPath}, true, false},
+		{"b", args{fPath}, false, false},
+		{"c", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
 	}
 
 	for _, tt := range tests {
@@ -135,9 +135,9 @@ func TestExists(t *testing.T) {
 		want    bool
 		wantErr bool
 	}{
-		{"A", args{dPath}, true, false},
-		{"B", args{fPath}, true, false},
-		{"C", args{filepath.Join(dPath, "does-not-exist.txt")}, false, false},
+		{"a", args{dPath}, true, false},
+		{"b", args{fPath}, true, false},
+		{"c", args{filepath.Join(dPath, "does-not-exist.txt")}, false, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -186,11 +186,11 @@ func TestIsEmpty(t *testing.T) {
 		want    bool
 		wantErr bool
 	}{
-		{"A", args{dPathEmpty}, true, false},
-		{"B", args{fPathEmpty}, true, false},
-		{"C", args{dPathNotEmpty}, false, false},
-		{"D", args{fPathNotEmpty}, false, false},
-		{"E", args{filepath.Join(t.TempDir(), "does-not-exist.txt")}, false, true},
+		{"a", args{dPathEmpty}, true, false},
+		{"b", args{fPathEmpty}, true, false},
+		{"c", args{dPathNotEmpty}, false, false},
+		{"d", args{fPathNotEmpty}, false, false},
+		{"e", args{filepath.Join(t.TempDir(), "does-not-exist.txt")}, false, true},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -225,9 +225,9 @@ func TestCopyFile(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"A", args{srcIsDir, dst}, true},
-		{"B", args{srcDoesNotExist, dst}, true},
-		{"C", args{srcIsFile, dst}, false},
+		{"a", args{srcIsDir, dst}, true},
+		{"b", args{srcDoesNotExist, dst}, true},
+		{"c", args{srcIsFile, dst}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -275,9 +275,9 @@ func TestCopyDirectoryContent(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"A", args{srcDoesNotExist, dst}, true},
-		{"B", args{srcIsFile, dst}, true},
-		{"C", args{srcIsDir, dst}, false},
+		{"a", args{srcDoesNotExist, dst}, true},
+		{"b", args{srcIsFile, dst}, true},
+		{"c", args{srcIsDir, dst}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -337,9 +337,9 @@ func TestRemoveDirectoryContent(t *testing.T) {
 		args    args
 		wantErr bool
 	}{
-		{"A", args{doesNotExist}, true},
-		{"B", args{isFile}, true},
-		{"C", args{dir}, false},
+		{"a", args{doesNotExist}, true},
+		{"b", args{isFile}, true},
+		{"c", args{dir}, false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -356,5 +356,66 @@ func TestRemoveDirectoryContent(t *testing.T) {
 	}
 	if !empty {
 		t.Error("the directory was not emptied")
+	}
+}
+
+func TestIsString(t *testing.T) {
+	type args struct {
+		i any
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"a", args{nil}, false},
+		{"b", args{true}, false},
+		{"c", args{false}, false},
+		{"d", args{""}, true},
+		{"e", args{"a"}, true},
+		{"f", args{"1"}, true},
+		{"g", args{1}, false},
+		{"h", args{0}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsString(tt.args.i); got != tt.want {
+				t.Errorf("IsString() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestIsInt(t *testing.T) {
+	type args struct {
+		i any
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{"a", args{nil}, false},
+		{"b", args{true}, false},
+		{"c", args{false}, false},
+		{"d", args{""}, false},
+		{"e", args{"a"}, false},
+		{"f", args{"1"}, false},
+		{"g", args{1}, true},
+		{"h", args{0}, true},
+		{"i", args{-1}, true},
+		{"j", args{1.0}, true},
+		{"k", args{0.0}, true},
+		{"l", args{-1.0}, true},
+		{"m", args{1.234}, false},
+		{"n", args{-1.234}, false},
+		{"o", args{30.2}, false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsInt(tt.args.i); got != tt.want {
+				t.Errorf("IsInt() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
