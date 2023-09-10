@@ -63,27 +63,21 @@ type repository struct {
 
 // An asset is a GitHub asset for a given release, operating system, and architecture.
 type asset struct {
-	arch        string // client architecture: amd64, arm64, etc.
-	archiveExt  string // extension of the downloaded asset archive: tar.gz or zip
-	archivePath string // path to the downloaded asset archive
-	os          string // client operating system: linux, darwin, windows, etc.
-	tag         string // the user-selected tag associated with the release for this asset
-	url         string // download URL for this asset
+	arch            string // client architecture: amd64, arm64, etc.
+	archiveDirPath  string // directory path of the downloaded archive
+	archiveExt      string // extension of the downloaded archive: tar.gz or zip
+	archiveFilePath string // file path of the downloaded archive
+	archiveURL      string // download URL for this asset
+	os              string // client operating system: linux, darwin, windows, etc.
+	tag             string // the user-selected tag associated with the release for this asset
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
 func use() error {
-	repo, err := newRepository("gohugoio", "hugo")
-	if err != nil {
-		return err
-	}
+	repo := newRepository("gohugoio", "hugo")
+	asset := newAsset(runtime.GOOS, runtime.GOARCH)
 
-	asset, err := newAsset(runtime.GOOS, runtime.GOARCH)
-	if err != nil {
-		return err
-	}
-
-	err = asset.fetchTags(repo)
+	err := asset.fetchTags(repo)
 	if err != nil {
 		return err
 	}
@@ -110,12 +104,28 @@ func use() error {
 			return err
 		}
 
+		asset.archiveDirPath, err = os.MkdirTemp("", "")
+		if err != nil {
+			return err
+		}
+		defer func() {
+			err := os.RemoveAll(asset.archiveDirPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}()
+
 		err = asset.downloadAsset()
 		if err != nil {
 			return err
 		}
 
-		err = archive.Extract(asset.archivePath, filepath.Dir(asset.archivePath), true)
+		err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
+		if err != nil {
+			return err
+		}
+
+		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(cacheDir, asset.tag))
 		if err != nil {
 			return err
 		}
@@ -130,24 +140,24 @@ func use() error {
 }
 
 // newRepository creates a new repository object, returning a pointer to same.
-func newRepository(owner string, name string) (*repository, error) {
+func newRepository(owner string, name string) *repository {
 	r := repository{
 		owner:  owner,
 		name:   name,
 		client: github.NewClient(nil),
 	}
 
-	return &r, nil
+	return &r
 }
 
 // newAsset creates a new asset object, returning a pointer to same.
-func newAsset(os string, arch string) (*asset, error) {
+func newAsset(os string, arch string) *asset {
 	a := asset{
 		os:   os,
 		arch: arch,
 	}
 
-	return &a, nil
+	return &a
 }
 
 // fetchTags fetches tags associated with recent releases.
@@ -283,13 +293,13 @@ func (a *asset) fetchURL(r *repository) error {
 	}
 
 	for _, asset := range release.Assets {
-		downloadURL := asset.GetBrowserDownloadURL()
-		if regexp.MatchString(downloadURL) {
-			a.url = downloadURL
+		archiveURL := asset.GetBrowserDownloadURL()
+		if regexp.MatchString(archiveURL) {
+			a.archiveURL = archiveURL
 			switch {
-			case strings.HasSuffix(a.url, ".tar.gz"):
+			case strings.HasSuffix(a.archiveURL, ".tar.gz"):
 				a.archiveExt = "tar.gz"
-			case strings.HasSuffix(a.url, ".zip"):
+			case strings.HasSuffix(a.archiveURL, ".zip"):
 				a.archiveExt = "zip"
 			default:
 				return fmt.Errorf("unable to determine archive extension")
@@ -301,16 +311,11 @@ func (a *asset) fetchURL(r *repository) error {
 	return fmt.Errorf("unable to find download for %s %s/%s", a.tag, a.os, a.arch)
 }
 
+// downloadAsset downloads the release asset.
 func (a *asset) downloadAsset() error {
-	// Create the download directory.
-	err := os.MkdirAll(filepath.Join(cacheDir, a.tag), 0777)
-	if err != nil {
-		return err
-	}
-
 	// Create the file.
-	a.archivePath = filepath.Join(cacheDir, a.tag, "hugo."+a.archiveExt)
-	out, err := os.Create(a.archivePath)
+	a.archiveFilePath = filepath.Join(a.archiveDirPath, "hugo."+a.archiveExt)
+	out, err := os.Create(a.archiveFilePath)
 	if err != nil {
 		return err
 	}
@@ -321,7 +326,7 @@ func (a *asset) downloadAsset() error {
 	}()
 
 	// Get the data.
-	resp, err := http.Get(a.url)
+	resp, err := http.Get(a.archiveURL)
 	if err != nil {
 		return err
 	}
