@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -52,17 +53,10 @@ func init() {
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
 func install() error {
-	repo, err := newRepository("gohugoio", "hugo")
-	if err != nil {
-		return err
-	}
+	repo := newRepository("gohugoio", "hugo")
+	asset := newAsset(runtime.GOOS, runtime.GOARCH)
 
-	asset, err := newAsset(runtime.GOOS, runtime.GOARCH)
-	if err != nil {
-		return err
-	}
-
-	err = asset.fetchTags(repo)
+	err := asset.fetchTags(repo)
 	if err != nil {
 		return err
 	}
@@ -87,12 +81,28 @@ func install() error {
 			return err
 		}
 
+		asset.archiveDirPath, err = os.MkdirTemp("", "")
+		if err != nil {
+			return err
+		}
+		defer func() {
+			err := os.RemoveAll(asset.archiveDirPath)
+			if err != nil {
+				log.Fatal(err)
+			}
+		}()
+
 		err = asset.downloadAsset()
 		if err != nil {
 			return err
 		}
 
-		err = archive.Extract(asset.archivePath, filepath.Dir(asset.archivePath), true)
+		err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
+		if err != nil {
+			return err
+		}
+
+		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(cacheDir, asset.tag))
 		if err != nil {
 			return err
 		}
