@@ -52,12 +52,12 @@ const (
 var rootCmd = &cobra.Command{
 	Use:   appName,
 	Short: "Hugo Version Manager",
-	Long: `Hugo Version Manager (` + appName + `) allows you to download multiple versions of the
-extended edition of the Hugo static site generator, and to specify which
-version to use in the current directory.
+	Long: `Hugo Version Manager (` + appName + `) allows you to download and manage multiple versions
+of the extended edition of the Hugo static site generator. You can use hvm to
+specify which version of Hugo to use in the current directory.
 
-If you do not specify a version to use in the current directory, the path to
-the hugo executable is determined by the PATH environment variable.
+If you do not specify a version of Hugo to use in the current directory, the
+Hugo executable will be found by searching the PATH environment variable.
 `,
 	Version: versionString,
 }
