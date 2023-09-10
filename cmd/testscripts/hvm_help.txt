@@ -9,4 +9,4 @@
 
 # Test
 exec hvm help
-stdout 'Hugo Version Manager \(hvm\) allows you to download multiple versions of the\n'
+stdout 'Hugo Version Manager \(hvm\) allows you to download and manage multiple versions\n'
