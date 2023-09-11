@@ -9,6 +9,6 @@
 
 # Test
 exec hvm config
-stdout '# The number of tags to display with the "use" and "install" commands.\n'
-stdout 'numtagstodisplay = 30\n'
+stdout '# Number of tags to display with the "use" and "install" commands\n'
+stdout 'numTagsToDisplay = 30\n'
 stdout 'Configuration file: '

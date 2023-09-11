@@ -22,14 +22,15 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 
+	"github.com/jmooring/hvm/helpers"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
 type config struct {
-	NumTagsToDisplay int `toml:"numtagstodisplay" comment:"The number of tags to display with the \"use\" and \"install\" commands."`
+	GithubToken      string `toml:"githubToken,omitempty" comment:"GitHub personal access token"`
+	NumTagsToDisplay int    `toml:"numTagsToDisplay" comment:"Number of tags to display with the \"use\" and \"install\" commands"`
 }
 
 var Config config
@@ -83,6 +84,7 @@ func init() {
 func initConfig() {
 	// Set default values.
 	viper.SetDefault("numTagsToDisplay", 30)
+	viper.SetDefault("githubToken", "")
 
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()
@@ -113,10 +115,13 @@ func initConfig() {
 
 	// Validate config values.
 	k := "numTagsToDisplay"
-	vs := viper.GetString(k)
-	vi := viper.GetInt(k)
-	if _, err = strconv.Atoi(vs); err != nil || vi == 0 {
+	if viper.GetInt(k) == 0 {
 		err = fmt.Errorf("configuration: %s must be a non-zero integer: see %s", k, viper.ConfigFileUsed())
+		cobra.CheckErr(err)
+	}
+	k = "githubToken"
+	if !helpers.IsString(viper.Get(k)) {
+		err = fmt.Errorf("configuration: %s must be a string: see %s", k, viper.ConfigFileUsed())
 		cobra.CheckErr(err)
 	}
 

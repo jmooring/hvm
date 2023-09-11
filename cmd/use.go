@@ -33,6 +33,7 @@ import (
 	"github.com/jmooring/hvm/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
+	"golang.org/x/oauth2"
 )
 
 // useCmd represents the use command
@@ -141,10 +142,24 @@ func use() error {
 
 // newRepository creates a new repository object, returning a pointer to same.
 func newRepository(owner string, name string) *repository {
+	var client *github.Client
+
+	if Config.GithubToken == "" {
+		client = github.NewClient(nil)
+	} else {
+		ctx := context.Background()
+		ts := oauth2.StaticTokenSource(
+			&oauth2.Token{AccessToken: Config.GithubToken},
+		)
+		tc := oauth2.NewClient(ctx, ts)
+
+		client = github.NewClient(tc)
+	}
+
 	r := repository{
 		owner:  owner,
 		name:   name,
-		client: github.NewClient(nil),
+		client: client,
 	}
 
 	return &r

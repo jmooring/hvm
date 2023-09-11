@@ -7,19 +7,14 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-[darwin] skip
-[windows] skip
-
 # Test
-stdin input.txt
-exec hvm reset
-! exists cache/v0.118.0/hugo
-! exists config/hvm/config.toml
+! exec hvm config
+stderr 'Error: configuration: numTagsToDisplay must be a non-zero integer'
 
-# Files
--- input.txt --
-y
--- cache/hvm/v0.118.0/hugo --
-linux-exec-bytes
+# Files for darwin
+-- home/Library/Application Support/hvm/config.toml --
+numtagstodisplay = "x"
+
+# Files for linux and windows
 -- config/hvm/config.toml --
-numtagstodisplay = 42
+numtagstodisplay = "x"

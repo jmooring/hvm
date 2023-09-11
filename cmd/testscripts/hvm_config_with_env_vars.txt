@@ -7,19 +7,13 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-[darwin] skip
-[windows] skip
+env HVM_NUMTAGSTODISPLAY=42
+env HVM_GITHUBTOKEN=my-token
 
 # Test
-stdin input.txt
-exec hvm reset
-! exists cache/v0.118.0/hugo
-! exists config/hvm/config.toml
-
-# Files
--- input.txt --
-y
--- cache/hvm/v0.118.0/hugo --
-linux-exec-bytes
--- config/hvm/config.toml --
-numtagstodisplay = 42
+exec hvm config
+stdout '# GitHub personal access token\n'
+stdout 'githubToken = ''my-token''\n'
+stdout '# Number of tags to display with the "use" and "install" commands\n'
+stdout 'numTagsToDisplay = 42\n'
+stdout 'Configuration file: '
