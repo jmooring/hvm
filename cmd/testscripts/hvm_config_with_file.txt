@@ -9,14 +9,18 @@
 
 # Test
 exec hvm config
-stdout '# The number of tags to display with the "use" and "install" commands.\n'
-stdout 'numtagstodisplay = 42\n'
+stdout '# GitHub personal access token\n'
+stdout 'githubToken = ''my-token''\n'
+stdout '# Number of tags to display with the "use" and "install" commands\n'
+stdout 'numTagsToDisplay = 42\n'
 stdout 'Configuration file: '
 
 # Files for darwin
 -- home/Library/Application Support/hvm/config.toml --
+githubtoken = "my-token"
 numtagstodisplay = 42
 
 # Files for linux and windows
 -- config/hvm/config.toml --
+githubtoken = "my-token"
 numtagstodisplay = 42

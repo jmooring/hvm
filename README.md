@@ -138,16 +138,25 @@ Use "hvm [command] --help" for more information about a command.
 
 ## Configuration
 
+### Number of releases to display
+
 By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To change the number of releases displayed, you can do one of the following:
 
 - Set the `numtagstodisplay` option in the hvm configuration file. You can find the path to the configuration file by running the `hvm config` command.
-- Set the `HVM_NUMTAGSTODISPLAY` environment variable
+- Set the `HVM_NUMTAGSTODISPLAY` environment variable.
 
 To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned.
 
-## Rate limiting
+### GitHub personal access token
 
-GitHub limits the number of requests that can be made to its API per hour. Unauthenticated clients are limited to 60 requests per hour. If you exceed this limit, hvm will display a message indicating when the limit will be reset. This is typically within minutes.
+GitHub limits the number of requests that can be made to its API per hour to 60 for unauthenticated clients. If you exceed this limit, hvm will display a message indicating when the limit will be reset. This is typically within minutes.
+
+If you regularly exceed this limit, you can create a GitHub personal access token with read-only public repository access. Then, you can do either of the following:
+
+- Set the `githubtoken` option in the hvm configuration file. You can find the path to the configuration file by running the hvm config command.
+- Set the `HVM_GITHUBTOKEN` environment variable.
+
+With a personal access token, GitHub limits API requests to 5,000 per hour.
 
 [go]: https://go.dev/doc/install
 [hugo]: https://github.com/gohugoio/hugo/#readme
