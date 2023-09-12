@@ -47,12 +47,14 @@ Create an alias for the `hugo` command that overrides the executable path if a
 valid `.hvm` file exists in the current directory.
 
 <details>
-<summary>Darwin: add this function to $HOME/.zshrc</summary>
+<summary>Darwin</summary>
+Add this function to $HOME/.zshrc
 
 ```zsh
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
   hvm_common_msg="Run 'hvm use' to fix or 'hvm disable' to disable version management."
+  hvm_show_status=true
   if [ -f ".hvm" ]; then
     hugo_bin=$(cat ".hvm" 2> /dev/null)
     if ! echo "${hugo_bin}" | grep -q "hugo$"; then
@@ -65,6 +67,10 @@ hugo() {
       >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
+    if [ "${hvm_show_status}" == true ]; then
+      >&2 printf "Hugo version management is enabled in this directory.\\n"
+      >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
+    fi
   else
     hugo_bin=$(which hugo)
   fi
@@ -75,12 +81,14 @@ hugo() {
 </details>
 
 <details>
-<summary>Linux: add this function to $HOME/.bashrc</summary>
+<summary>Linux</summary>
+Add this function to $HOME/.bashrc
 
 ```bash
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
   hvm_common_msg="Run 'hvm use' to fix or 'hvm disable' to disable version management."
+  hvm_show_status=true
   if [ -f ".hvm" ]; then
     hugo_bin=$(cat ".hvm" 2> /dev/null)
     if ! echo "${hugo_bin}" | grep -q "hugo$"; then
@@ -93,6 +101,10 @@ hugo() {
       >&2 printf "%s\\n" "${hvm_common_msg}"
       return 1
     fi
+    if [ "${hvm_show_status}" == true ]; then
+      >&2 printf "Hugo version management is enabled in this directory.\\n"
+      >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
+    fi
   else
     hugo_bin=$(which hugo)
   fi
@@ -103,11 +115,9 @@ hugo() {
 </details>
 
 <details>
-<summary>Windows: place this batch file in your PATH</summary>
+<summary>Windows</summary>
 
-```bash
 TBD
-```
 
 </details>
 
