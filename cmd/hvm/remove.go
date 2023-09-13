@@ -17,20 +17,42 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display the " + appName + " version",
-	Long:  "Displays the " + appName + " version",
+// removeCmd represents the remove command
+var removeCmd = &cobra.Command{
+	Use:     "remove",
+	Aliases: []string{"uninstall"},
+	Short:   "Remove the default version",
+	Long:    "Removes the default version used when version management is disabled.",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(versionString)
+		err := remove()
+		cobra.CheckErr(err)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(removeCmd)
+}
+
+func remove() error {
+	exists, err := helpers.Exists(App.DefaultDirPath)
+	if err != nil {
+		return err
+	}
+	if exists {
+		err = os.RemoveAll(App.DefaultDirPath)
+		if err != nil {
+			return err
+		}
+		fmt.Println("Default version removed.")
+	} else {
+		fmt.Println("Nothing to remove.")
+	}
+
+	return nil
 }

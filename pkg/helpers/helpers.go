@@ -237,9 +237,6 @@ func RemoveDirectoryContent(dir string) error {
 
 // IsInt reports whether i is an integer.
 func IsInt(i any) bool {
-	if i == nil {
-		return false
-	}
 	var v float64
 
 	switch s := i.(type) {
@@ -283,6 +280,6 @@ func IsString(i any) bool {
 	if _, ok := i.(string); ok {
 		return true
 	}
-	return false
 
+	return false
 }

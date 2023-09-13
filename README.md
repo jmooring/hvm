@@ -7,7 +7,7 @@
 
 Hugo Version Manager (hvm) allows you to download and manage multiple versions of the extended edition of the [Hugo] static site generator. You can use hvm to specify which version of Hugo to use in the current directory.
 
-![Demonstration](demo/hvm.gif)
+![Demonstration](assets/hvm.gif)
 
 If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the `PATH` environment variable.
 

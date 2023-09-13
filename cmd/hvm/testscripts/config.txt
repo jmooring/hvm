@@ -7,14 +7,7 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# https://github.com/actions/runner-images/issues/602
-[darwin] skip
-
 # Test
-stdin input.txt
-exec hvm install
-stdout 'Downloading v.*\.\.\. done.\n'
-
-# Files
--- input.txt --
-30
+exec hvm config
+stdout 'NumTagsToDisplay = 30\n'
+stdout 'Configuration file: '

@@ -20,11 +20,10 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"slices"
 
-	"github.com/jmooring/hvm/archive"
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/archive"
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 )
 
@@ -53,16 +52,11 @@ func init() {
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
 func install() error {
-	repo := newRepository("gohugoio", "hugo")
-	asset := newAsset(runtime.GOOS, runtime.GOARCH)
-
-	err := asset.fetchTags(repo)
-	if err != nil {
-		return err
-	}
+	repo := newRepository()
+	asset := newAsset()
 
 	msg := "Select a version to use when version management is disabled"
-	err = asset.selectTag(repo, msg)
+	err := repo.selectTag(asset, msg)
 	if err != nil {
 		return err
 	}
@@ -70,13 +64,13 @@ func install() error {
 		return nil // the user did not select a tag; do nothing
 	}
 
-	exists, err := helpers.Exists(filepath.Join(cacheDir, asset.tag))
+	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
 	if err != nil {
 		return err
 	}
 
 	if !exists {
-		err = asset.fetchURL(repo)
+		err = repo.fetchURL(asset)
 		if err != nil {
 			return err
 		}
@@ -102,24 +96,23 @@ func install() error {
 			return err
 		}
 
-		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(cacheDir, asset.tag))
+		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
 		if err != nil {
 			return err
 		}
 	}
 
-	err = helpers.CopyFile(asset.getExecPath(), filepath.Join(cacheDir, defaultDirName, asset.getExecName()))
+	err = helpers.CopyFile(asset.getExecPath(), filepath.Join(App.CacheDirPath, App.DefaultDirName, asset.execName))
 	if err != nil {
 		return err
 	}
 
 	fmt.Println("Installation of", asset.tag, "complete.")
 
-	defaultDirPath := filepath.Join(cacheDir, defaultDirName)
-	if !slices.Contains(filepath.SplitList(os.Getenv("PATH")), defaultDirPath) {
+	if !slices.Contains(filepath.SplitList(os.Getenv("PATH")), App.DefaultDirPath) {
 		fmt.Println()
-		fmt.Printf("Please add %s to the PATH environment\n", defaultDirPath)
-		fmt.Println("variable. Open a new terminal after making the change.")
+		fmt.Printf("Please add %s to the PATH environment variable.\n", App.DefaultDirPath)
+		fmt.Println("Open a new terminal after making the change.")
 
 	}
 

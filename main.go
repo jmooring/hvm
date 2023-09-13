@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"github.com/jmooring/hvm/cmd"
+	cmd "github.com/jmooring/hvm/cmd/hvm"
 )
 
 func main() {

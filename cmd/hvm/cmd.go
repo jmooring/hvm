@@ -22,44 +22,59 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
 
-type config struct {
-	GithubToken      string `toml:"githubToken,omitempty" comment:"GitHub personal access token"`
-	NumTagsToDisplay int    `toml:"numTagsToDisplay" comment:"Number of tags to display with the \"use\" and \"install\" commands"`
+// An application contains details about the application. Some are constants, while
+// others depend on the user environment.
+type application struct {
+	CacheDirPath    string // path to the application cache directory
+	ConfigFilePath  string // path to the application configuration
+	DefaultDirName  string // name of the "default" directory within the application cache directory
+	DefaultDirPath  string // path to the "default" directory within the application cache directory
+	DotFileName     string // name of the dot file written to the current directory (e.g., .hvm)
+	Name            string // name of the application
+	RepositoryName  string // name of the GitHub repository without the .git extension
+	RepositoryOwner string // account owner of the GitHub repository
 }
 
-var Config config
+// A configuration contains the current configuration parameters from environment
+// variables, the configuration file, or default values, in that order.
+type configuration struct {
+	GithubToken      string // a GitHub personal access token
+	NumTagsToDisplay int    // number of tags to display when using the "use" and "install" commands
+}
+
+var App application = application{
+	DefaultDirName:  "default",
+	DotFileName:     ".hvm",
+	Name:            "hvm",
+	RepositoryName:  "hugo",
+	RepositoryOwner: "gohugoio",
+}
+var Config configuration
 
 var (
-	cacheDir      string
-	buildDate     string
+	buildDate     string = runtime.GOOS
 	commitHash    string
 	version       string = "dev"
-	versionString string = fmt.Sprintf("%s %s %s/%s %s %s", appName, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
-)
-
-const (
-	appName        string = "hvm"
-	dotFileName    string = ".hvm"
-	defaultDirName string = "default"
+	versionString string = fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   appName,
+	Use:   App.Name,
 	Short: "Hugo Version Manager",
-	Long: `Hugo Version Manager (` + appName + `) allows you to download and manage multiple versions
+	Long: `Hugo Version Manager (` + App.Name + `) allows you to download and manage multiple versions
 of the extended edition of the Hugo static site generator. You can use hvm to
 specify which version of Hugo to use in the current directory.
 
 If you do not specify a version of Hugo to use in the current directory, the
-Hugo executable will be found by searching the PATH environment variable.
-`,
+Hugo executable will be found by searching the PATH environment variable.`,
 	Version: versionString,
 }
 
@@ -73,10 +88,10 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig, initCache)
+	cobra.OnInitialize(initConfig, initApp)
 
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display help")
-	rootCmd.PersistentFlags().BoolP("version", "v", false, "Display the "+appName+" version")
+	rootCmd.PersistentFlags().BoolP("version", "v", false, "Display the "+App.Name+" version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf("%s\n", versionString))
 }
 
@@ -89,11 +104,11 @@ func initConfig() {
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()
 	cobra.CheckErr(err)
-	err = os.MkdirAll(filepath.Join(userConfigDir, appName), 0777)
+	err = os.MkdirAll(filepath.Join(userConfigDir, App.Name), 0777)
 	cobra.CheckErr(err)
 
 	// Define config file.
-	viper.AddConfigPath(filepath.Join(userConfigDir, appName))
+	viper.AddConfigPath(filepath.Join(userConfigDir, App.Name))
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 
@@ -110,18 +125,18 @@ func initConfig() {
 	}
 
 	// Get config values from env vars.
-	viper.SetEnvPrefix("HVM")
+	viper.SetEnvPrefix(strings.ToUpper(App.Name))
 	viper.AutomaticEnv()
 
 	// Validate config values.
 	k := "numTagsToDisplay"
 	if viper.GetInt(k) == 0 {
-		err = fmt.Errorf("configuration: %s must be a non-zero integer: see %s", k, viper.ConfigFileUsed())
+		err = fmt.Errorf("configuration: %s must be a non-zero integer: see %s", k, App.ConfigFilePath)
 		cobra.CheckErr(err)
 	}
 	k = "githubToken"
 	if !helpers.IsString(viper.Get(k)) {
-		err = fmt.Errorf("configuration: %s must be a string: see %s", k, viper.ConfigFileUsed())
+		err = fmt.Errorf("configuration: %s must be a string: see %s", k, App.ConfigFilePath)
 		cobra.CheckErr(err)
 	}
 
@@ -130,11 +145,16 @@ func initConfig() {
 	cobra.CheckErr(err)
 }
 
-// initCache creates the cache directory.
-func initCache() {
+// initApp initializes the application and creates the application cache
+// directory.
+func initApp() {
 	userCacheDir, err := os.UserCacheDir()
 	cobra.CheckErr(err)
-	cacheDir = filepath.Join(userCacheDir, appName)
-	err = os.MkdirAll(cacheDir, 0777)
+
+	App.CacheDirPath = filepath.Join(userCacheDir, App.Name)
+	App.ConfigFilePath = viper.ConfigFileUsed()
+	App.DefaultDirPath = filepath.Join(userCacheDir, App.Name, App.DefaultDirName)
+
+	err = os.MkdirAll(App.CacheDirPath, 0777)
 	cobra.CheckErr(err)
 }

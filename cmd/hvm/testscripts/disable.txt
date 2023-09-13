@@ -8,7 +8,14 @@
 [windows] env AppData=config
 
 # Test
-exec hvm config
-stdout '# Number of tags to display with the "use" and "install" commands\n'
-stdout 'numTagsToDisplay = 30\n'
-stdout 'Configuration file: '
+stdin input.txt
+exec hvm use
+exec hvm status
+stdout 'The current directory is configured to use Hugo'
+stdout 'Cached versions of the Hugo executable'
+exec hvm disable
+stdout 'Version management is disabled in the current directory.\n'
+! exists '.hvm'
+
+-- input.txt --
+1

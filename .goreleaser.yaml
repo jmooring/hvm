@@ -18,9 +18,9 @@ builds:
         goarch: arm64
     ldflags:
       - -s -w
-      - -X github.com/jmooring/hvm/cmd.version={{.Version}}
-      - -X github.com/jmooring/hvm/cmd.commitHash={{.ShortCommit}}
-      - -X github.com/jmooring/hvm/cmd.buildDate={{.Date}}
+      - -X github.com/jmooring/hvm/cmd/hvm.version={{.Version}}
+      - -X github.com/jmooring/hvm/cmd/hvm.commitHash={{.ShortCommit}}
+      - -X github.com/jmooring/hvm/cmd/hvm.buildDate={{.Date}}
 archives:
   - format: tar.gz
     name_template: >-

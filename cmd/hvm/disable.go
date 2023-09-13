@@ -20,41 +20,45 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 )
 
-// removeCmd represents the remove command
-var removeCmd = &cobra.Command{
-	Use:     "remove",
-	Aliases: []string{"uninstall"},
-	Short:   "Remove the default version",
-	Long:    "Removes the default version used when version management is disabled.",
+// disableCmd represents the disable command
+var disableCmd = &cobra.Command{
+	Use:   "disable",
+	Short: "Disable version management in the current directory",
+	Long:  "Disables version management in the current directory.",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := remove()
+		err := disable()
 		cobra.CheckErr(err)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(disableCmd)
 }
 
-func remove() error {
-	defaultDirPath := filepath.Join(cacheDir, defaultDirName)
-	exists, err := helpers.Exists(defaultDirPath)
+// disable disables version management in the current directory.
+func disable() error {
+	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
+
+	exists, err := helpers.Exists(filepath.Join(wd, App.DotFileName))
+	if err != nil {
+		return err
+	}
+
 	if exists {
-		err = os.RemoveAll(defaultDirPath)
+		err := os.Remove(filepath.Join(wd, App.DotFileName))
 		if err != nil {
 			return err
 		}
-		fmt.Println("Default version removed.")
-	} else {
-		fmt.Println("Nothing to remove.")
 	}
+
+	fmt.Println("Version management is disabled in the current directory.")
 
 	return nil
 }

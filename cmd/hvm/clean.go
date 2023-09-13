@@ -55,14 +55,14 @@ func clean() error {
 		}
 
 		if strings.ToLower(string(r[0])) == "y" {
-			d, err := os.ReadDir(cacheDir)
+			d, err := os.ReadDir(App.CacheDirPath)
 			if err != nil {
 				return err
 			}
 
 			for _, f := range d {
-				if f.Name() != defaultDirName {
-					err := os.RemoveAll(filepath.Join(cacheDir, f.Name()))
+				if f.Name() != App.DefaultDirName {
+					err := os.RemoveAll(filepath.Join(App.CacheDirPath, f.Name()))
 					if err != nil {
 						return err
 					}
