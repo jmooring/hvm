@@ -18,11 +18,9 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // resetCmd represents the reset command
@@ -61,11 +59,11 @@ func reset() error {
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(filepath.Dir(viper.ConfigFileUsed()))
+			err = os.RemoveAll(App.ConfigFilePath)
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(cacheDir)
+			err = os.RemoveAll(App.CacheDirPath)
 			if err != nil {
 				return err
 			}

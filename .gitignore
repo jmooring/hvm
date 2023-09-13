@@ -1,6 +1,6 @@
 .hvm
 .markdownlint.yaml
+/dist
+/hvm
 cover.out
-dist/
-hvm
 NOTES.md

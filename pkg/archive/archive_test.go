@@ -23,7 +23,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/helpers"
 )
 
 func TestExtract(t *testing.T) {

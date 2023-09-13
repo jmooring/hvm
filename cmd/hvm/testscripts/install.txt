@@ -7,13 +7,14 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-env HVM_NUMTAGSTODISPLAY=42
-env HVM_GITHUBTOKEN=my-token
+# https://github.com/actions/runner-images/issues/602
+[darwin] skip
 
 # Test
-exec hvm config
-stdout '# GitHub personal access token\n'
-stdout 'githubToken = ''my-token''\n'
-stdout '# Number of tags to display with the "use" and "install" commands\n'
-stdout 'numTagsToDisplay = 42\n'
-stdout 'Configuration file: '
+stdin input.txt
+exec hvm install
+stdout 'Downloading v.*\.\.\. done.\n'
+
+# Files
+-- input.txt --
+1

@@ -24,7 +24,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )
@@ -54,7 +54,7 @@ func status() error {
 		return err
 	}
 
-	version, err := getVersionFromDotHvmFile(filepath.Join(wd, dotFileName))
+	version, err := getVersionFromDotFile(filepath.Join(wd, App.DotFileName))
 	if err != nil {
 		return err
 	}
@@ -64,15 +64,15 @@ func status() error {
 		fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
 	}
 
-	// Get tags; ignore defaultDirName.
-	sd, err := os.ReadDir(cacheDir)
+	// Get tags; ignore App.DefaultDirName.
+	sd, err := os.ReadDir(App.CacheDirPath)
 	if err != nil {
 		return err
 	}
 
 	var tags []string
 	for _, d := range sd {
-		if d.IsDir() && d.Name() != defaultDirName {
+		if d.IsDir() && d.Name() != App.DefaultDirName {
 			tags = append(tags, d.Name())
 		}
 	}
@@ -90,13 +90,13 @@ func status() error {
 	}
 	fmt.Println()
 
-	// Determine cache size; ignore file in defaultDirName.
+	// Determine cache size; ignore file in App.DefaultDirName.
 	var size int64
-	err = fs.WalkDir(os.DirFS(cacheDir), ".", func(path string, d fs.DirEntry, err error) error {
+	err = fs.WalkDir(os.DirFS(App.CacheDirPath), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && !strings.HasPrefix(path, defaultDirName) {
+		if !d.IsDir() && !strings.HasPrefix(path, App.DefaultDirName) {
 			fi, err := d.Info()
 			if err != nil {
 				return err
@@ -112,14 +112,14 @@ func status() error {
 	}
 
 	fmt.Println("Cache size:", size/1000000, "MB")
-	fmt.Println("Cache directory:", cacheDir)
+	fmt.Println("Cache directory:", App.CacheDirPath)
 
 	return nil
 }
 
-// getVersionFromHvmFile returns the semver string from the .hvm file in the
+// getVersionFromDotFile returns the semver string from the app dot file in the
 // current directory, or an empty string if the file does not exist.
-func getVersionFromDotHvmFile(path string) (string, error) {
+func getVersionFromDotFile(path string) (string, error) {
 	exists, err := helpers.Exists(path)
 	if err != nil {
 		return "", err
@@ -142,16 +142,16 @@ func getVersionFromDotHvmFile(path string) (string, error) {
 
 	dotHvmContent := strings.TrimSpace(buf.String())
 
-	theFix := fmt.Sprintf("run `%[1]s use` to select a version, or `%[1]s disable` to remove the file", appName)
+	theFix := fmt.Sprintf("run `%[1]s use` to select a version, or `%[1]s disable` to remove the file", App.Name)
 
 	if dotHvmContent == "" {
-		return "", fmt.Errorf("the %s file in the current directory is empty: %s", dotFileName, theFix)
+		return "", fmt.Errorf("the %s file in the current directory is empty: %s", App.DotFileName, theFix)
 	}
 
 	re := regexp.MustCompile(`.+(v\d+\.\d+\.\d+).+`)
 	match := re.FindStringSubmatch(dotHvmContent)
 	if match == nil {
-		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", dotFileName, theFix)
+		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", App.DotFileName, theFix)
 	}
 
 	exists, err = helpers.Exists(dotHvmContent)
@@ -159,7 +159,7 @@ func getVersionFromDotHvmFile(path string) (string, error) {
 		return "", err
 	}
 	if !exists {
-		return "", fmt.Errorf("the %s file in the current directory points to an invalid path (%s): %s", dotFileName, dotHvmContent, theFix)
+		return "", fmt.Errorf("the %s file in the current directory points to an invalid path (%s): %s", App.DotFileName, dotHvmContent, theFix)
 	}
 
 	return (match[1]), nil

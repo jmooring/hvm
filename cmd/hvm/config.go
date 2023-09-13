@@ -20,7 +20,6 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // configCmd represents the config command
@@ -43,12 +42,9 @@ func init() {
 func displayConfig() error {
 	t, err := toml.Marshal(Config)
 	cobra.CheckErr(err)
-	fmt.Println(string(t))
 
-	f := viper.ConfigFileUsed()
-	if f != "" {
-		fmt.Println("Configuration file:", f)
-	}
+	fmt.Println(string(t))
+	fmt.Println("Configuration file:", App.ConfigFilePath)
 
 	return nil
 }

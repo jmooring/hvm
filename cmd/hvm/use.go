@@ -29,8 +29,8 @@ import (
 	"strings"
 
 	"github.com/google/go-github/github"
-	"github.com/jmooring/hvm/archive"
-	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/pkg/archive"
+	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 	"golang.org/x/oauth2"
@@ -64,27 +64,21 @@ type repository struct {
 
 // An asset is a GitHub asset for a given release, operating system, and architecture.
 type asset struct {
-	arch            string // client architecture: amd64, arm64, etc.
 	archiveDirPath  string // directory path of the downloaded archive
 	archiveExt      string // extension of the downloaded archive: tar.gz or zip
 	archiveFilePath string // file path of the downloaded archive
 	archiveURL      string // download URL for this asset
-	os              string // client operating system: linux, darwin, windows, etc.
-	tag             string // the user-selected tag associated with the release for this asset
+	tag             string // user-selected tag associated with the release for this asset
+	execName        string // name of the executable file
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
 func use() error {
-	repo := newRepository("gohugoio", "hugo")
-	asset := newAsset(runtime.GOOS, runtime.GOARCH)
-
-	err := asset.fetchTags(repo)
-	if err != nil {
-		return err
-	}
+	repo := newRepository()
+	asset := newAsset()
 
 	msg := "Select a version to use in the current directory"
-	err = asset.selectTag(repo, msg)
+	err := repo.selectTag(asset, msg)
 	if err != nil {
 		return err
 	}
@@ -92,7 +86,7 @@ func use() error {
 		return nil // the user did not select a tag; do nothing
 	}
 
-	exists, err := helpers.Exists(filepath.Join(cacheDir, asset.tag))
+	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
 	if err != nil {
 		return err
 	}
@@ -100,7 +94,7 @@ func use() error {
 	if exists {
 		fmt.Printf("Using %s from cache.\n", asset.tag)
 	} else {
-		err = asset.fetchURL(repo)
+		err = repo.fetchURL(asset)
 		if err != nil {
 			return err
 		}
@@ -126,7 +120,7 @@ func use() error {
 			return err
 		}
 
-		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(cacheDir, asset.tag))
+		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
 		if err != nil {
 			return err
 		}
@@ -141,7 +135,7 @@ func use() error {
 }
 
 // newRepository creates a new repository object, returning a pointer to same.
-func newRepository(owner string, name string) *repository {
+func newRepository() *repository {
 	var client *github.Client
 
 	if Config.GithubToken == "" {
@@ -157,26 +151,29 @@ func newRepository(owner string, name string) *repository {
 	}
 
 	r := repository{
-		owner:  owner,
-		name:   name,
 		client: client,
+		name:   App.RepositoryName,
+		owner:  App.RepositoryOwner,
 	}
 
 	return &r
 }
 
 // newAsset creates a new asset object, returning a pointer to same.
-func newAsset(os string, arch string) *asset {
+func newAsset() *asset {
+	execName := "hugo"
+	if runtime.GOOS == "windows" {
+		execName = "hugo.exe"
+	}
 	a := asset{
-		os:   os,
-		arch: arch,
+		execName: execName,
 	}
 
 	return &a
 }
 
 // fetchTags fetches tags associated with recent releases.
-func (a *asset) fetchTags(r *repository) error {
+func (r *repository) fetchTags() error {
 	opts := &github.ListOptions{PerPage: 100}
 
 	var tags []*github.RepositoryTag
@@ -218,12 +215,18 @@ func (a *asset) fetchTags(r *repository) error {
 }
 
 // selectTag prompts the user to select a tag from a list of recent tags.
-func (a *asset) selectTag(r *repository, msg string) error {
+func (r *repository) selectTag(a *asset, msg string) error {
+
+	err := r.fetchTags()
+	if err != nil {
+		return err
+	}
+
 	// List tags.
 	fmt.Println()
 
 	for i, tag := range r.tags {
-		exists, err := helpers.Exists(filepath.Join(cacheDir, tag))
+		exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, tag))
 		if err != nil {
 			return err
 		}
@@ -268,32 +271,32 @@ func (a *asset) selectTag(r *repository, msg string) error {
 }
 
 // fetchURL fetches the download URL for the user-selected tag.
-func (a *asset) fetchURL(r *repository) error {
+func (r *repository) fetchURL(a *asset) error {
 	// The archive file name was different with v0.102.3 and earlier.
 	version := a.tag[1:]
 	pattern := ""
 	if semver.Compare(a.tag, "v0.102.3") == 1 {
 		// v0.103.0 and later
-		switch a.os {
+		switch runtime.GOOS {
 		case "darwin":
 			pattern = `hugo_extended_` + version + `_darwin-universal.tar.gz`
 		case "windows":
-			pattern = `hugo_extended_` + version + `_windows-` + a.arch + `.zip`
+			pattern = `hugo_extended_` + version + `_windows-` + runtime.GOARCH + `.zip`
 		case "linux":
-			pattern = `hugo_extended_` + version + `_linux-` + a.arch + `.tar.gz`
+			pattern = `hugo_extended_` + version + `_linux-` + runtime.GOARCH + `.tar.gz`
 		default:
 			return fmt.Errorf("unsupported operating system")
 		}
 	} else {
 		// v0.102.3 and earlier
-		switch a.os {
+		switch runtime.GOOS {
 		case "darwin":
 			pattern = `hugo_extended_` + version + `_macOS-64bit.tar.gz`
 		case "windows":
 			pattern = `hugo_extended_` + version + `_Windows-64bit.zip`
 		case "linux":
 			pattern = `hugo_extended_` + version + `_Linux-64bit.tar.gz`
-			if a.arch == "arm64" {
+			if runtime.GOARCH == "arm64" {
 				pattern = `hugo_extended_` + version + `_Linux-ARM64.deb`
 			}
 		default:
@@ -323,7 +326,7 @@ func (a *asset) fetchURL(r *repository) error {
 		}
 	}
 
-	return fmt.Errorf("unable to find download for %s %s/%s", a.tag, a.os, a.arch)
+	return fmt.Errorf("unable to find download for %s %s/%s", a.tag, runtime.GOOS, runtime.GOARCH)
 }
 
 // downloadAsset downloads the release asset.
@@ -365,32 +368,22 @@ func (a *asset) downloadAsset() error {
 	return nil
 }
 
-// createDotFile creates an .hvm file in the current directory
+// getExecPath returns the path of the Hugo executable file.
+func (a *asset) getExecPath() string {
+	return filepath.Join(App.CacheDirPath, a.tag, a.execName)
+}
+
+// createDotFile creates an application dot file in the current directory.
 func (a *asset) createDotFile() error {
 	wd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
 
-	err = os.WriteFile(filepath.Join(wd, dotFileName), []byte(a.getExecPath()+"\n"), 0644)
+	err = os.WriteFile(filepath.Join(wd, App.DotFileName), []byte(a.getExecPath()+"\n"), 0644)
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// getExecPath returns the path of the Hugo executable file.
-func (a *asset) getExecPath() string {
-	return filepath.Join(cacheDir, a.tag, a.getExecName())
-}
-
-// getExecName returns the name of the Hugo executable file.
-func (a *asset) getExecName() string {
-	execName := "hugo"
-	if a.os == "windows" {
-		execName = "hugo.exe"
-	}
-
-	return execName
 }

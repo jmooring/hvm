@@ -17,48 +17,27 @@ package cmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
-	"github.com/jmooring/hvm/helpers"
 	"github.com/spf13/cobra"
 )
 
-// disableCmd represents the disable command
-var disableCmd = &cobra.Command{
-	Use:   "disable",
-	Short: "Disable version management in the current directory",
-	Long:  "Disables version management in the current directory.",
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Display the " + App.Name + " version",
+	Long:  "Displays the " + App.Name + " version",
 	Run: func(cmd *cobra.Command, args []string) {
-		err := disable()
+		err := displayVersion()
 		cobra.CheckErr(err)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(disableCmd)
+	rootCmd.AddCommand(versionCmd)
 }
 
-// disable disables version management in the current directory.
-func disable() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	exists, err := helpers.Exists(filepath.Join(wd, dotFileName))
-	if err != nil {
-		return err
-	}
-
-	if exists {
-		err := os.Remove(filepath.Join(wd, dotFileName))
-		if err != nil {
-			return err
-		}
-	}
-
-	fmt.Println("Version management is disabled in the current directory.")
+func displayVersion() error {
+	fmt.Println(versionString)
 
 	return nil
 }
