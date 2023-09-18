@@ -148,25 +148,29 @@ Use "hvm [command] --help" for more information about a command.
 
 ## Configuration
 
-### Number of releases to display
+To locate the configuration file, run the `hvm config` command. This will print the path to the configuration file to the console. Keys in the configuration file are case-insensitive.
 
-By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To change the number of releases displayed, you can do one of the following:
+To set configuration values with an environment variable, create an environment variable prefixed with `HVM_`. For example, to set the `sortAscending` configuration value to false:
 
-- Set the `numtagstodisplay` option in the hvm configuration file. You can find the path to the configuration file by running the `hvm config` command.
-- Set the `HVM_NUMTAGSTODISPLAY` environment variable.
+```text
+export HVM_SORTASCENDING=false
+```
 
-To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned.
+An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
 
-### GitHub personal access token
+**gitHubToken** (string)
 
 GitHub limits the number of requests that can be made to its API per hour to 60 for unauthenticated clients. If you exceed this limit, hvm will display a message indicating when the limit will be reset. This is typically within minutes.
 
-If you regularly exceed this limit, you can create a GitHub personal access token with read-only public repository access. Then, you can do either of the following:
+If you regularly exceed this limit, you can create a GitHub personal access token with read-only public repository access. With a personal access token, GitHub limits API requests to 5,000 per hour.
 
-- Set the `githubtoken` option in the hvm configuration file. You can find the path to the configuration file by running the hvm config command.
-- Set the `HVM_GITHUBTOKEN` environment variable.
+**numTagsToDisplay** (int, default `30`)
 
-With a personal access token, GitHub limits API requests to 5,000 per hour.
+By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned.
+
+**sortAscending** (bool, default `true`)
+
+By default, the `hvm use` and `hvm install` commands display the list of recent releases in ascending order. To display the list in descending order, set this value to `false`.
 
 [go]: https://go.dev/doc/install
 [hugo]: https://github.com/gohugoio/hugo/#readme

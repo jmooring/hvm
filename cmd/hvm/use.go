@@ -200,7 +200,9 @@ func (r *repository) fetchTags() error {
 		}
 	}
 
-	semver.Sort(tagNames)
+	if Config.SortAscending {
+		semver.Sort(tagNames)
+	}
 
 	n := Config.NumTagsToDisplay
 	if n < 0 {

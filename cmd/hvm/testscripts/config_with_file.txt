@@ -9,16 +9,19 @@
 
 # Test
 exec hvm config
-stdout 'GithubToken = ''my-token''\n'
-stdout 'NumTagsToDisplay = 42\n'
+stdout 'githubToken = ''my-token''\n'
+stdout 'numTagsToDisplay = 42\n'
+stdout 'sortAscending = false'
 stdout 'Configuration file: '
 
 # Files for darwin
 -- home/Library/Application Support/hvm/config.toml --
 githubtoken = "my-token"
 numtagstodisplay = 42
+sortascending = false
 
 # Files for linux and windows
 -- config/hvm/config.toml --
 githubtoken = "my-token"
 numtagstodisplay = 42
+sortascending = false

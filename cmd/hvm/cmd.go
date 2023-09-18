@@ -45,8 +45,9 @@ type application struct {
 // A configuration contains the current configuration parameters from environment
 // variables, the configuration file, or default values, in that order.
 type configuration struct {
-	GithubToken      string // a GitHub personal access token
-	NumTagsToDisplay int    // number of tags to display when using the "use" and "install" commands
+	GithubToken      string `toml:"githubToken"`      // a GitHub personal access token
+	NumTagsToDisplay int    `toml:"numTagsToDisplay"` // number of tags to display when using the "use" and "install" commands
+	SortAscending    bool   `toml:"sortAscending"`    // displays tags list in ascending order
 }
 
 var App application = application{
@@ -98,8 +99,9 @@ func init() {
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	// Set default values.
-	viper.SetDefault("numTagsToDisplay", 30)
 	viper.SetDefault("githubToken", "")
+	viper.SetDefault("numTagsToDisplay", 30)
+	viper.SetDefault("sortAscending", true)
 
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()
