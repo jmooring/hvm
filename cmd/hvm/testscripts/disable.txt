@@ -7,6 +7,9 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
+# https://github.com/actions/runner-images/issues/602
+[darwin] skip
+
 # Test
 stdin input.txt
 exec hvm use
