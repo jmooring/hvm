@@ -210,8 +210,13 @@ func (r *repository) fetchTags() error {
 		n = 9999
 	}
 	if n <= len(tagNames) {
-		tagNames = tagNames[len(tagNames)-n:]
+		if Config.SortAscending {
+			tagNames = tagNames[len(tagNames)-n:]
+		} else {
+			tagNames = tagNames[:n]
+		}
 	}
+
 	r.tags = tagNames
 
 	return nil
