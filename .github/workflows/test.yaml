@@ -1,7 +1,6 @@
 on:
-  push:
-    branches: [main]
   pull_request:
+     branches: [main]
 name: test
 env:
     GO111MODULE: on
