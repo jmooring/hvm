@@ -9,7 +9,7 @@
 
 # Test
 ! exec hvm status
-stderr 'the \.hvm file in the current directory points to an invalid path'
+stderr 'the \.hvm file in the current directory has an invalid format'
 
 -- .hvm --
-xxx/v0.118.2/xxx
+xxx

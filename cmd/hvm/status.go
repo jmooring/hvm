@@ -27,6 +27,7 @@ import (
 
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"golang.org/x/mod/semver"
 )
 
@@ -44,6 +45,8 @@ location. The "default" directory created by the "install" command is excluded.`
 
 func init() {
 	rootCmd.AddCommand(statusCmd)
+	statusCmd.Flags().Bool("printExecPath", false, "Print the path to the Hugo executable if version\nmanagement is enabled in the current directory")
+	viper.BindPFlag("printExecPath", statusCmd.Flags().Lookup("printExecPath"))
 }
 
 // status displays a list of cached assets, the size of the cache, and the
@@ -59,10 +62,20 @@ func status() error {
 	if err != nil {
 		return err
 	}
-	if version == "" {
-		fmt.Println("Version management is disabled in the current directory.")
+
+	if viper.GetBool("printExecPath") {
+		if version == "" {
+			fmt.Fprintf(os.Stderr, "Version management is disabled in the current directory.\n")
+			return nil
+		}
+		fmt.Println(filepath.Join(App.CacheDirPath, version, getExecName()))
+		return nil
 	} else {
-		fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
+		if version == "" {
+			fmt.Println("Version management is disabled in the current directory.")
+		} else {
+			fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
+		}
 	}
 
 	// Get tags; ignore App.DefaultDirName.
@@ -91,9 +104,21 @@ func status() error {
 	}
 	fmt.Println()
 
-	// Determine cache size; ignore file in App.DefaultDirName.
-	var size int64
-	err = fs.WalkDir(os.DirFS(App.CacheDirPath), ".", func(path string, d fs.DirEntry, err error) error {
+	size, err := getCacheSize()
+	if err != nil {
+		return err
+	}
+	fmt.Println("Cache size:", size/1000000, "MB")
+	fmt.Println("Cache directory:", App.CacheDirPath)
+
+	return nil
+}
+
+// getCacheSize returns the size of the cache directory, in bytes, excluding
+// the App.DefaultDirName subdirectory.
+func getCacheSize() (int64, error) {
+	var size int64 = 0
+	err := fs.WalkDir(os.DirFS(App.CacheDirPath), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -109,13 +134,10 @@ func status() error {
 	})
 
 	if err != nil {
-		return err
+		return 0, err
 	}
 
-	fmt.Println("Cache size:", size/1000000, "MB")
-	fmt.Println("Cache directory:", App.CacheDirPath)
-
-	return nil
+	return size, nil
 }
 
 // getVersionFromDotFile returns the semver string from the app dot file in the
@@ -149,19 +171,19 @@ func getVersionFromDotFile(path string) (string, error) {
 		return "", fmt.Errorf("the %s file in the current directory is empty: %s", App.DotFileName, theFix)
 	}
 
-	re := regexp.MustCompile(`.+(v\d+\.\d+\.\d+).+`)
-	match := re.FindStringSubmatch(dotHvmContent)
-	if match == nil {
+	re := regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
+	match := re.MatchString(dotHvmContent)
+	if !match {
 		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", App.DotFileName, theFix)
 	}
 
-	exists, err = helpers.Exists(dotHvmContent)
+	exists, err = helpers.Exists(filepath.Join(App.CacheDirPath, dotHvmContent, getExecName()))
 	if err != nil {
 		return "", err
 	}
 	if !exists {
-		return "", fmt.Errorf("the %s file in the current directory points to an invalid path (%s): %s", App.DotFileName, dotHvmContent, theFix)
+		return "", fmt.Errorf("the %s file in the current directory contains an invalid version (%s): %s", App.DotFileName, dotHvmContent, theFix)
 	}
 
-	return (match[1]), nil
+	return (dotHvmContent), nil
 }

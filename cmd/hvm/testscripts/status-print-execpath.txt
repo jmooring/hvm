@@ -8,10 +8,10 @@
 [windows] env AppData=config
 
 # Test
-exec hvm status
-stdout 'The current directory is configured to use Hugo v0.117.0.\n'
-stdout 'Cached versions of the Hugo executable:\n'
-stdout 'v0.117.0\n'
+exec hvm status --printExecPath
+[darwin] stdout '^home/Library/Caches/hvm/v0.117.0/hugo\n$'
+[linux] stdout '^cache/hvm/v0.117.0/hugo\n$'
+[windows] stdout '^cache\\hvm\\v0.117.0\\hugo.exe\n$'
 
 # Files
 -- .hvm --
