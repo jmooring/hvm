@@ -213,7 +213,7 @@ func (r *repository) fetchTags() error {
 		if Config.SortAscending {
 			tagNames = tagNames[len(tagNames)-n:]
 		} else {
-			tagNames = tagNames[0 : n-1]
+			tagNames = tagNames[:n]
 		}
 	}
 
