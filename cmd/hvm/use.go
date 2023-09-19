@@ -162,12 +162,8 @@ func newRepository() *repository {
 
 // newAsset creates a new asset object, returning a pointer to same.
 func newAsset() *asset {
-	execName := "hugo"
-	if runtime.GOOS == "windows" {
-		execName = "hugo.exe"
-	}
 	a := asset{
-		execName: execName,
+		execName: getExecName(),
 	}
 
 	return &a
@@ -376,6 +372,14 @@ func (a *asset) downloadAsset() error {
 	return nil
 }
 
+// getExecName returns the name of the Hugo executable file.
+func getExecName() string {
+	if runtime.GOOS == "windows" {
+		return "hugo.exe"
+	}
+	return "hugo"
+}
+
 // getExecPath returns the path of the Hugo executable file.
 func (a *asset) getExecPath() string {
 	return filepath.Join(App.CacheDirPath, a.tag, a.execName)
@@ -388,7 +392,7 @@ func (a *asset) createDotFile() error {
 		return err
 	}
 
-	err = os.WriteFile(filepath.Join(wd, App.DotFileName), []byte(a.getExecPath()+"\n"), 0644)
+	err = os.WriteFile(filepath.Join(wd, App.DotFileName), []byte(a.tag), 0644)
 	if err != nil {
 		return err
 	}
