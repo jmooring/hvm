@@ -26,6 +26,7 @@ import (
 	"github.com/jmooring/hvm/pkg/archive"
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // installCmd represents the install command
@@ -48,6 +49,8 @@ you will be prompted to add it when installation is complete.`,
 
 func init() {
 	rootCmd.AddCommand(installCmd)
+	installCmd.Flags().Bool("useVersionInDotFile", false, "Install the version specified by the "+App.DotFileName+" file\nin the current directory")
+	viper.BindPFlag("useVersionInDotFile", installCmd.Flags().Lookup("useVersionInDotFile"))
 }
 
 // install sets the version of the Hugo executable to use when version
@@ -56,13 +59,24 @@ func install() error {
 	repo := newRepository()
 	asset := newAsset()
 
-	msg := "Select a version to use when version management is disabled"
-	err := repo.selectTag(asset, msg)
-	if err != nil {
-		return err
-	}
-	if asset.tag == "" {
-		return nil // the user did not select a tag; do nothing
+	if viper.GetBool("useVersionInDotFile") {
+		version, err := getVersionFromDotFile(filepath.Join(App.WorkingDir, App.DotFileName))
+		if err != nil {
+			return err
+		}
+		asset.tag = version
+		if asset.tag == "" {
+			return fmt.Errorf("the current directory does not contain an " + App.DotFileName + " file")
+		}
+	} else {
+		msg := "Select a version to use when version management is disabled"
+		err := repo.selectTag(asset, msg)
+		if err != nil {
+			return err
+		}
+		if asset.tag == "" {
+			return nil // the user did not select a tag; do nothing
+		}
 	}
 
 	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
