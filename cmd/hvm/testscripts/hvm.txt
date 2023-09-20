@@ -8,11 +8,10 @@
 [windows] env AppData=config
 
 exec hvm
-stdout 'Hugo Version Manager \(hvm\) allows you to download and manage multiple versions\n'
-stdout 'of the extended edition of the Hugo static site generator. You can use hvm to\n'
-stdout 'specify which version of Hugo to use in the current directory.\n\n'
-stdout 'If you do not specify a version of Hugo to use in the current directory, the\n'
-stdout 'Hugo executable will be found by searching the PATH environment variable.\n'
+
+stdout 'Hugo Version Manager \(hvm\) is a tool that helps you download, manage, and switch\n'
+stdout 'between different versions of the Hugo static site generator. You can also use\n'
+stdout 'hvm to install Hugo as a standalone application.\n'
 stdout 'clean\s+Clean the cache\n'
 stdout 'completion\s+Generate the autocompletion script for the specified shell\n'
 stdout 'config\s+Display the current configuration\n'

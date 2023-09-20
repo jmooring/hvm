@@ -5,11 +5,15 @@
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 
-Hugo Version Manager (hvm) allows you to download and manage multiple versions of the extended edition of the [Hugo] static site generator. You can use hvm to specify which version of Hugo to use in the current directory.
+Hugo Version Manager (hvm) is a tool that helps you download, manage, and switch between different versions of the [Hugo] static site generator. You can also use hvm to install Hugo as a standalone application.
 
 ![Demonstration](assets/hvm.gif)
 
-If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the `PATH` environment variable.
+You can use hvm to:
+
+- Download and manage multiple versions of Hugo
+- Switch between different versions of Hugo in the current directory
+- Install Hugo as a standalone application
 
 Supported operating systems:
 
@@ -17,19 +21,17 @@ Supported operating systems:
 - Linux (amd64, arm64)
 - Windows (amd64)
 
-Use hvm in your development environment if you need to frequently switch between versions.
-
 ## How it works
 
-When you run the `hvm use` command, it will display a list of recent Hugo releases. You can then select a version to use in the current directory. The hvm application will download, extract, and cache the release asset for your operating system and architecture. It will also create an `.hvm` file in the current directory. This file contains the version identifier.
+The `hvm use` command allows you to switch between different versions of Hugo in the current directory. It does this by downloading, extracting, and caching the release asset for your operating system and architecture. It also creates an .hvm file in the current directory, which contains the version identifier.
 
-In the second step of the installation instructions, you will create an alias for the `hugo` command. This alias will obtain the path to the cached Hugo executable based on the version identifier in the `.hvm` file.
+If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the PATH environment variable.
 
-To use a different version of Hugo in the same directory, run the `hvm use` command again. To use the Hugo executable in your system PATH, run the `hvm disable` command.
+To use a different version of Hugo, run the `hvm use` command again and select the desired version. To use the Hugo executable in your system PATH, run the hvm disable command.
 
-The extracted release assets are cached. You can run the `hvm status` command to display a list of cached assets, the size of the cache, and the cache location. You can also run the `hvm clean` command to clean the cache.
+The extracted release assets are cached, so you don't have to download them again each time you switch versions. You can view a list of cached assets, the size of the cache, and the cache location by running the `hvm status` command. You can also clean the cache by running the `hvm clean` command.
 
-The `hvm install` command installs a default version to use when version management is disabled in the current directory. You can use hvm as an installer, even if you skip the second step of the installation instructions.
+The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use Hugo as an installer, even if you don't want to use the version management features of hvm.
 
 ## Installation
 
@@ -51,6 +53,8 @@ valid `.hvm` file exists in the current directory.
 3. Run `hvm gen alias <shell>` to generate the alias script.
 
 The `hvm gen alias` command generates alias scripts for bash, fish, zsh, and Windows PowerShell.
+
+The alias script displays a brief status message each time it is called, if version management is enabled in the current directory. To disable this message, set the `hvm_show_status` variable to `false` in the alias script.
 
 ## Usage
 
