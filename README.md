@@ -50,11 +50,11 @@ valid `.hvm` file exists in the current directory.
 
 1. Run `hvm gen alias --help` to find the subcommand for the desired shell.
 2. Run `hvm gen alias <shell> --help` to see the installation instructions.
-3. Run `hvm gen alias <shell>` to generate the alias script.
+3. Run `hvm gen alias <shell>` to generate an alias function for the specified shell.
 
-The `hvm gen alias` command generates alias scripts for bash, fish, zsh, and Windows PowerShell.
+The `hvm gen alias` command generates alias functions for bash, fish, zsh, and Windows PowerShell.
 
-The alias script displays a brief status message each time it is called, if version management is enabled in the current directory. To disable this message, set the `hvm_show_status` variable to `false` in the alias script.
+The alias function displays a brief status message each time it is called, if version management is enabled in the current directory. To disable this message, set the `hvm_show_status` variable to `false` in the alias function.
 
 ## Usage
 

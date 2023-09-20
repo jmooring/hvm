@@ -28,15 +28,15 @@ var bashScript string
 // bashCmd represents the bash command
 var bashCmd = &cobra.Command{
 	Use:   "bash",
-	Short: "Generate the alias script for bash",
-	Long: `Generate the alias script for the bash shell.
+	Short: "Generate an alias function for bash",
+	Long: `Generate an alias function for the bash shell.
 
 Add the output from this command to $HOME/.bashrc or $HOME/.bash_aliases.
 Open a new shell to activate the alias.
 
-The alias script displays a brief status message each time it is called, if
+The alias function displays a brief status message each time it is called, if
 version management is enabled in the current directory. To disable this
-message, set the "hvm_show_status" variable to "false" in the alias script.`,
+message, set the "hvm_show_status" variable to "false" in the alias function.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(bashScript)
 	},
