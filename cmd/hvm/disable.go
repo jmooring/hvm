@@ -59,7 +59,7 @@ func disable() error {
 		}
 	}
 
-	fmt.Println("Version management is disabled in the current directory.")
+	fmt.Println("Version management has been disabled in the current directory.")
 
 	return nil
 }
