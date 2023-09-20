@@ -92,7 +92,7 @@ func init() {
 	cobra.OnInitialize(initConfig, initApp)
 
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display help")
-	rootCmd.PersistentFlags().BoolP("version", "v", false, "Display the "+App.Name+" version")
+	rootCmd.Flags().BoolP("version", "v", false, "Display the "+App.Name+" version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf("%s\n", versionString))
 }
 
