@@ -40,6 +40,7 @@ type application struct {
 	Name            string // name of the application
 	RepositoryName  string // name of the GitHub repository without the .git extension
 	RepositoryOwner string // account owner of the GitHub repository
+	WorkingDir      string // current working directory
 }
 
 // A configuration contains the current configuration parameters from environment
@@ -150,9 +151,13 @@ func initApp() {
 	userCacheDir, err := os.UserCacheDir()
 	cobra.CheckErr(err)
 
+	wd, err := os.Getwd()
+	cobra.CheckErr(err)
+
 	App.CacheDirPath = filepath.Join(userCacheDir, App.Name)
 	App.ConfigFilePath = viper.ConfigFileUsed()
 	App.DefaultDirPath = filepath.Join(userCacheDir, App.Name, App.DefaultDirName)
+	App.WorkingDir = wd
 
 	err = os.MkdirAll(App.CacheDirPath, 0777)
 	cobra.CheckErr(err)

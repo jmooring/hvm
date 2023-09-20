@@ -186,7 +186,9 @@ func getVersionFromDotFile(path string) (string, error) {
 		return "", err
 	}
 	if !exists {
-		return "", fmt.Errorf("the %s file in the current directory contains an invalid version (%s): %s", App.DotFileName, dotHvmContent, theFix)
+		if !viper.GetBool("useVersionInDotFile") {
+			return "", fmt.Errorf("the %s file in the current directory contains an invalid version (%s): %s", App.DotFileName, dotHvmContent, theFix)
+		}
 	}
 
 	return (dotHvmContent), nil
