@@ -27,7 +27,7 @@ import (
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Display the current configuration",
-	Long:  "Displays the current configuration and the path to the configuration file.",
+	Long:  "Display the current configuration and the path to the configuration file.",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := displayConfig()
 		cobra.CheckErr(err)

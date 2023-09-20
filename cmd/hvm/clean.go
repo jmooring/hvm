@@ -29,7 +29,7 @@ import (
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the cache",
-	Long: `Cleans the cache, excluding the version installed with the "install"
+	Long: `Clean the cache, excluding the version installed with the "install"
 command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := clean()

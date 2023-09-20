@@ -35,7 +35,7 @@ import (
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Display the status",
-	Long: `Displays a list of cached assets, the size of the cache, and the cache
+	Long: `Display a list of cached assets, the size of the cache, and the cache
 location. The "default" directory created by the "install" command is excluded.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := status()

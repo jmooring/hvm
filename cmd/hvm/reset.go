@@ -29,7 +29,7 @@ var resetCmd = &cobra.Command{
 	Use:    "reset",
 	Hidden: true,
 	Short:  "Clean cache, disable version management, and remove default version",
-	Long: `Disables version management in the current directory, and removes the
+	Long: `Disable version management in the current directory, and remove the
 configuration and cache directories.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := reset()

@@ -13,32 +13,28 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display the " + App.Name + " version",
-	Long:  "Display the " + App.Name + " version",
+//go:embed alias_scripts/powershell.ps1
+var powershellScript string
+
+// powershellCmd represents the powershell command
+var powershellCmd = &cobra.Command{
+	Use:   "powershell",
+	Short: "Generate the alias script for zsh",
+	Long:  `Generate the alias script for powershell.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := displayVersion()
-		cobra.CheckErr(err)
+		fmt.Print(powershellScript)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
-func displayVersion() error {
-	fmt.Println(versionString)
-
-	return nil
+	aliasCmd.AddCommand(powershellCmd)
 }

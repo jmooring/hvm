@@ -13,32 +13,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display the " + App.Name + " version",
-	Long:  "Display the " + App.Name + " version",
+// aliasCmd represents the alias command
+var aliasCmd = &cobra.Command{
+	Use:   "alias",
+	Short: "Generate the alias script for the specified shell",
+	Long: `Generate the alias script for the specified shell.
+See each sub-command's help for details on how to use the generated script.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := displayVersion()
-		cobra.CheckErr(err)
+		cmd.Help()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
-func displayVersion() error {
-	fmt.Println(versionString)
-
-	return nil
+	genCmd.AddCommand(aliasCmd)
 }

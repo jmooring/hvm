@@ -46,79 +46,11 @@ go install github.com/jmooring/hvm@latest
 Create an alias for the `hugo` command that overrides the executable path if a
 valid `.hvm` file exists in the current directory.
 
-<details>
-<summary>Darwin</summary>
-<br>
-Add this function to $HOME/.zshrc
-<br>
+1. Run `hvm gen alias --help` to find the subcommand for the desired shell.
+2. Run `hvm gen alias <shell> --help` to see the installation instructions.
+3. Run `hvm gen alias <shell>` to generate the alias script.
 
-```zsh
-# Hugo Version Manager: override path to the hugo executable.
-hugo() {
-  hvm_show_status=true
-  if [ -f ".hvm" ]; then
-    if ! hugo_bin=$(hvm status --printExecPath); then
-      return 1
-    else
-      if [ "${hvm_show_status}" == true ]; then
-        >&2 printf "Hugo version management is enabled in this directory.\\n"
-        >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
-      fi
-    fi
-  else
-    if ! hugo_bin=$(which hugo); then
-      >&2 printf "Command not found.\\n"
-      return 1
-    fi
-  fi
-  "${hugo_bin}" "$@"
-}
-```
-
-</details>
-
-<details>
-<summary>Linux</summary>
-<br>
-Add this function to $HOME/.bashrc
-<br>
-
-```bash
-# Hugo Version Manager: override path to the hugo executable.
-hugo() {
-  hvm_show_status=true
-  if [ -f ".hvm" ]; then
-    if ! hugo_bin=$(hvm status --printExecPath); then
-      return 1
-    else
-      if [ "${hvm_show_status}" == true ]; then
-        >&2 printf "Hugo version management is enabled in this directory.\\n"
-        >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
-      fi
-    fi
-  else
-    if ! hugo_bin=$(which hugo); then
-      >&2 printf "Command not found.\\n"
-      return 1
-    fi
-  fi
-  "${hugo_bin}" "$@"
-}
-```
-
-</details>
-
-<details>
-<summary>Windows</summary>
-<br>
-TBD
-<br>
-
-```powershell
-TBD
-```
-
-</details>
+The `hvm gen alias` command generates alias scripts for bash, fish, zsh, and Windows PowerShell.
 
 ## Usage
 
@@ -131,6 +63,7 @@ Available Commands:
   completion  Generate the autocompletion script for the specified shell
   config      Display the current configuration
   disable     Disable version management in the current directory
+  gen         Generate various files
   help        Help about any command
   install     Install a default version to use when version management is disabled
   remove      Remove the default version
@@ -142,7 +75,7 @@ Flags:
   -h, --help      Display help
   -v, --version   Display the hvm version
 
-Use "hvm [command] --help" for more information about a command.
+Use "hvm [command] --help" for more information about a command
 ```
 
 ## Configuration
