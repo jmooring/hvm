@@ -29,7 +29,7 @@ import (
 var disableCmd = &cobra.Command{
 	Use:   "disable",
 	Short: "Disable version management in the current directory",
-	Long:  "Disables version management in the current directory.",
+	Long:  "Disable version management in the current directory.",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := disable()
 		cobra.CheckErr(err)

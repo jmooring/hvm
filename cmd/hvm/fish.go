@@ -13,32 +13,31 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 package cmd
 
 import (
+	_ "embed"
 	"fmt"
 
 	"github.com/spf13/cobra"
 )
 
-// versionCmd represents the version command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Display the " + App.Name + " version",
-	Long:  "Display the " + App.Name + " version",
+//go:embed alias_scripts/fish.sh
+var fishScript string
+
+// fishCmd represents the fish command
+var fishCmd = &cobra.Command{
+	Use:   "fish",
+	Short: "Generate the alias script for fish",
+	Long: `Generate the alias script for the fish shell.
+
+Add the output from this command to $HOME/.config/fish/config.fish.
+Open a new shell to activate the alias.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := displayVersion()
-		cobra.CheckErr(err)
+		fmt.Print(fishScript)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
-}
-
-func displayVersion() error {
-	fmt.Println(versionString)
-
-	return nil
+	aliasCmd.AddCommand(fishCmd)
 }

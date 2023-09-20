@@ -29,7 +29,7 @@ var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Aliases: []string{"uninstall"},
 	Short:   "Remove the default version",
-	Long:    "Removes the default version used when version management is disabled.",
+	Long:    "Remove the default version used when version management is disabled.",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := remove()
 		cobra.CheckErr(err)
