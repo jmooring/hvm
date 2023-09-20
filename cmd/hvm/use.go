@@ -44,7 +44,8 @@ var useCmd = &cobra.Command{
 	Short:   "Select a version to use in the current directory",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
-release asset for your operating system and architecture.`,
+release asset for your operating system and architecture and writes the version
+tag to an .hvm file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := use()
 		cobra.CheckErr(err)
