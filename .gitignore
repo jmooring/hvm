@@ -5,3 +5,6 @@
 cover.out
 NOTES.md
 release-header.md
+public/
+resources/
+.hugo_build.lock
