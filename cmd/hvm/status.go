@@ -66,8 +66,7 @@ func status() error {
 
 	if viper.GetBool("printExecPath") {
 		if version == "" {
-			fmt.Println("Version management is disabled in the current directory.")
-			return nil
+			os.Exit(1)
 		} else {
 			fmt.Println(filepath.Join(App.CacheDirPath, version, getExecName()))
 		}
