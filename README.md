@@ -21,9 +21,9 @@ Use hvm in your development environment if you need to frequently switch between
 
 ## How it works
 
-When you run the `hvm use` command, it will display a list of recent Hugo releases. You can then select a version to use in the current directory. The hvm application will download, extract, and cache the release asset for your operating system and architecture. It will also create an `.hvm` file in the current directory. This file contains the path to the cached Hugo executable.
+When you run the `hvm use` command, it will display a list of recent Hugo releases. You can then select a version to use in the current directory. The hvm application will download, extract, and cache the release asset for your operating system and architecture. It will also create an `.hvm` file in the current directory. This file contains the version identifier.
 
-In the second step of the installation instructions, you will create an alias for the `hugo` command. This alias will obtain the path to the cached Hugo executable from the `.hvm` file.
+In the second step of the installation instructions, you will create an alias for the `hugo` command. This alias will obtain the path to the cached Hugo executable based on the version identifier in the `.hvm` file.
 
 To use a different version of Hugo in the same directory, run the `hvm use` command again. To use the Hugo executable in your system PATH, run the `hvm disable` command.
 
@@ -48,22 +48,27 @@ valid `.hvm` file exists in the current directory.
 
 <details>
 <summary>Darwin</summary>
+<br>
 Add this function to $HOME/.zshrc
+<br>
 
 ```zsh
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
   hvm_show_status=true
-  hugo_bin=$(hvm status --printExecPath 2> /dev/null)
-  if [ -z "${hugo_bin}" ]; then
+  if [ -f ".hvm" ]; then
+    if ! hugo_bin=$(hvm status --printExecPath); then
+      return 1
+    else
+      if [ "${hvm_show_status}" == true ]; then
+        >&2 printf "Hugo version management is enabled in this directory.\\n"
+        >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
+      fi
+    fi
+  else
     if ! hugo_bin=$(which hugo); then
       >&2 printf "Command not found.\\n"
       return 1
-    fi
-  else
-    if [ "${hvm_show_status}" == true ]; then
-      >&2 printf "Hugo version management is enabled in this directory.\\n"
-      >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
     fi
   fi
   "${hugo_bin}" "$@"
@@ -74,22 +79,27 @@ hugo() {
 
 <details>
 <summary>Linux</summary>
+<br>
 Add this function to $HOME/.bashrc
+<br>
 
 ```bash
 # Hugo Version Manager: override path to the hugo executable.
 hugo() {
   hvm_show_status=true
-  hugo_bin=$(hvm status --printExecPath 2> /dev/null)
-  if [ -z "${hugo_bin}" ]; then
+  if [ -f ".hvm" ]; then
+    if ! hugo_bin=$(hvm status --printExecPath); then
+      return 1
+    else
+      if [ "${hvm_show_status}" == true ]; then
+        >&2 printf "Hugo version management is enabled in this directory.\\n"
+        >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
+      fi
+    fi
+  else
     if ! hugo_bin=$(which hugo); then
       >&2 printf "Command not found.\\n"
       return 1
-    fi
-  else
-    if [ "${hvm_show_status}" == true ]; then
-      >&2 printf "Hugo version management is enabled in this directory.\\n"
-      >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
     fi
   fi
   "${hugo_bin}" "$@"
@@ -100,8 +110,13 @@ hugo() {
 
 <details>
 <summary>Windows</summary>
-
+<br>
 TBD
+<br>
+
+```powershell
+TBD
+```
 
 </details>
 
