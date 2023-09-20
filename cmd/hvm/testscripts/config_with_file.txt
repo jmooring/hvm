@@ -9,7 +9,7 @@
 
 # Test
 exec hvm config
-stdout 'githubToken = ''my-token''\n'
+stdout 'githubToken ='
 stdout 'numTagsToDisplay = 42\n'
 stdout 'sortAscending = false'
 stdout 'Configuration file: '

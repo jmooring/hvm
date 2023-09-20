@@ -17,6 +17,7 @@ limitations under the License.
 package cmd
 
 import (
+	"os"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -25,5 +26,9 @@ import (
 func TestCommands(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
 	})
 }
