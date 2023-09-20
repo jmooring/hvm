@@ -29,7 +29,11 @@ var powershellScript string
 var powershellCmd = &cobra.Command{
 	Use:   "powershell",
 	Short: "Generate the alias script for zsh",
-	Long:  `Generate the alias script for powershell.`,
+	Long: `Generate the alias script for powershell.
+
+The alias script displays a brief status message each time it is called, if
+version management is enabled in the current directory. To disable this
+message, set the "hvm_show_status" variable to "false" in the alias script.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(powershellScript)
 	},
