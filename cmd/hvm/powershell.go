@@ -28,12 +28,21 @@ var powershellScript string
 // powershellCmd represents the powershell command
 var powershellCmd = &cobra.Command{
 	Use:   "powershell",
-	Short: "Generate the alias script for zsh",
-	Long: `Generate the alias script for powershell.
+	Short: "Generate an alias function for powershell",
+	Long: `Generate an alias function for Windows PowerShell.
 
-The alias script displays a brief status message each time it is called, if
+Instructions:
+
+1. Create a PowerShell profile: New-Item -Path $profile -ItemType File
+2. Open the file with Notepad: notepad $profile
+3. Add the output from this command to the file you just opened
+4. Save the file and exit Notepad
+5. Refresh the current session: . $profile
+
+The alias function displays a brief status message each time it is called, if
 version management is enabled in the current directory. To disable this
-message, set the "hvm_show_status" variable to "false" in the alias script.`,
+message, set the "hvm_show_status" variable to "$false" in the alias function.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Print(powershellScript)
 	},

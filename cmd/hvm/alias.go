@@ -22,9 +22,9 @@ import (
 // aliasCmd represents the alias command
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
-	Short: "Generate the alias script for the specified shell",
-	Long: `Generate the alias script for the specified shell.
-See each sub-command's help for details on how to use the generated script.`,
+	Short: "Generate an alias function for the specified shell",
+	Long: `Generate an alias function for the specified shell.
+See each sub-command's help for details on how to use the generated code.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		cmd.Help()
 	},
