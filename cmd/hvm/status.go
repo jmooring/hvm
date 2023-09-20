@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/jmooring/hvm/pkg/helpers"
@@ -100,6 +101,9 @@ func status() error {
 	fmt.Println("Cached versions of the Hugo executable:")
 	fmt.Println()
 	semver.Sort(tags)
+	if !Config.SortAscending {
+		slices.Reverse(tags)
+	}
 	for _, tag := range tags {
 		fmt.Println(tag)
 	}
