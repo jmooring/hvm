@@ -27,7 +27,7 @@ The `hvm use` command allows you to switch between different versions of Hugo in
 
 If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the PATH environment variable.
 
-To use a different version of Hugo, run the `hvm use` command again and select the desired version. To use the Hugo executable in your system PATH, run the hvm disable command.
+To use a different version of Hugo, run the `hvm use` command again and select the desired version. To use the Hugo executable in your system PATH, run the `hvm disable` command.
 
 The extracted release assets are cached, so you don't have to download them again each time you switch versions. You can view a list of cached assets, the size of the cache, and the cache location by running the `hvm status` command. You can also clean the cache by running the `hvm clean` command.
 
