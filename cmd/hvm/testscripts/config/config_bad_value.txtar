@@ -8,13 +8,13 @@
 [windows] env AppData=config
 
 # Test
-exec hvm remove
-stdout 'Default version removed.'
+! exec hvm config
+stderr 'Error: configuration: numTagsToDisplay must be a non-zero integer: see .+config.toml\n'
 
 # Files
--- home/Library/Caches/hvm/default/hugo --
-darwin-exec-bytes
--- cache/hvm/default/hugo --
-linux-exec-bytes
--- cache/hvm/default/hugo.exe --
-windows-exec-bytes
+-- home/Library/Application Support/hvm/config.toml --
+numtagstodisplay = "x"
+-- config/hvm/config.toml --
+numtagstodisplay = "x"
+-- config\\hvm\\config.toml --
+numtagstodisplay = "x"

@@ -7,14 +7,9 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# https://github.com/actions/runner-images/issues/602
-[darwin] skip
-
 # Test
-stdin input.txt
-exec hvm install
-stdout 'Downloading v.*\.\.\. done.'
+! exec hvm status
+stderr 'the \.hvm file in the current directory has an invalid format: run "hvm use" to select a version, or "hvm disable" to remove the file\n'
 
-# Files
--- input.txt --
-1
+-- .hvm --
+xxx

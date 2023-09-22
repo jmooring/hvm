@@ -7,20 +7,18 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# Test 1: cache is not empty
-stdin input.txt
-exec hvm clean
-stdout 'This will delete cached versions of the Hugo executable.'
-stdout 'Are you sure you want to clean the cache\? \(y/N\): '
-stdout 'Cache cleaned.'
+# Test 1: dot file exists, exec exists
+exec hvm status --printExecPathCached
 
-# Test 2: cache is empty
-exec hvm clean
-stdout 'The cache is already empty.'
+# Test 2: dot file exists, exec does not exist
+rm home/Library/Caches/hvm/v0.117.0
+rm cache/hvm/v0.117.0
+rm cache/hvm/v0.117.0
+! exec hvm status --printExecPathCached
 
 # Files
--- input.txt --
-y
+-- .hvm --
+v0.117.0
 -- home/Library/Caches/hvm/v0.117.0/hugo --
 darwin-exec-bytes
 -- cache/hvm/v0.117.0/hugo --

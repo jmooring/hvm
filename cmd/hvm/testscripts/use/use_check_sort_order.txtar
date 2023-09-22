@@ -7,19 +7,26 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-[darwin] skip
-[windows] skip
-
-# Test
+# Test 1
+env HVM_NUMTAGSTODISPLAY=-1
+env HVM_SORTASCENDING=true
+exec hvm use
 stdin input.txt
-exec hvm reset
-! exists cache/v0.118.0/hugo
-! exists config/hvm/config.toml
+stdout '\D1\) v0\.54\.0'
+
+env HVM_NUMTAGSTODISPLAY=-1
+env HVM_SORTASCENDING=false
+stdin input.txt
+exec hvm use
+! stdout '\D1\) v0\.54\.0'
+
+env HVM_NUMTAGSTODISPLAY=30
+env HVM_SORTASCENDING=false
+stdin input.txt
+exec hvm use
+! stdout '\D1\) v0\.54\.0'
+! stdout '\D30\) v0\.54\.0'
 
 # Files
 -- input.txt --
-y
--- cache/hvm/v0.118.0/hugo --
-linux-exec-bytes
--- config/hvm/config.toml --
-numtagstodisplay = 42
+1

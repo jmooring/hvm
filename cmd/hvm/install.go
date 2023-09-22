@@ -18,12 +18,10 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"slices"
 
-	"github.com/jmooring/hvm/pkg/archive"
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 )
@@ -46,37 +44,23 @@ you will be prompted to add it when installation is complete.`,
 	},
 }
 
-var useVersionInDotFile bool
-
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().BoolVar(&useVersionInDotFile, "useVersionInDotFile", false, "Install the version specified by the "+App.DotFileName+" file\nin the current directory")
 }
 
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
 func install() error {
-	repo := newRepository()
 	asset := newAsset()
+	repo := newRepository()
 
-	if useVersionInDotFile {
-		version, err := getVersionFromDotFile(filepath.Join(App.WorkingDir, App.DotFileName))
-		if err != nil {
-			return err
-		}
-		asset.tag = version
-		if asset.tag == "" {
-			return fmt.Errorf("the current directory does not contain an " + App.DotFileName + " file")
-		}
-	} else {
-		msg := "Select a version to use when version management is disabled"
-		err := repo.selectTag(asset, msg)
-		if err != nil {
-			return err
-		}
-		if asset.tag == "" {
-			return nil // the user did not select a tag; do nothing
-		}
+	msg := "Select a version to use when version management is disabled"
+	err := repo.selectTag(asset, msg)
+	if err != nil {
+		return err
+	}
+	if asset.tag == "" {
+		return nil // the user did not select a tag; do nothing
 	}
 
 	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
@@ -85,33 +69,7 @@ func install() error {
 	}
 
 	if !exists {
-		err = repo.fetchURL(asset)
-		if err != nil {
-			return err
-		}
-
-		asset.archiveDirPath, err = os.MkdirTemp("", "")
-		if err != nil {
-			return err
-		}
-		defer func() {
-			err := os.RemoveAll(asset.archiveDirPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}()
-
-		err = asset.downloadAsset()
-		if err != nil {
-			return err
-		}
-
-		err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
-		if err != nil {
-			return err
-		}
-
-		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
+		err := get(asset, repo)
 		if err != nil {
 			return err
 		}

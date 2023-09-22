@@ -33,10 +33,12 @@ import (
 // others depend on the user environment.
 type application struct {
 	CacheDirPath    string // path to the application cache directory
-	ConfigFilePath  string // path to the application configuration
+	ConfigDirPath   string // path to the application configuration directory
+	ConfigFilePath  string // path to the application configuration file
 	DefaultDirName  string // name of the "default" directory within the application cache directory
 	DefaultDirPath  string // path to the "default" directory within the application cache directory
 	DotFileName     string // name of the dot file written to the current directory (e.g., .hvm)
+	DotFilePath     string // path to the dot file
 	Name            string // name of the application
 	RepositoryName  string // name of the GitHub repository without the .git extension
 	RepositoryOwner string // account owner of the GitHub repository
@@ -132,12 +134,12 @@ func initConfig() {
 	// Validate config values.
 	k := "numTagsToDisplay"
 	if viper.GetInt(k) == 0 {
-		err = fmt.Errorf("configuration: %s must be a non-zero integer: see %s", k, App.ConfigFilePath)
+		err = fmt.Errorf("configuration: %s must be a non-zero integer: see %s", k, viper.ConfigFileUsed())
 		cobra.CheckErr(err)
 	}
 	k = "githubToken"
 	if !helpers.IsString(viper.Get(k)) {
-		err = fmt.Errorf("configuration: %s must be a string: see %s", k, App.ConfigFilePath)
+		err = fmt.Errorf("configuration: %s must be a string: see %s", k, viper.ConfigFileUsed())
 		cobra.CheckErr(err)
 	}
 
@@ -152,12 +154,17 @@ func initApp() {
 	userCacheDir, err := os.UserCacheDir()
 	cobra.CheckErr(err)
 
+	userConfigDir, err := os.UserConfigDir()
+	cobra.CheckErr(err)
+
 	wd, err := os.Getwd()
 	cobra.CheckErr(err)
 
 	App.CacheDirPath = filepath.Join(userCacheDir, App.Name)
+	App.ConfigDirPath = filepath.Join(userConfigDir, App.Name)
 	App.ConfigFilePath = viper.ConfigFileUsed()
 	App.DefaultDirPath = filepath.Join(userCacheDir, App.Name, App.DefaultDirName)
+	App.DotFilePath = filepath.Join(wd, App.DotFileName)
 	App.WorkingDir = wd
 
 	err = os.MkdirAll(App.CacheDirPath, 0777)

@@ -9,6 +9,6 @@
 
 # Test
 ! exec hvm status
-stderr 'the \.hvm file in the current directory is empty'
+stderr 'Error: the \.hvm file in the current directory is empty: run "hvm use" to select a version, or "hvm disable" to remove the file\n'
 
 -- .hvm --

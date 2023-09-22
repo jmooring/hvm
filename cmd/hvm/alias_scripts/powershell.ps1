@@ -1,7 +1,7 @@
 # Hugo Version Manager: override path to the hugo executable.
 function Hugo-Override {
   Set-Variable -Name "hvm_show_status" -Value $true
-  Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPath)
+  Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPathCached)
   If ($hugo_bin) {
     If ($hvm_show_status) {
       echo "Hugo version management is enabled in this directory."
@@ -9,11 +9,16 @@ function Hugo-Override {
     }
     & "$hugo_bin" $args
   } Else {
-    Set-Variable -Name "hugo_bin" -Value $((gcm hugo.exe).Path 2> $null)
+    Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPath)
     If ($hugo_bin) {
-      & "$hugo_bin" $args
+      hvm use --useVersionInDotFile
     } Else {
-      echo "Command not found"
+      Set-Variable -Name "hugo_bin" -Value $((gcm hugo.exe).Path 2> $null)
+      If ($hugo_bin) {
+        & "$hugo_bin" $args
+      } Else {
+        echo "Command not found"
+      }
     }
   }
 }

@@ -1,0 +1,21 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+env HVM_GITHUBTOKEN=my-token
+env HVM_NUMTAGSTODISPLAY=67
+env HVM_SORTASCENDING=false
+
+# Test
+exec hvm config
+stdout 'githubToken = ''my-token''\n'
+stdout 'numTagsToDisplay = 67\n'
+stdout 'sortAscending = false\n'
+[darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
+[linux] stdout 'Configuration file: .+/config/hvm/config\.toml\n'
+[windows] stdout 'Configuration file: .+\\config\\hvm\\config\.toml\n'

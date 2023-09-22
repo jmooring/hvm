@@ -60,7 +60,7 @@ func reset() error {
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(App.ConfigFilePath)
+			err = os.RemoveAll(App.ConfigDirPath)
 			if err != nil {
 				return err
 			}

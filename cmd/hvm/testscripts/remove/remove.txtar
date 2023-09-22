@@ -9,4 +9,15 @@
 
 # Test
 exec hvm remove
-stdout 'Nothing to remove.'
+stdout 'Default version removed\.\n'
+[darwin] ! exists 'Library/Caches/hvm/default'
+[linux] ! exists 'cache/hvm/default'
+[windows] ! exists 'cache/hvm/default'
+
+# Files
+-- home/Library/Caches/hvm/default/hugo --
+darwin-exec-bytes
+-- cache/hvm/default/hugo --
+linux-exec-bytes
+-- cache/hvm/default/hugo.exe --
+windows-exec-bytes
