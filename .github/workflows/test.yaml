@@ -29,4 +29,6 @@ jobs:
     - name: Install hvm
       run: go install
     - name: Test
+      env:
+        HVM_GITHUBTOKEN: ${{ secrets.HVM_GITHUBTOKEN }}
       run: go test ./...

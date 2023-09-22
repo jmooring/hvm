@@ -7,14 +7,6 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# https://github.com/actions/runner-images/issues/602
-[darwin] skip
-
 # Test
-exec hvm install --useVersionInDotFile
-stdout 'Downloading v0.54.0... done.'
-stdout 'Installation of v0.54.0 complete.'
-
-# Files
--- .hvm --
-v0.54.0
+! exec hvm use --useVersionInDotFile
+stderr 'Error: the current directory does not contain an \.hvm file\n'

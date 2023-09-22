@@ -8,13 +8,9 @@
 [windows] env AppData=config
 
 # Test
-! exec hvm config
-stderr 'Error: configuration: numTagsToDisplay must be a non-zero integer'
+exec hvm disable
+stdout 'Version management has been disabled in the current directory\.\n'
+! exists '.hvm'
 
-# Files for darwin
--- home/Library/Application Support/hvm/config.toml --
-numtagstodisplay = "x"
-
-# Files for linux and windows
--- config/hvm/config.toml --
-numtagstodisplay = "x"
+-- .hvm --
+v0.118.2

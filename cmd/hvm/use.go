@@ -47,13 +47,18 @@ to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
 tag to an .hvm file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := use()
+		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
+		cobra.CheckErr(err)
+
+		err = use(useVersionInDotFile)
 		cobra.CheckErr(err)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(useCmd)
+	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
+
 }
 
 // A repository is a GitHub repository.
@@ -75,17 +80,29 @@ type asset struct {
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
-func use() error {
-	repo := newRepository()
+func use(useVersionInDotFile bool) error {
 	asset := newAsset()
+	repo := newRepository()
 
-	msg := "Select a version to use in the current directory"
-	err := repo.selectTag(asset, msg)
-	if err != nil {
-		return err
-	}
-	if asset.tag == "" {
-		return nil // the user did not select a tag; do nothing
+	if useVersionInDotFile {
+		version, err := getVersionFromDotFile(App.DotFilePath)
+		if err != nil {
+			return err
+		}
+		if version == "" {
+			fmt.Fprintln(os.Stderr, "Error: the current directory does not contain an "+App.DotFileName+" file")
+			os.Exit(1)
+		}
+		asset.tag = version
+	} else {
+		msg := "Select a version to use in the current directory"
+		err := repo.selectTag(asset, msg)
+		if err != nil {
+			return err
+		}
+		if asset.tag == "" {
+			return nil // the user did not select a tag; do nothing
+		}
 	}
 
 	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
@@ -96,33 +113,7 @@ func use() error {
 	if exists {
 		fmt.Printf("Using %s from cache.\n", asset.tag)
 	} else {
-		err = repo.fetchURL(asset)
-		if err != nil {
-			return err
-		}
-
-		asset.archiveDirPath, err = os.MkdirTemp("", "")
-		if err != nil {
-			return err
-		}
-		defer func() {
-			err := os.RemoveAll(asset.archiveDirPath)
-			if err != nil {
-				log.Fatal(err)
-			}
-		}()
-
-		err = asset.downloadAsset()
-		if err != nil {
-			return err
-		}
-
-		err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
-		if err != nil {
-			return err
-		}
-
-		err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
+		err := get(asset, repo)
 		if err != nil {
 			return err
 		}
@@ -134,6 +125,15 @@ func use() error {
 	}
 
 	return nil
+}
+
+// newAsset creates a new asset object, returning a pointer to same.
+func newAsset() *asset {
+	a := asset{
+		execName: getExecName(),
+	}
+
+	return &a
 }
 
 // newRepository creates a new repository object, returning a pointer to same.
@@ -161,13 +161,40 @@ func newRepository() *repository {
 	return &r
 }
 
-// newAsset creates a new asset object, returning a pointer to same.
-func newAsset() *asset {
-	a := asset{
-		execName: getExecName(),
+// get downloads and extracts the release asset.
+func get(asset *asset, repo *repository) error {
+	err := repo.fetchDownloadURL(asset)
+	if err != nil {
+		return err
 	}
 
-	return &a
+	asset.archiveDirPath, err = os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := os.RemoveAll(asset.archiveDirPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	err = asset.downloadAsset()
+	if err != nil {
+		return err
+	}
+
+	err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
+	if err != nil {
+		return err
+	}
+
+	err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // fetchTags fetches tags associated with recent releases.
@@ -275,8 +302,8 @@ func (r *repository) selectTag(a *asset, msg string) error {
 	return nil
 }
 
-// fetchURL fetches the download URL for the user-selected tag.
-func (r *repository) fetchURL(a *asset) error {
+// fetchDownloadURL fetches the download URL for the user-selected tag.
+func (r *repository) fetchDownloadURL(a *asset) error {
 	// The archive file name was different with v0.102.3 and earlier.
 	version := a.tag[1:]
 	pattern := ""
@@ -388,12 +415,7 @@ func (a *asset) getExecPath() string {
 
 // createDotFile creates an application dot file in the current directory.
 func (a *asset) createDotFile() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	err = os.WriteFile(filepath.Join(wd, App.DotFileName), []byte(a.tag), 0644)
+	err := os.WriteFile(App.DotFilePath, []byte(a.tag), 0644)
 	if err != nil {
 		return err
 	}

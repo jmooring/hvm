@@ -7,18 +7,18 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# https://github.com/actions/runner-images/issues/602
-[darwin] skip
-
 # Test
+env HVM_NUMTAGSTODISPLAY=-1
 stdin input.txt
 exec hvm use
+stdout 'Select a version to use in the current directory: '
+stdout 'Downloading v0\.54\.0\.\.\.\ done.'
 exec hvm status
-stdout 'The current directory is configured to use Hugo'
-stdout 'Cached versions of the Hugo executable'
-exec hvm disable
-stdout 'Version management has been disabled in the current directory.'
-! exists '.hvm'
+stdout 'The current directory is configured to use Hugo v0\.54\.0\.\n'
+[darwin] exists 'home/Library/Caches/hvm/v0.54.0/hugo'
+[linux] exists 'cache/hvm/v0.54.0/hugo'
+[windows] exists 'cache\\hvm\\v0.54.0\\hugo.exe'
 
+# Files
 -- input.txt --
 1

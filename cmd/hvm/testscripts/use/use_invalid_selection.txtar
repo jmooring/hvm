@@ -8,8 +8,11 @@
 [windows] env AppData=config
 
 # Test
-! exec hvm status
-stderr 'the \.hvm file in the current directory has an invalid format'
+env HVM_NUMTAGSTODISPLAY=12
+stdin input.txt
+exec hvm use
+stdout 'Please enter a number between 1 and 12, or press Enter'
 
--- .hvm --
-xxx
+# Files
+-- input.txt --
+13

@@ -7,17 +7,13 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# https://github.com/actions/runner-images/issues/602
-[darwin] skip
-
 # Test
-stdin input.txt
-exec hvm use
-stdout 'Downloading v.*\.\.\. done.'
-
-exec hvm status
-stdout 'The current directory is configured to use Hugo v.*'
+exec hvm use --useVersionInDotFile
+stdout 'Downloading v0\.118\.2\.\.\. done\.\n'
+[darwin] exists 'home/Library/Caches/hvm/v0.118.2/hugo'
+[linux] exists 'cache/hvm/v0.118.2/hugo'
+[windows] exists 'cache\\hvm\\v0.118.2\\hugo.exe'
 
 # Files
--- input.txt --
-1
+-- .hvm --
+v0.118.2

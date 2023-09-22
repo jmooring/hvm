@@ -7,6 +7,6 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-exec hvm completion
-stdout 'Generate the autocompletion script for hvm for the specified shell.'
-stdout 'See each sub-command''s help for details on how to use the generated script.'
+# Test
+exec hvm remove
+stdout 'Nothing to remove\.\n'

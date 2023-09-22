@@ -31,4 +31,32 @@ func TestCommands(t *testing.T) {
 			return nil
 		},
 	})
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/config",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/remove",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/status",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/use",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
 }

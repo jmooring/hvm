@@ -1,0 +1,48 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+# Test 1: answer no
+stdin input-no.txt
+exec hvm reset
+stdout 'This will reset the configuration and remove the cache directory\.\n'
+stdout 'Are you sure you want to do this\? \(y/N\): '
+stdout 'Canceled\.\n'
+
+# Test 2: answer yes
+stdin input-yes.txt
+exec hvm reset
+stdout 'This will reset the configuration and remove the cache directory\.\n'
+stdout 'Are you sure you want to do this\? \(y/N\): '
+stdout 'Version management has been disabled in the current directory\.\n'
+[darwin] ! exists home/Library/Caches/hvm
+[darwin] ! exists home/Library/Application Support/hvm"
+[linux] ! exists cache/hvm
+[linux] ! exists config/hvm
+[windows] ! exists cache\\hvm
+[windows] ! exists config\\hvm
+
+# Files
+-- input-no.txt --
+n
+-- input-yes.txt --
+y
+-- home/Library/Caches/hvm/v0.118.0/hugo --
+darwin-exec-bytes
+-- home/Library/Application Support/hvm/config.toml --
+numtagstodisplay = 42
+
+-- cache/hvm/v0.118.0/hugo --
+linux-exec-bytes
+-- config/hvm/config.toml --
+numtagstodisplay = 42
+
+-- cache\\hvm\\v0.118.0\\hugo.exe --
+windows-exec-bytes
+-- config\\hvm\\config.toml --
+numtagstodisplay = 42

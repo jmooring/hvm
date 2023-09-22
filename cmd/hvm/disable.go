@@ -19,7 +19,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
@@ -42,18 +41,13 @@ func init() {
 
 // disable disables version management in the current directory.
 func disable() error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	exists, err := helpers.Exists(filepath.Join(wd, App.DotFileName))
+	exists, err := helpers.Exists(App.DotFilePath)
 	if err != nil {
 		return err
 	}
 
 	if exists {
-		err := os.Remove(filepath.Join(wd, App.DotFileName))
+		err := os.Remove(App.DotFilePath)
 		if err != nil {
 			return err
 		}

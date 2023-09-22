@@ -38,44 +38,103 @@ var statusCmd = &cobra.Command{
 	Long: `Display a list of cached assets, the size of the cache, and the cache
 location. The "default" directory created by the "install" command is excluded.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := status()
+		err := status(cmd)
 		cobra.CheckErr(err)
 	},
 }
 
-var printExecPath bool
-
 func init() {
 	rootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().BoolVar(&printExecPath, "printExecPath", false, "Print the path to the Hugo executable if version\nmanagement is enabled in the current directory")
+	statusCmd.Flags().Bool("printExecPath", false, `Based on the version specified in the `+App.DotFileName+` file,
+print the path to Hugo executable, otherwise
+return exit code 1. This path is not verified, and the
+executable may not exist.`)
+	statusCmd.Flags().Bool("printExecPathCached", false, `Based on the version specified in the `+App.DotFileName+` file,
+print the path to Hugo executable if cached, otherwise
+return exit code 1.`)
 }
 
 // status displays a list of cached assets, the size of the cache, and the
 // cache location. The "default" directory created by the "install" command is
 // excluded.
-func status() error {
-	wd, err := os.Getwd()
+//
+//gocyclo:ignore
+func status(cmd *cobra.Command) error {
+	printExecPath, err := cmd.Flags().GetBool("printExecPath")
 	if err != nil {
 		return err
 	}
 
-	version, err := getVersionFromDotFile(filepath.Join(wd, App.DotFileName))
+	printExecPathCached, err := cmd.Flags().GetBool("printExecPathCached")
 	if err != nil {
 		return err
 	}
 
+	version, err := getVersionFromDotFile(App.DotFilePath)
+	if err != nil {
+		return err
+	}
+
+	execPath := filepath.Join(App.CacheDirPath, version, getExecName())
+	execPathExists, err := helpers.Exists(execPath)
+	if err != nil {
+		return err
+	}
+
+	// Prints exec path, else exit code 1.
 	if printExecPath {
 		if version == "" {
 			os.Exit(1)
 		} else {
-			fmt.Println(filepath.Join(App.CacheDirPath, version, getExecName()))
+			fmt.Println(execPath)
+			os.Exit(0)
 		}
-		return nil
-	} else {
+	}
+
+	// Prints the exec path if the exec is cached, else exit code 1.
+	if printExecPathCached {
 		if version == "" {
-			fmt.Println("Version management is disabled in the current directory.")
+			os.Exit(1)
 		} else {
+			if execPathExists {
+				fmt.Println(execPath)
+				os.Exit(0)
+			} else {
+				os.Exit(1)
+			}
+		}
+	}
+
+	if version == "" {
+		fmt.Println("Version management is disabled in the current directory.")
+	} else {
+		if execPathExists {
 			fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
+		} else {
+			var r string
+			fmt.Printf("The %s file in the current directory refers to a Hugo\n", App.DotFileName)
+			fmt.Printf("version (%s) that is not cached.\n", version)
+			fmt.Println()
+			for {
+				fmt.Printf("Would you like to get it now? (Y/n): ")
+				fmt.Scanln(&r)
+				if len(r) == 0 || strings.ToLower(string(r[0])) == "y" {
+					err = use(true)
+					if err != nil {
+						return err
+					}
+					fmt.Println()
+					break
+				}
+				if strings.ToLower(string(r[0])) == "n" {
+					err = disable()
+					if err != nil {
+						return err
+					}
+					fmt.Println()
+					break
+				}
+			}
 		}
 	}
 
@@ -167,10 +226,9 @@ func getVersionFromDotFile(path string) (string, error) {
 		return "", err
 	}
 
+	theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
+
 	dotHvmContent := strings.TrimSpace(buf.String())
-
-	theFix := fmt.Sprintf("run `%[1]s use` to select a version, or `%[1]s disable` to remove the file", App.Name)
-
 	if dotHvmContent == "" {
 		return "", fmt.Errorf("the %s file in the current directory is empty: %s", App.DotFileName, theFix)
 	}
@@ -179,16 +237,6 @@ func getVersionFromDotFile(path string) (string, error) {
 	match := re.MatchString(dotHvmContent)
 	if !match {
 		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", App.DotFileName, theFix)
-	}
-
-	exists, err = helpers.Exists(filepath.Join(App.CacheDirPath, dotHvmContent, getExecName()))
-	if err != nil {
-		return "", err
-	}
-	if !exists {
-		if !useVersionInDotFile {
-			return "", fmt.Errorf("the %s file in the current directory contains an invalid version (%s): %s", App.DotFileName, dotHvmContent, theFix)
-		}
 	}
 
 	return (dotHvmContent), nil

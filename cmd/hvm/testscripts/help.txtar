@@ -8,8 +8,5 @@
 [windows] env AppData=config
 
 # Test
-! exec hvm status
-stderr 'the \.hvm file in the current directory has an invalid format'
-
--- .hvm --
-zzz
+exec hvm help
+stdout 'Hugo Version Manager \(hvm\) is a tool that helps you download, manage, and switch\n'
