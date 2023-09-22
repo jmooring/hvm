@@ -71,11 +71,6 @@ func clean() error {
 			}
 			fmt.Println("Cache cleaned.")
 
-			err = disable()
-			if err != nil {
-				return err
-			}
-
 			return nil
 		}
 	}
