@@ -44,6 +44,17 @@ func init() {
 // clean cleans the cache, excluding the version installed with the "install"
 // command.
 func clean() error {
+
+	cacheSize, err := getCacheSize()
+	if err != nil {
+		return err
+	}
+
+	if cacheSize == 0 {
+		fmt.Println("The cache is already empty.")
+		return nil
+	}
+
 	fmt.Println("This will delete cached versions of the Hugo executable.")
 
 	var r string

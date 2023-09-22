@@ -7,12 +7,16 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# Test
+# Test 1: cache is not empty
 stdin input.txt
 exec hvm clean
 stdout 'This will delete cached versions of the Hugo executable.'
 stdout 'Are you sure you want to clean the cache\? \(y/N\): '
 stdout 'Cache cleaned.'
+
+# Test 2: cache is empty
+exec hvm clean
+stdout 'The cache is already empty.'
 
 # Files
 -- input.txt --
