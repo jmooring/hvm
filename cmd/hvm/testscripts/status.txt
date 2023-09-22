@@ -7,11 +7,37 @@
 [windows] env LocalAppData=cache
 [windows] env AppData=config
 
-# Test
+# Test 1: dot file exists, cache not empty
 exec hvm status
-stdout 'The current directory is configured to use Hugo v0.117.0.\n'
-stdout 'Cached versions of the Hugo executable:\n'
-stdout 'v0.117.0\n'
+stdout 'The current directory is configured to use Hugo v0.117.0.'
+stdout 'Cached versions of the Hugo executable:'
+stdout 'v0.117.0'
+
+exec hvm status --printExecPath
+[darwin] stdout 'home/Library/Caches/hvm/v0.117.0/hugo'
+[linux] stdout 'cache/hvm/v0.117.0/hugo'
+[windows] stdout 'cache\\hvm\\v0.117.0\\hugo.exe'
+
+# Test 2: dot file does not exist, cache not empty
+rm .hvm
+
+exec hvm status
+stdout 'Version management is disabled in the current directory.'
+stdout 'Cached versions of the Hugo executable:'
+stdout 'v0.117.0'
+
+! exec hvm status --printExecPath
+
+# Test 3: dot file does not exist, cache empty
+rm home/Library/Caches/hvm/v0.117.0
+rm cache/hvm/v0.117.0
+rm cache/hvm/v0.117.0
+
+exec hvm status
+stdout 'Version management is disabled in the current directory.'
+stdout 'The cache is empty.'
+
+! exec hvm status --printExecPath
 
 # Files
 -- .hvm --

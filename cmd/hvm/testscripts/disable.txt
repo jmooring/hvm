@@ -17,7 +17,7 @@ exec hvm status
 stdout 'The current directory is configured to use Hugo'
 stdout 'Cached versions of the Hugo executable'
 exec hvm disable
-stdout 'Version management has been disabled in the current directory.\n'
+stdout 'Version management has been disabled in the current directory.'
 ! exists '.hvm'
 
 -- input.txt --

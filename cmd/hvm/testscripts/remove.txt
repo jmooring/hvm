@@ -9,7 +9,7 @@
 
 # Test
 exec hvm remove
-stdout 'Default version removed.\n'
+stdout 'Default version removed.'
 
 # Files
 -- home/Library/Caches/hvm/default/hugo --

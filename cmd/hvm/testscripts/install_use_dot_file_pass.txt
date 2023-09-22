@@ -12,8 +12,8 @@
 
 # Test
 exec hvm install --useVersionInDotFile
-stdout 'Downloading v0.54.0... done.\n'
-stdout 'Installation of v0.54.0 complete.\n'
+stdout 'Downloading v0.54.0... done.'
+stdout 'Installation of v0.54.0 complete.'
 
 # Files
 -- .hvm --

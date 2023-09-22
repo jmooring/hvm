@@ -9,10 +9,10 @@
 
 # Tests
 exec hvm gen
-stdout 'Generate various files.\n'
+stdout 'Generate various files.'
 
 exec hvm gen alias
-stdout 'Generate an alias function for the specified shell.\n'
+stdout 'Generate an alias function for the specified shell.'
 
 exec hvm gen alias bash
 stdout '# Hugo Version Manager: override path to the hugo executable.'

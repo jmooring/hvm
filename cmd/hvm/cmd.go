@@ -58,6 +58,7 @@ var App application = application{
 	RepositoryName:  "hugo",
 	RepositoryOwner: "gohugoio",
 }
+
 var Config configuration
 
 var (

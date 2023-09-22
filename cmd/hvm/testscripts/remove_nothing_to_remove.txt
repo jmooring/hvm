@@ -9,4 +9,4 @@
 
 # Test
 exec hvm remove
-stdout 'Nothing to remove.\n'
+stdout 'Nothing to remove.'
