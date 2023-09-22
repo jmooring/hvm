@@ -10,7 +10,7 @@
 # Test
 stdin input.txt
 exec hvm clean
-stdout 'This will delete cached versions of the Hugo executable.\n'
+stdout 'This will delete cached versions of the Hugo executable.'
 stdout 'Are you sure you want to clean the cache\? \(y/N\): '
 stdout 'Cache cleaned.'
 

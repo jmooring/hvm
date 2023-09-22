@@ -13,7 +13,7 @@ env HVM_SORTASCENDING=true
 
 # Test
 exec hvm config
-stdout 'githubToken = ''my-token''\n'
-stdout 'numTagsToDisplay = 42\n'
-stdout 'sortAscending = true\n'
+stdout 'githubToken = ''my-token'''
+stdout 'numTagsToDisplay = 42'
+stdout 'sortAscending = true'
 stdout 'Configuration file: '

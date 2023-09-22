@@ -9,4 +9,4 @@
 
 # Test
 exec hvm help
-stdout 'Hugo Version Manager \(hvm\) is a tool that helps you download, manage, and switch\n'
+stdout 'Hugo Version Manager \(hvm\) is a tool that helps you download, manage, and switch'

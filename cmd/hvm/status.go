@@ -28,7 +28,6 @@ import (
 
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"golang.org/x/mod/semver"
 )
 
@@ -44,10 +43,11 @@ location. The "default" directory created by the "install" command is excluded.`
 	},
 }
 
+var printExecPath bool
+
 func init() {
 	rootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().Bool("printExecPath", false, "Print the path to the Hugo executable if version\nmanagement is enabled in the current directory")
-	viper.BindPFlag("printExecPath", statusCmd.Flags().Lookup("printExecPath"))
+	statusCmd.Flags().BoolVar(&printExecPath, "printExecPath", false, "Print the path to the Hugo executable if version\nmanagement is enabled in the current directory")
 }
 
 // status displays a list of cached assets, the size of the cache, and the
@@ -64,7 +64,7 @@ func status() error {
 		return err
 	}
 
-	if viper.GetBool("printExecPath") {
+	if printExecPath {
 		if version == "" {
 			os.Exit(1)
 		} else {
@@ -186,7 +186,7 @@ func getVersionFromDotFile(path string) (string, error) {
 		return "", err
 	}
 	if !exists {
-		if !viper.GetBool("useVersionInDotFile") {
+		if !useVersionInDotFile {
 			return "", fmt.Errorf("the %s file in the current directory contains an invalid version (%s): %s", App.DotFileName, dotHvmContent, theFix)
 		}
 	}

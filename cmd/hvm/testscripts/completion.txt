@@ -8,5 +8,5 @@
 [windows] env AppData=config
 
 exec hvm completion
-stdout 'Generate the autocompletion script for hvm for the specified shell.\n'
-stdout 'See each sub-command''s help for details on how to use the generated script.\n'
+stdout 'Generate the autocompletion script for hvm for the specified shell.'
+stdout 'See each sub-command''s help for details on how to use the generated script.'

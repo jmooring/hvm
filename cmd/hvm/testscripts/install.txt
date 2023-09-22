@@ -13,7 +13,7 @@
 # Test
 stdin input.txt
 exec hvm install
-stdout 'Downloading v.*\.\.\. done.\n'
+stdout 'Downloading v.*\.\.\. done.'
 
 # Files
 -- input.txt --

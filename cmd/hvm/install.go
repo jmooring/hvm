@@ -26,7 +26,6 @@ import (
 	"github.com/jmooring/hvm/pkg/archive"
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 // installCmd represents the install command
@@ -47,10 +46,11 @@ you will be prompted to add it when installation is complete.`,
 	},
 }
 
+var useVersionInDotFile bool
+
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().Bool("useVersionInDotFile", false, "Install the version specified by the "+App.DotFileName+" file\nin the current directory")
-	viper.BindPFlag("useVersionInDotFile", installCmd.Flags().Lookup("useVersionInDotFile"))
+	installCmd.Flags().BoolVar(&useVersionInDotFile, "useVersionInDotFile", false, "Install the version specified by the "+App.DotFileName+" file\nin the current directory")
 }
 
 // install sets the version of the Hugo executable to use when version
@@ -59,7 +59,7 @@ func install() error {
 	repo := newRepository()
 	asset := newAsset()
 
-	if viper.GetBool("useVersionInDotFile") {
+	if useVersionInDotFile {
 		version, err := getVersionFromDotFile(filepath.Join(App.WorkingDir, App.DotFileName))
 		if err != nil {
 			return err
