@@ -26,6 +26,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -93,6 +94,11 @@ func use(useVersionInDotFile bool) error {
 			fmt.Fprintln(os.Stderr, "Error: the current directory does not contain an "+App.DotFileName+" file")
 			os.Exit(1)
 		}
+		if !slices.Contains(repo.tags, version) {
+			theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
+			fmt.Fprintf(os.Stderr, "Error: the version specified in the "+App.DotFileName+" file (%s) is not available in the repository: %s\n", version, theFix)
+			os.Exit(1)
+		}
 		asset.tag = version
 	} else {
 		msg := "Select a version to use in the current directory"
@@ -156,6 +162,12 @@ func newRepository() *repository {
 		client: client,
 		name:   App.RepositoryName,
 		owner:  App.RepositoryOwner,
+	}
+
+	err := r.fetchTags()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	return &r
@@ -248,12 +260,6 @@ func (r *repository) fetchTags() error {
 
 // selectTag prompts the user to select a tag from a list of recent tags.
 func (r *repository) selectTag(a *asset, msg string) error {
-
-	err := r.fetchTags()
-	if err != nil {
-		return err
-	}
-
 	// List tags.
 	fmt.Println()
 
