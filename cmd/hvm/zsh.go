@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed alias_scripts/zsh.sh
+//go:embed aliases/zsh.sh
 var zshScript string
 
 // zshCmd represents the zsh command

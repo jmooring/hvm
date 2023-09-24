@@ -8,7 +8,9 @@ hugo() {
     fi
   else
     if hugo_bin=$(hvm status --printExecPath); then
-      hvm use --useVersionInDotFile
+      if ! hvm use --useVersionInDotFile; then
+        return 1
+      fi
     else
       if ! hugo_bin=$(which hugo); then
         >&2 printf "Command not found.\\n"

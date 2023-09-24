@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed alias_scripts/fish.sh
+//go:embed aliases/fish.sh
 var fishScript string
 
 // fishCmd represents the fish command
