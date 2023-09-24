@@ -13,7 +13,7 @@ function Hugo-Override {
     If ($hugo_bin) {
       hvm use --useVersionInDotFile
       if ($lastexitcode) {
-        return 1
+        return
       }
     } Else {
       Set-Variable -Name "hugo_bin" -Value $((gcm hugo.exe).Path 2> $null)
