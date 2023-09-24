@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed alias_scripts/powershell.ps1
+//go:embed aliases/powershell.ps1
 var powershellScript string
 
 // powershellCmd represents the powershell command

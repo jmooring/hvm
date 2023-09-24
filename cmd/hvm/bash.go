@@ -22,7 +22,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-//go:embed alias_scripts/bash.sh
+//go:embed aliases/bash.sh
 var bashScript string
 
 // bashCmd represents the bash command

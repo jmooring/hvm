@@ -12,6 +12,9 @@ function Hugo-Override {
     Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPath)
     If ($hugo_bin) {
       hvm use --useVersionInDotFile
+      if ($lastexitcode) {
+        return 1
+      }
     } Else {
       Set-Variable -Name "hugo_bin" -Value $((gcm hugo.exe).Path 2> $null)
       If ($hugo_bin) {
