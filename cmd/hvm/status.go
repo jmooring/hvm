@@ -22,7 +22,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -233,9 +232,7 @@ func getVersionFromDotFile(path string) (string, error) {
 		return "", fmt.Errorf("the %s file in the current directory is empty: %s", App.DotFileName, theFix)
 	}
 
-	re := regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
-	match := re.MatchString(dotHvmContent)
-	if !match {
+	if !semver.IsValid(dotHvmContent) {
 		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", App.DotFileName, theFix)
 	}
 

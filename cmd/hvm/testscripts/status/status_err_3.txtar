@@ -1,0 +1,14 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+[darwin] env HOME=home
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+[linux] env XDG_CACHE_HOME=cache
+[linux] env XDG_CONFIG_HOME=config
+[windows] env LocalAppData=cache
+[windows] env AppData=config
+
+# Test
+! exec hvm status
+stderr 'Error: the version specified in the \.hvm file \(v\d+\.\d+\.\d+\) is not available in the repository: run "hvm use" to select a version, or "hvm disable" to remove the file\n'
+-- .hvm --
+v9.999.9
