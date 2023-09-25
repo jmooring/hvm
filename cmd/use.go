@@ -240,19 +240,6 @@ func (r *repository) fetchTags() error {
 	if Config.SortAscending {
 		semver.Sort(tagNames)
 	}
-
-	n := Config.NumTagsToDisplay
-	if n < 0 {
-		n = 9999
-	}
-	if n <= len(tagNames) {
-		if Config.SortAscending {
-			tagNames = tagNames[len(tagNames)-n:]
-		} else {
-			tagNames = tagNames[:n]
-		}
-	}
-
 	r.tags = tagNames
 
 	return nil
@@ -263,7 +250,21 @@ func (r *repository) selectTag(a *asset, msg string) error {
 	// List tags.
 	fmt.Println()
 
-	for i, tag := range r.tags {
+	n := Config.NumTagsToDisplay
+	if n < 0 {
+		n = 9999
+	}
+
+	tags := r.tags
+	if n <= len(r.tags) {
+		if Config.SortAscending {
+			tags = tags[len(tags)-n:]
+		} else {
+			tags = tags[:n]
+		}
+	}
+
+	for i, tag := range tags {
 		exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, tag))
 		if err != nil {
 			return err
@@ -277,7 +278,7 @@ func (r *repository) selectTag(a *asset, msg string) error {
 		if (i+1)%3 == 0 {
 			fmt.Print("\n")
 
-		} else if i == len(r.tags)-1 {
+		} else if i == len(tags)-1 {
 			fmt.Print("\n")
 		}
 	}
@@ -298,10 +299,10 @@ func (r *repository) selectTag(a *asset, msg string) error {
 		}
 
 		ri, err := strconv.Atoi(strings.TrimSpace(rs))
-		if err != nil || ri < 1 || ri > len(r.tags) {
-			fmt.Printf("Please enter a number between 1 and %d, or press Enter to cancel: ", len(r.tags))
+		if err != nil || ri < 1 || ri > len(tags) {
+			fmt.Printf("Please enter a number between 1 and %d, or press Enter to cancel: ", len(tags))
 		} else {
-			a.tag = r.tags[ri-1]
+			a.tag = tags[ri-1]
 		}
 	}
 
