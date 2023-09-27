@@ -31,7 +31,7 @@ To use a different version of Hugo, run the `hvm use` command again and select t
 
 The extracted release assets are cached, so you don't have to download them again each time you switch versions. You can view a list of cached assets, the size of the cache, and the cache location by running the `hvm status` command. You can also clean the cache by running the `hvm clean` command.
 
-The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use Hugo as an installer, even if you don't want to use the version management features of hvm.
+The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use hvm as a Hugo installer, even if you don't want to use its version management features.
 
 ## Installation
 
