@@ -2,8 +2,6 @@ on:
   pull_request:
     branches: [main]
 name: test
-env:
-  HVM_GITHUBTOKEN: ${{ secrets.HVM_GITHUBTOKEN }}
 permissions:
   contents: read
 jobs:
@@ -28,4 +26,6 @@ jobs:
       - name: Install hvm
         run: go install
       - name: Test
+        env:
+          HVM_GITHUBTOKEN: ${{ secrets.HVM_GITHUBTOKEN }}
         run: go test ./...
