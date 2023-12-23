@@ -104,9 +104,9 @@ If you regularly exceed this limit, you can create a GitHub personal access toke
 
 By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned.
 
-**sortAscending** (bool, default `true`)
+**sortAscending** (bool, default `false`)
 
-By default, the `hvm use` and `hvm install` commands display the list of recent releases in ascending order. To display the list in descending order, set this value to `false`.
+By default, the `hvm use` and `hvm install` commands display the list of recent releases in descending order. To display the list in ascending order, set this value to `true`.
 
 [go]: https://go.dev/doc/install
 [hugo]: https://github.com/gohugoio/hugo/#readme

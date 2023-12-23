@@ -9,6 +9,7 @@
 
 # Test
 env HVM_NUMTAGSTODISPLAY=-1
+env HVM_SORTASCENDING=true
 stdin input.txt
 exec hvm install
 stdout 'Select a version to use when version management is disabled: '
