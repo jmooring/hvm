@@ -86,10 +86,10 @@ Use "hvm [command] --help" for more information about a command
 
 To locate the configuration file, run the `hvm config` command. This will print the path to the configuration file to the console. Keys in the configuration file are case-insensitive.
 
-To set configuration values with an environment variable, create an environment variable prefixed with `HVM_`. For example, to set the `sortAscending` configuration value to false:
+To set configuration values with an environment variable, create an environment variable prefixed with `HVM_`. For example, to set the `sortAscending` configuration value to true:
 
 ```text
-export HVM_SORTASCENDING=false
+export HVM_SORTASCENDING=true
 ```
 
 An environment variable takes precedence over the values set in the configuration file. This means that if you set a configuration value with both an environment variable and in the configuration file, the value in the environment variable will be used.
