@@ -11,7 +11,7 @@
 exec hvm config
 stdout 'githubToken = ''.*''\n'
 stdout 'numTagsToDisplay = 30\n'
-stdout 'sortAscending = true\n'
+stdout 'sortAscending = false\n'
 [darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
 [linux] stdout 'Configuration file: .+/config/hvm/config\.toml\n'
 [windows] stdout 'Configuration file: .+\\config\\hvm\\config\.toml\n'

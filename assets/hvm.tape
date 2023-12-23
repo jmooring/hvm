@@ -34,7 +34,7 @@ Type "hvm use"
 Enter
 Sleep 3
 
-Type "27"
+Type "1"
 Enter
 Sleep 5
 
@@ -46,7 +46,7 @@ Type "hvm use"
 Enter
 Sleep 3
 
-Type "30"
+Type "7"
 Enter
 Sleep 5
 

@@ -102,7 +102,7 @@ func initConfig() {
 	// Set default values.
 	viper.SetDefault("githubToken", "")
 	viper.SetDefault("numTagsToDisplay", 30)
-	viper.SetDefault("sortAscending", true)
+	viper.SetDefault("sortAscending", false)
 
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()

@@ -9,6 +9,7 @@
 
 # Test
 env HVM_NUMTAGSTODISPLAY=-1
+env HVM_SORTASCENDING=true
 stdin input.txt
 exec hvm use
 stdout 'Select a version to use in the current directory: '
