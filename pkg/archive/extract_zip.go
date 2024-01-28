@@ -42,14 +42,14 @@ func extractZip(src string, dst string) error {
 		target := filepath.Join(dst, f.Name)
 
 		if f.FileInfo().IsDir() {
-			err = os.MkdirAll(target, 0777)
+			err = os.MkdirAll(target, 0o777)
 			if err != nil {
 				return err
 			}
 			continue
 		}
 
-		err := os.MkdirAll(filepath.Dir(target), 0777)
+		err := os.MkdirAll(filepath.Dir(target), 0o777)
 		if err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func copyFileFromZip(z *zip.File, dst string) error {
 	}
 	defer zrc.Close()
 
-	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0777)
+	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, 0o777)
 	if err != nil {
 		return err
 	}

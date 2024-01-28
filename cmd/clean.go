@@ -44,7 +44,6 @@ func init() {
 // clean cleans the cache, excluding the version installed with the "install"
 // command.
 func clean() error {
-
 	cacheSize, err := getCacheSize()
 	if err != nil {
 		return err

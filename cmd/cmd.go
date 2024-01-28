@@ -107,7 +107,7 @@ func initConfig() {
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()
 	cobra.CheckErr(err)
-	err = os.MkdirAll(filepath.Join(userConfigDir, App.Name), 0777)
+	err = os.MkdirAll(filepath.Join(userConfigDir, App.Name), 0o777)
 	cobra.CheckErr(err)
 
 	// Define config file.
@@ -167,6 +167,6 @@ func initApp() {
 	App.DotFilePath = filepath.Join(wd, App.DotFileName)
 	App.WorkingDir = wd
 
-	err = os.MkdirAll(App.CacheDirPath, 0777)
+	err = os.MkdirAll(App.CacheDirPath, 0o777)
 	cobra.CheckErr(err)
 }
