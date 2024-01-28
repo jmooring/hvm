@@ -112,7 +112,7 @@ func CopyFile(src string, dst string) error {
 	}
 	defer s.Close()
 
-	err = os.MkdirAll(filepath.Dir(dst), 0777)
+	err = os.MkdirAll(filepath.Dir(dst), 0o777)
 	if err != nil {
 		return err
 	}
@@ -158,7 +158,7 @@ func CopyDirectoryContent(src string, dst string) error {
 		}
 
 		target := filepath.Join(dst, strings.TrimPrefix(path, src))
-		err = os.MkdirAll(filepath.Dir(target), 0777)
+		err = os.MkdirAll(filepath.Dir(target), 0o777)
 		if err != nil {
 			return err
 		}

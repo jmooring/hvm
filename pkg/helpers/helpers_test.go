@@ -173,7 +173,7 @@ func TestIsEmpty(t *testing.T) {
 	dPathNotEmpty := t.TempDir()
 	fPathNotEmpty := filepath.Join(dPathNotEmpty, "not-empty-file.txt")
 
-	err = os.WriteFile(fPathNotEmpty, []byte("not empty"), 0644)
+	err = os.WriteFile(fPathNotEmpty, []byte("not empty"), 0o644)
 	if err != nil {
 		t.Error(err)
 	}
@@ -314,7 +314,6 @@ func TestCopyDirectoryContent(t *testing.T) {
 	if want != got {
 		t.Errorf("file content is incorrect: want %q got %q", want, got)
 	}
-
 }
 
 func TestRemoveDirectoryContent(t *testing.T) {

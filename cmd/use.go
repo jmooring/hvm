@@ -59,7 +59,6 @@ tag to an .hvm file.`,
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
-
 }
 
 // A repository is a GitHub repository.
@@ -277,7 +276,6 @@ func (r *repository) selectTag(a *asset, msg string) error {
 		fmt.Printf("%-25s", fmt.Sprintf("%3d) %s %s", i+1, tag, flag))
 		if (i+1)%3 == 0 {
 			fmt.Print("\n")
-
 		} else if i == len(tags)-1 {
 			fmt.Print("\n")
 		}
@@ -422,7 +420,7 @@ func (a *asset) getExecPath() string {
 
 // createDotFile creates an application dot file in the current directory.
 func (a *asset) createDotFile() error {
-	err := os.WriteFile(App.DotFilePath, []byte(a.tag), 0644)
+	err := os.WriteFile(App.DotFilePath, []byte(a.tag), 0o644)
 	if err != nil {
 		return err
 	}
