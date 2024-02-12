@@ -7,7 +7,7 @@
 
 Hugo Version Manager (hvm) is a tool that helps you download, manage, and switch between different versions of the [Hugo] static site generator. You can also use hvm to install Hugo as a standalone application.
 
-![Demonstration](assets/hvm.gif)
+![Demonstration](assets/hvm.webp)
 
 You can use hvm to:
 

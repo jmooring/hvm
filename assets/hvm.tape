@@ -5,9 +5,7 @@
 #   vhs hvm.tape
 
 # Output
-Output hvm.gif
-#Output hvm.mp4
-#Output hvm.webm
+Output hvm.webp
 
 # Settings
 Set FontSize 24
@@ -15,6 +13,7 @@ Set Framerate 24
 Set Height 640
 Set Padding 36
 Set Width 1300
+Set TypingSpeed 75ms
 
 # Set prompt and clean cache
 Hide
@@ -31,29 +30,36 @@ Show
 
 # Commands
 Type "hvm use"
+Sleep 1
 Enter
 Sleep 3
 
 Type "1"
+Sleep 1
 Enter
 Sleep 5
 
 Type "hugo version"
+Sleep 1
 Enter
 Sleep 3
 
 Type "hvm use"
+Sleep 1
 Enter
 Sleep 3
 
 Type "7"
+Sleep 1
 Enter
 Sleep 5
 
 Type "hugo version"
+Sleep 1
 Enter
 Sleep 3
 
 Type "hvm status"
+Sleep 1
 Enter
 Sleep 5
