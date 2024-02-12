@@ -27,5 +27,5 @@ jobs:
         run: go install
       - name: Test
         env:
-          HVM_GITHUBTOKEN: ${{ secrets.HVM_GITHUBTOKEN }}
+          HVM_GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: go test ./...
