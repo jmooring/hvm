@@ -50,15 +50,19 @@ tag to an .hvm file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
-
-		err = use(useVersionInDotFile)
+		useLatest, err := cmd.Flags().GetBool("latest")
 		cobra.CheckErr(err)
+
+		err = use(useVersionInDotFile, useLatest)
+		cobra.CheckErr(err)
+
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
+	useCmd.Flags().Bool("latest", false, "Use the latest release")
 }
 
 // A repository is a GitHub repository.
@@ -80,7 +84,7 @@ type asset struct {
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
-func use(useVersionInDotFile bool) error {
+func use(useVersionInDotFile bool, useLatest bool) error {
 	asset := newAsset()
 	repo := newRepository()
 
@@ -99,6 +103,11 @@ func use(useVersionInDotFile bool) error {
 			os.Exit(1)
 		}
 		asset.tag = version
+	} else if useLatest {
+		err := repo.getLatestTag(asset)
+		if err != nil {
+			return err
+		}
 	} else {
 		msg := "Select a version to use in the current directory"
 		err := repo.selectTag(asset, msg)
@@ -241,6 +250,16 @@ func (r *repository) fetchTags() error {
 	}
 	r.tags = tagNames
 
+	return nil
+}
+
+// latestTag returns the most recent tag from repository.
+func (r *repository) getLatestTag(a *asset) error {
+	if 1 > len(r.tags) {
+		return fmt.Errorf("no latest release found")
+	}
+	// relying on the sort order
+	a.tag = r.tags[0]
 	return nil
 }
 
