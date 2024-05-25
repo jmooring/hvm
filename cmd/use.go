@@ -50,12 +50,10 @@ tag to an .hvm file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
+		err = use(useVersionInDotFile)
+
 		useLatest, err := cmd.Flags().GetBool("latest")
 		cobra.CheckErr(err)
-
-		err = use(useVersionInDotFile, useLatest)
-		cobra.CheckErr(err)
-
 	},
 }
 
