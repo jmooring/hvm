@@ -62,7 +62,7 @@ tag to an .hvm file.`,
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
-	useCmd.Flags().Bool("latest", false, "Use the latest release")
+	useCmd.Flags().Bool("latest", false, "Use the latest version")
 }
 
 // A repository is a GitHub repository.
