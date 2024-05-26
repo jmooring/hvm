@@ -49,7 +49,7 @@ you will be prompted to add it when installation is complete.`,
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().Bool("latest", false, "Install the latest release")
+	installCmd.Flags().Bool("latest", false, "Install the latest version")
 }
 
 // install sets the version of the Hugo executable to use when version
