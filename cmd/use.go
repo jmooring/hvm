@@ -253,7 +253,7 @@ func (r *repository) fetchTags() error {
 	return nil
 }
 
-// latestTag returns the most recent tag from repository.
+// getLatestTag returns the most recent tag from repository.
 func (r *repository) getLatestTag(a *asset) error {
 	if 1 > len(r.tags) {
 		return fmt.Errorf("no latest release found")
