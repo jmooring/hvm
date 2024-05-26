@@ -70,7 +70,7 @@ type repository struct {
 	owner     string         // account owner of the GitHub repository
 	name      string         // name of the GitHub repository without the .git extension
 	tags      []string       // repository tags in semver ascending order
-	latestTag string         // only retrieve the latest tag
+	latestTag string         // latest repository tag
 	client    *github.Client // a GitHub API client
 }
 
