@@ -118,7 +118,7 @@ func status(cmd *cobra.Command) error {
 				fmt.Printf("Would you like to get it now? (Y/n): ")
 				fmt.Scanln(&r)
 				if len(r) == 0 || strings.ToLower(string(r[0])) == "y" {
-					err = use(true)
+					err = use(true, false)
 					if err != nil {
 						return err
 					}

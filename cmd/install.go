@@ -39,28 +39,39 @@ To use this version when version management is disabled in the current
 directory, the cache "default" directory must be in your PATH. If it is not,
 you will be prompted to add it when installation is complete.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := install()
+		useLatest, err := cmd.Flags().GetBool("latest")
+		cobra.CheckErr(err)
+
+		err = install(useLatest)
 		cobra.CheckErr(err)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(installCmd)
+	installCmd.Flags().Bool("latest", false, "Install the latest version")
 }
 
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
-func install() error {
+func install(useLatest bool) error {
 	asset := newAsset()
 	repo := newRepository()
 
-	msg := "Select a version to use when version management is disabled"
-	err := repo.selectTag(asset, msg)
-	if err != nil {
-		return err
-	}
-	if asset.tag == "" {
-		return nil // the user did not select a tag; do nothing
+	if useLatest {
+		err := repo.getLatestTag(asset)
+		if err != nil {
+			return err
+		}
+	} else {
+		msg := "Select a version to use when version management is disabled"
+		err := repo.selectTag(asset, msg)
+		if err != nil {
+			return err
+		}
+		if asset.tag == "" {
+			return nil // the user did not select a tag; do nothing
+		}
 	}
 
 	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
@@ -74,7 +85,6 @@ func install() error {
 			return err
 		}
 	}
-
 	err = helpers.CopyFile(asset.getExecPath(), filepath.Join(App.CacheDirPath, App.DefaultDirName, asset.execName))
 	if err != nil {
 		return err

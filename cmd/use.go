@@ -51,7 +51,10 @@ tag to an .hvm file.`,
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
 
-		err = use(useVersionInDotFile)
+		useLatest, err := cmd.Flags().GetBool("latest")
+		cobra.CheckErr(err)
+
+		err = use(useVersionInDotFile, useLatest)
 		cobra.CheckErr(err)
 	},
 }
@@ -59,14 +62,16 @@ tag to an .hvm file.`,
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
+	useCmd.Flags().Bool("latest", false, "Use the latest version")
 }
 
 // A repository is a GitHub repository.
 type repository struct {
-	owner  string         // account owner of the GitHub repository
-	name   string         // name of the GitHub repository without the .git extension
-	tags   []string       // repository tags in semver ascending order
-	client *github.Client // a GitHub API client
+	owner     string         // account owner of the GitHub repository
+	name      string         // name of the GitHub repository without the .git extension
+	tags      []string       // repository tags
+	latestTag string         // latest repository tag
+	client    *github.Client // a GitHub API client
 }
 
 // An asset is a GitHub asset for a given release, operating system, and architecture.
@@ -80,7 +85,7 @@ type asset struct {
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
-func use(useVersionInDotFile bool) error {
+func use(useVersionInDotFile bool, useLatest bool) error {
 	asset := newAsset()
 	repo := newRepository()
 
@@ -99,6 +104,11 @@ func use(useVersionInDotFile bool) error {
 			os.Exit(1)
 		}
 		asset.tag = version
+	} else if useLatest {
+		err := repo.getLatestTag(asset)
+		if err != nil {
+			return err
+		}
 	} else {
 		msg := "Select a version to use in the current directory"
 		err := repo.selectTag(asset, msg)
@@ -158,9 +168,10 @@ func newRepository() *repository {
 	}
 
 	r := repository{
-		client: client,
-		name:   App.RepositoryName,
-		owner:  App.RepositoryOwner,
+		client:    client,
+		name:      App.RepositoryName,
+		owner:     App.RepositoryOwner,
+		latestTag: "",
 	}
 
 	err := r.fetchTags()
@@ -236,11 +247,22 @@ func (r *repository) fetchTags() error {
 		}
 	}
 
+	r.latestTag = tagNames[0]
+
 	if Config.SortAscending {
 		semver.Sort(tagNames)
 	}
 	r.tags = tagNames
 
+	return nil
+}
+
+// getLatestTag returns the most recent tag from repository.
+func (r *repository) getLatestTag(a *asset) error {
+	if "" == r.latestTag {
+		return fmt.Errorf("no latest release found")
+	}
+	a.tag = r.latestTag
 	return nil
 }
 
