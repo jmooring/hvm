@@ -41,7 +41,7 @@ you will be prompted to add it when installation is complete.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		useLatest, err := cmd.Flags().GetBool("latest")
 		cobra.CheckErr(err)
-		
+
 		err = install(useLatest)
 		cobra.CheckErr(err)
 	},

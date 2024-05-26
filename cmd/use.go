@@ -50,9 +50,11 @@ tag to an .hvm file.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
-		err = use(useVersionInDotFile)
 
 		useLatest, err := cmd.Flags().GetBool("latest")
+		cobra.CheckErr(err)
+
+		err = use(useVersionInDotFile, useLatest)
 		cobra.CheckErr(err)
 	},
 }
@@ -65,10 +67,11 @@ func init() {
 
 // A repository is a GitHub repository.
 type repository struct {
-	owner  string         // account owner of the GitHub repository
-	name   string         // name of the GitHub repository without the .git extension
-	tags   []string       // repository tags in semver ascending order
-	client *github.Client // a GitHub API client
+	owner     string         // account owner of the GitHub repository
+	name      string         // name of the GitHub repository without the .git extension
+	tags      []string       // repository tags in semver ascending order
+	latestTag string         // only retrieve the latest tag
+	client    *github.Client // a GitHub API client
 }
 
 // An asset is a GitHub asset for a given release, operating system, and architecture.
@@ -165,9 +168,10 @@ func newRepository() *repository {
 	}
 
 	r := repository{
-		client: client,
-		name:   App.RepositoryName,
-		owner:  App.RepositoryOwner,
+		client:    client,
+		name:      App.RepositoryName,
+		owner:     App.RepositoryOwner,
+		latestTag: "",
 	}
 
 	err := r.fetchTags()
@@ -243,6 +247,8 @@ func (r *repository) fetchTags() error {
 		}
 	}
 
+	r.latestTag = tagNames[0]
+
 	if Config.SortAscending {
 		semver.Sort(tagNames)
 	}
@@ -253,11 +259,10 @@ func (r *repository) fetchTags() error {
 
 // getLatestTag returns the most recent tag from repository.
 func (r *repository) getLatestTag(a *asset) error {
-	if 1 > len(r.tags) {
+	if "" == r.latestTag {
 		return fmt.Errorf("no latest release found")
 	}
-	// relying on the sort order
-	a.tag = r.tags[0]
+	a.tag = r.latestTag
 	return nil
 }
 
