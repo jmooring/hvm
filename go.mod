@@ -6,7 +6,7 @@ require (
 	github.com/google/go-github v17.0.0+incompatible
 	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/rogpeppe/go-internal v1.12.0
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/mod v0.18.0
 	golang.org/x/oauth2 v0.21.0
