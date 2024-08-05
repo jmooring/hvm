@@ -8,7 +8,7 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
-	golang.org/x/mod v0.19.0
+	golang.org/x/mod v0.20.0
 	golang.org/x/oauth2 v0.21.0
 )
 
