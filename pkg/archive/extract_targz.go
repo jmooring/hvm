@@ -72,7 +72,7 @@ func extractTarGZ(src string, dst string) error {
 				}
 			}
 		case tar.TypeReg:
-			copyFileFromTarGZ(target, th, tr)
+			err = copyFileFromTarGZ(target, th, tr)
 			if err != nil {
 				return err
 			}
