@@ -37,7 +37,7 @@ Sleep 3
 Type "1"
 Sleep 1
 Enter
-Sleep 5
+Sleep 6
 
 Type "hugo version"
 Sleep 1
