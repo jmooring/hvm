@@ -37,7 +37,7 @@ Sleep 3
 Type "1"
 Sleep 1
 Enter
-Sleep 6
+Wait+Line@10s /\$/
 
 Type "hugo version"
 Sleep 1
@@ -52,7 +52,7 @@ Sleep 3
 Type "7"
 Sleep 1
 Enter
-Sleep 5
+Wait+Line@10s /\$/
 
 Type "hugo version"
 Sleep 1
