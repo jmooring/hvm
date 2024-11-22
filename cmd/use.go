@@ -46,7 +46,10 @@ var useCmd = &cobra.Command{
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
-tag to an .hvm file.`,
+tag to an .hvm file.
+
+You may bypass the selection screen using --latest or --tag`,
+
 	Run: func(cmd *cobra.Command, args []string) {
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
@@ -54,7 +57,10 @@ tag to an .hvm file.`,
 		useLatest, err := cmd.Flags().GetBool("latest")
 		cobra.CheckErr(err)
 
-		err = use(useVersionInDotFile, useLatest)
+		useTag, err := cmd.Flags().GetString("tag")
+		cobra.CheckErr(err)
+
+		err = use(useVersionInDotFile, useLatest, useTag)
 		cobra.CheckErr(err)
 	},
 }
@@ -63,6 +69,7 @@ func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
 	useCmd.Flags().Bool("latest", false, "Use the latest version")
+	useCmd.Flags().String("tag", "", "Use specific tag version")
 }
 
 // A repository is a GitHub repository.
@@ -85,7 +92,7 @@ type asset struct {
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
-func use(useVersionInDotFile bool, useLatest bool) error {
+func use(useVersionInDotFile bool, useLatest bool, useTag string) error {
 	asset := newAsset()
 	repo := newRepository()
 
@@ -106,6 +113,11 @@ func use(useVersionInDotFile bool, useLatest bool) error {
 		asset.tag = version
 	} else if useLatest {
 		err := repo.getLatestTag(asset)
+		if err != nil {
+			return err
+		}
+	} else if useTag != "" {
+		err := repo.getSpecificTag(asset, useTag)
 		if err != nil {
 			return err
 		}
@@ -447,5 +459,60 @@ func (a *asset) createDotFile() error {
 		return err
 	}
 
+	return nil
+}
+
+func (r *repository) getSpecificTag(a *asset, version string) error {
+	// fast return for simple cases
+	switch version {
+	case "":
+		return fmt.Errorf("invalid tag: %s", version)
+	case "v": // latest tag is always valid
+		a.tag = r.latestTag
+		return nil
+	}
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
+	}
+	if strings.HasPrefix(version, "v.") { // empty major
+		version = strings.Replace(version, "v.", semver.Major(r.latestTag)+".", 1)
+	}
+	if "" == semver.Canonical(version) {
+		return fmt.Errorf("invalid tag: %s", version)
+	}
+	if version == semver.Canonical(version) { // major.minor.patch
+		a.tag = version
+	} else {
+		type CompareSemVer func(semver string) bool
+		var compareSemVer CompareSemVer
+		if version == semver.Major(version) { // major only
+			compareSemVer = func(t string) bool {
+				return semver.Compare(semver.Major(version), semver.Major(t)) >= 0
+			}
+		} else if version == semver.MajorMinor(version) { // major.minor
+			compareSemVer = func(t string) bool {
+				return semver.Major(version) == semver.Major(t) && semver.Compare(semver.MajorMinor(version), semver.MajorMinor(t)) >= 0
+			}
+		}
+		if Config.SortAscending {
+			for i := len(r.tags) - 1; i >= 0; i-- {
+				tag := r.tags[i]
+				if compareSemVer(tag) {
+					a.tag = tag
+					return nil
+				}
+			}
+		} else {
+			for _, tag := range r.tags {
+				if compareSemVer(tag) {
+					a.tag = tag
+					return nil
+				}
+			}
+		}
+	}
+	if !slices.Contains(r.tags, a.tag) {
+		return fmt.Errorf("tag not found: %s", version)
+	}
 	return nil
 }

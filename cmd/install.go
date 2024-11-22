@@ -35,6 +35,8 @@ to use when version management is disabled in the current directory. It then
 downloads, extracts, and caches the release asset for your operating system and
 architecture, placing a copy in the cache "default" directory.
 
+You may bypass the selection screen using --latest or --tag
+
 To use this version when version management is disabled in the current
 directory, the cache "default" directory must be in your PATH. If it is not,
 you will be prompted to add it when installation is complete.`,
@@ -42,7 +44,10 @@ you will be prompted to add it when installation is complete.`,
 		useLatest, err := cmd.Flags().GetBool("latest")
 		cobra.CheckErr(err)
 
-		err = install(useLatest)
+		useTag, err := cmd.Flags().GetString("tag")
+		cobra.CheckErr(err)
+
+		err = install(useLatest, useTag)
 		cobra.CheckErr(err)
 	},
 }
@@ -50,16 +55,22 @@ you will be prompted to add it when installation is complete.`,
 func init() {
 	rootCmd.AddCommand(installCmd)
 	installCmd.Flags().Bool("latest", false, "Install the latest version")
+	installCmd.Flags().String("tag", "", "Use specific tag version")
 }
 
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
-func install(useLatest bool) error {
+func install(useLatest bool, useTag string) error {
 	asset := newAsset()
 	repo := newRepository()
 
 	if useLatest {
 		err := repo.getLatestTag(asset)
+		if err != nil {
+			return err
+		}
+	} else if useTag != "" {
+		err := repo.getSpecificTag(asset, useTag)
 		if err != nil {
 			return err
 		}
