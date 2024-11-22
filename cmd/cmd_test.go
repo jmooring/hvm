@@ -41,6 +41,15 @@ func TestCommandConfig(t *testing.T) {
 		},
 	})
 }
+func TestCommandInstall(t *testing.T) {
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/install",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
+}
 func TestCommandRemove(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts/remove",
