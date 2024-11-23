@@ -70,6 +70,7 @@ func init() {
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
 	useCmd.Flags().Bool("latest", false, "Use the latest version")
 	useCmd.Flags().String("tag", "", "Use specific tag version")
+	useCmd.MarkFlagsMutuallyExclusive("latest", "tag")
 }
 
 // A repository is a GitHub repository.
@@ -465,8 +466,6 @@ func (a *asset) createDotFile() error {
 func (r *repository) getSpecificTag(a *asset, version string) error {
 	// fast return for simple cases
 	switch version {
-	case "":
-		return fmt.Errorf("invalid tag: %s", version)
 	case "v": // latest tag is always valid
 		a.tag = r.latestTag
 		return nil
@@ -477,7 +476,7 @@ func (r *repository) getSpecificTag(a *asset, version string) error {
 	if strings.HasPrefix(version, "v.") { // empty major
 		version = strings.Replace(version, "v.", semver.Major(r.latestTag)+".", 1)
 	}
-	if "" == semver.Canonical(version) {
+	if semver.Compare(version, "") == 0 {
 		return fmt.Errorf("invalid tag: %s", version)
 	}
 	if version == semver.Canonical(version) { // major.minor.patch

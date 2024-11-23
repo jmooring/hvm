@@ -56,6 +56,7 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 	installCmd.Flags().Bool("latest", false, "Install the latest version")
 	installCmd.Flags().String("tag", "", "Use specific tag version")
+	installCmd.MarkFlagsMutuallyExclusive("latest", "tag")
 }
 
 // install sets the version of the Hugo executable to use when version
