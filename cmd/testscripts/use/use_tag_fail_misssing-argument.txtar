@@ -8,5 +8,5 @@
 [windows] env AppData=config
 
 # Test
-! exec hvm use --tag x1
-stderr 'Error: invalid tag: x1\n'
+! exec hvm use --tag
+stderr 'Error: flag needs an argument: --tag\n'
