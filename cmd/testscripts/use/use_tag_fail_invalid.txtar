@@ -8,6 +8,5 @@
 [windows] env AppData=config
 
 # Test
-exec hvm install latest
-stdout 'Downloading v.* done.\n'
-stdout 'Installation of v.* complete.\n'
+! exec hvm use x1
+stderr 'Error: invalid tag: x1\n'

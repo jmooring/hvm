@@ -8,6 +8,5 @@
 [windows] env AppData=config
 
 # Test
-exec hvm install latest
-stdout 'Downloading v.* done.\n'
-stdout 'Installation of v.* complete.\n'
+! exec hvm install v0.1.2
+stderr 'Error: tag "v0\.1\.2" not found in repository\n'
