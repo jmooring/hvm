@@ -57,7 +57,7 @@ To bypass the selection screen provide a version argument to the command.`,
 
 		if useVersionInDotFile {
 			version, err = getVersionFromDotFile()
-		cobra.CheckErr(err)
+			cobra.CheckErr(err)
 			if version == "" {
 				cobra.CheckErr(fmt.Errorf("the current directory does not contain an .hvm file"))
 			}
@@ -99,7 +99,7 @@ func use(version string) error {
 	asset := newAsset()
 	repo := newRepository()
 
-		if version == "" {
+	if version == "" {
 		msg := "Select a version to use in the current directory"
 		err := repo.selectTag(asset, msg)
 		if err != nil {
@@ -254,7 +254,7 @@ func (r *repository) fetchTags() error {
 
 // getLatestTag returns the most recent tag from repository.
 func (r *repository) getLatestTag(a *asset) error {
-	if "" == r.latestTag {
+	if r.latestTag == "" {
 		return fmt.Errorf("no latest release found")
 	}
 	a.tag = r.latestTag
@@ -264,53 +264,19 @@ func (r *repository) getLatestTag(a *asset) error {
 func (r *repository) getTagFromString(a *asset, version string) error {
 	inputVersion := version
 	// fast return for simple cases
-	switch version {
-	case "latest", "v":
+	if version == "latest" {
 		return r.getLatestTag(a)
 	}
 	if !strings.HasPrefix(version, "v") {
 		version = "v" + version
 	}
-	if strings.HasPrefix(version, "v.") { // empty major
-		version = strings.Replace(version, "v.", semver.Major(r.latestTag)+".", 1)
-	}
 	if semver.Compare(version, "") == 0 {
 		return fmt.Errorf("invalid tag: %s", inputVersion)
 	}
-	if version == semver.Canonical(version) { // major.minor.patch
-		a.tag = version
-	} else {
-		type CompareSemVer func(semver string) bool
-		var compareSemVer CompareSemVer
-		if version == semver.Major(version) { // major only
-			compareSemVer = func(t string) bool {
-				return semver.Compare(semver.Major(version), semver.Major(t)) >= 0
-			}
-		} else if version == semver.MajorMinor(version) { // major.minor
-			compareSemVer = func(t string) bool {
-				return semver.Major(version) == semver.Major(t) && semver.Compare(semver.MajorMinor(version), semver.MajorMinor(t)) >= 0
-			}
-		}
-		if Config.SortAscending {
-			for i := len(r.tags) - 1; i >= 0; i-- {
-				tag := r.tags[i]
-				if compareSemVer(tag) {
-					a.tag = tag
-					return nil
-				}
-			}
-		} else {
-			for _, tag := range r.tags {
-				if compareSemVer(tag) {
-					a.tag = tag
-					return nil
-				}
-			}
-		}
-	}
-	if !slices.Contains(r.tags, a.tag) {
+	if !slices.Contains(r.tags, version) {
 		return fmt.Errorf("tag \"%s\" not found in repository", inputVersion)
 	}
+	a.tag = version
 	return nil
 }
 
@@ -460,9 +426,7 @@ func (a *asset) downloadAsset() error {
 
 	// Check server response.
 	if resp.StatusCode != http.StatusOK {
-		if err != nil {
-			return fmt.Errorf("bad status: %s", resp.Status)
-		}
+		return fmt.Errorf("bad status: %s", resp.Status)
 	}
 
 	// Write the body to file.

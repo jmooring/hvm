@@ -121,7 +121,8 @@ func status(cmd *cobra.Command) error {
 				if len(r) == 0 || strings.ToLower(string(r[0])) == "y" {
 					err = use(version)
 					if err != nil {
-						return err
+						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
+						return fmt.Errorf("the version specified in the %s file (%s) is not available in the repository: %s", App.DotFileName, version, theFix)
 					}
 					fmt.Println()
 					break
