@@ -28,7 +28,7 @@ import (
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
-	Use:   "install",
+	Use:   "install [flags] [version]",
 	Short: "Install a default version to use when version management is disabled",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use when version management is disabled in the current directory. It then
@@ -37,33 +37,30 @@ architecture, placing a copy in the cache "default" directory.
 
 To use this version when version management is disabled in the current
 directory, the cache "default" directory must be in your PATH. If it is not,
-you will be prompted to add it when installation is complete.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		useLatest, err := cmd.Flags().GetBool("latest")
-		cobra.CheckErr(err)
+you will be prompted to add it when installation is complete.
 
-		err = install(useLatest)
+To bypass the selection screen provide a version argument to the command.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		version := ""
+		if len(args) > 0 {
+			version = args[0]
+		}
+		err := install(version)
 		cobra.CheckErr(err)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().Bool("latest", false, "Install the latest version")
 }
 
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
-func install(useLatest bool) error {
+func install(version string) error {
 	asset := newAsset()
 	repo := newRepository()
 
-	if useLatest {
-		err := repo.getLatestTag(asset)
-		if err != nil {
-			return err
-		}
-	} else {
+	if version == "" {
 		msg := "Select a version to use when version management is disabled"
 		err := repo.selectTag(asset, msg)
 		if err != nil {
@@ -71,6 +68,11 @@ func install(useLatest bool) error {
 		}
 		if asset.tag == "" {
 			return nil // the user did not select a tag; do nothing
+		}
+	} else {
+		err := repo.getTagFromString(asset, version)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -85,6 +87,7 @@ func install(useLatest bool) error {
 			return err
 		}
 	}
+
 	err = helpers.CopyFile(asset.getExecPath(), filepath.Join(App.CacheDirPath, App.DefaultDirName, asset.execName))
 	if err != nil {
 		return err

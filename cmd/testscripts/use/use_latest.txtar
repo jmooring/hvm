@@ -8,5 +8,5 @@
 [windows] env AppData=config
 
 # Test
-exec hvm use --latest
+exec hvm use latest
 stdout 'Downloading v.* done.\n'
