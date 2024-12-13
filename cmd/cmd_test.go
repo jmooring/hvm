@@ -23,7 +23,7 @@ import (
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
-func TestCommands(t *testing.T) {
+func TestCommand(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts",
 		Setup: func(env *testscript.Env) error {
@@ -31,6 +31,8 @@ func TestCommands(t *testing.T) {
 			return nil
 		},
 	})
+}
+func TestCommandConfig(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts/config",
 		Setup: func(env *testscript.Env) error {
@@ -38,6 +40,17 @@ func TestCommands(t *testing.T) {
 			return nil
 		},
 	})
+}
+func TestCommandInstall(t *testing.T) {
+	testscript.Run(t, testscript.Params{
+		Dir: "testscripts/install",
+		Setup: func(env *testscript.Env) error {
+			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+			return nil
+		},
+	})
+}
+func TestCommandRemove(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts/remove",
 		Setup: func(env *testscript.Env) error {
@@ -45,6 +58,8 @@ func TestCommands(t *testing.T) {
 			return nil
 		},
 	})
+}
+func TestCommandStatus(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts/status",
 		Setup: func(env *testscript.Env) error {
@@ -52,6 +67,8 @@ func TestCommands(t *testing.T) {
 			return nil
 		},
 	})
+}
+func TestCommandUse(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir: "testscripts/use",
 		Setup: func(env *testscript.Env) error {

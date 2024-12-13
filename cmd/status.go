@@ -51,6 +51,7 @@ executable may not exist.`)
 	statusCmd.Flags().Bool("printExecPathCached", false, `Based on the version specified in the `+App.DotFileName+` file,
 print the path to Hugo executable if cached, otherwise
 return exit code 1.`)
+	statusCmd.MarkFlagsMutuallyExclusive("printExecPath", "printExecPathCached")
 }
 
 // status displays a list of cached assets, the size of the cache, and the
@@ -69,7 +70,7 @@ func status(cmd *cobra.Command) error {
 		return err
 	}
 
-	version, err := getVersionFromDotFile(App.DotFilePath)
+	version, err := getVersionFromDotFile()
 	if err != nil {
 		return err
 	}
@@ -118,9 +119,10 @@ func status(cmd *cobra.Command) error {
 				fmt.Printf("Would you like to get it now? (Y/n): ")
 				fmt.Scanln(&r)
 				if len(r) == 0 || strings.ToLower(string(r[0])) == "y" {
-					err = use(true, false)
+					err = use(version)
 					if err != nil {
-						return err
+						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
+						return fmt.Errorf("the version specified in the %s file (%s) is not available in the repository: %s", App.DotFileName, version, theFix)
 					}
 					fmt.Println()
 					break
@@ -203,7 +205,8 @@ func getCacheSize() (int64, error) {
 
 // getVersionFromDotFile returns the semver string from the app dot file in the
 // current directory, or an empty string if the file does not exist.
-func getVersionFromDotFile(path string) (string, error) {
+func getVersionFromDotFile() (string, error) {
+	path := App.DotFilePath
 	exists, err := helpers.Exists(path)
 	if err != nil {
 		return "", err

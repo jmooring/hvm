@@ -40,21 +40,32 @@ import (
 
 // useCmd represents the use command
 var useCmd = &cobra.Command{
-	Use:     "use",
+	Use:     "use [flags] [version]",
 	Aliases: []string{"get"},
 	Short:   "Select a version to use in the current directory",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
-tag to an .hvm file.`,
+tag to an .hvm file.
+
+To bypass the selection screen provide a version argument to the command.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		version := ""
+
 		useVersionInDotFile, err := cmd.Flags().GetBool("useVersionInDotFile")
 		cobra.CheckErr(err)
 
-		useLatest, err := cmd.Flags().GetBool("latest")
-		cobra.CheckErr(err)
+		if useVersionInDotFile {
+			version, err = getVersionFromDotFile()
+			cobra.CheckErr(err)
+			if version == "" {
+				cobra.CheckErr(fmt.Errorf("the current directory does not contain an .hvm file"))
+			}
+		} else if len(args) > 0 {
+			version = args[0]
+		}
 
-		err = use(useVersionInDotFile, useLatest)
+		err = use(version)
 		cobra.CheckErr(err)
 	},
 }
@@ -62,7 +73,6 @@ tag to an .hvm file.`,
 func init() {
 	rootCmd.AddCommand(useCmd)
 	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
-	useCmd.Flags().Bool("latest", false, "Use the latest version")
 }
 
 // A repository is a GitHub repository.
@@ -85,31 +95,11 @@ type asset struct {
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
-func use(useVersionInDotFile bool, useLatest bool) error {
+func use(version string) error {
 	asset := newAsset()
 	repo := newRepository()
 
-	if useVersionInDotFile {
-		version, err := getVersionFromDotFile(App.DotFilePath)
-		if err != nil {
-			return err
-		}
-		if version == "" {
-			fmt.Fprintln(os.Stderr, "Error: the current directory does not contain an "+App.DotFileName+" file")
-			os.Exit(1)
-		}
-		if !slices.Contains(repo.tags, version) {
-			theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
-			fmt.Fprintf(os.Stderr, "Error: the version specified in the "+App.DotFileName+" file (%s) is not available in the repository: %s\n", version, theFix)
-			os.Exit(1)
-		}
-		asset.tag = version
-	} else if useLatest {
-		err := repo.getLatestTag(asset)
-		if err != nil {
-			return err
-		}
-	} else {
+	if version == "" {
 		msg := "Select a version to use in the current directory"
 		err := repo.selectTag(asset, msg)
 		if err != nil {
@@ -117,6 +107,11 @@ func use(useVersionInDotFile bool, useLatest bool) error {
 		}
 		if asset.tag == "" {
 			return nil // the user did not select a tag; do nothing
+		}
+	} else {
+		err := repo.getTagFromString(asset, version)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -259,10 +254,29 @@ func (r *repository) fetchTags() error {
 
 // getLatestTag returns the most recent tag from repository.
 func (r *repository) getLatestTag(a *asset) error {
-	if "" == r.latestTag {
+	if r.latestTag == "" {
 		return fmt.Errorf("no latest release found")
 	}
 	a.tag = r.latestTag
+	return nil
+}
+
+func (r *repository) getTagFromString(a *asset, version string) error {
+	inputVersion := version
+	// fast return for simple cases
+	if version == "latest" {
+		return r.getLatestTag(a)
+	}
+	if !strings.HasPrefix(version, "v") {
+		version = "v" + version
+	}
+	if semver.Compare(version, "") == 0 {
+		return fmt.Errorf("invalid tag: %s", inputVersion)
+	}
+	if !slices.Contains(r.tags, version) {
+		return fmt.Errorf("tag \"%s\" not found in repository", inputVersion)
+	}
+	a.tag = version
 	return nil
 }
 
@@ -412,9 +426,7 @@ func (a *asset) downloadAsset() error {
 
 	// Check server response.
 	if resp.StatusCode != http.StatusOK {
-		if err != nil {
-			return fmt.Errorf("bad status: %s", resp.Status)
-		}
+		return fmt.Errorf("bad status: %s", resp.Status)
 	}
 
 	// Write the body to file.

@@ -8,6 +8,6 @@
 [windows] env AppData=config
 
 # Test
-exec hvm install latest
+exec hvm install v0.138.0
 stdout 'Downloading v.* done.\n'
 stdout 'Installation of v.* complete.\n'

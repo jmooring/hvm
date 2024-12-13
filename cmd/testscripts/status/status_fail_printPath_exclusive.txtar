@@ -8,6 +8,5 @@
 [windows] env AppData=config
 
 # Test
-exec hvm install latest
-stdout 'Downloading v.* done.\n'
-stdout 'Installation of v.* complete.\n'
+! exec hvm status --printExecPath --printExecPathCached
+stderr 'Error: if any flags in the group \[printExecPath printExecPathCached\] are set none of the others can be; \[printExecPath printExecPathCached\] were all set\n'
