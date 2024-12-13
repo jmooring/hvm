@@ -3,9 +3,11 @@
 #   go install github.com/charmbracelet/vhs@latest
 #   sudo snap install ttyd --classic
 #   vhs hvm.tape
+#
+# Then optimize with https://ezgif.com/optimize
 
 # Output
-Output hvm.webp
+Output hvm.gif
 
 # Settings
 Set FontSize 24
