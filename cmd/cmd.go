@@ -76,7 +76,7 @@ var rootCmd = &cobra.Command{
 	Short: "Hugo Version Manager",
 	Long: `Hugo Version Manager (` + App.Name + `) is a tool that helps you download, manage, and switch
 between different versions of the Hugo static site generator. You can also use
-hvm to install Hugo as a standalone application.`,
+` + App.Name + ` to install Hugo as a standalone application.`,
 	Version: versionString,
 }
 
