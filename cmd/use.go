@@ -40,15 +40,17 @@ import (
 
 // useCmd represents the use command
 var useCmd = &cobra.Command{
-	Use:     "use [flags] [version]",
+	Use:     "use [version] | [flags]",
 	Aliases: []string{"get"},
 	Short:   "Select a version to use in the current directory",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
-tag to an .hvm file.
+tag to an ` + App.DotFileName + ` file.
 
-To bypass the selection screen provide a version argument to the command.`,
+Bypass the selection menu by specifying a version, or specify "latest" to use
+the latest release.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		version := ""
 
@@ -59,7 +61,7 @@ To bypass the selection screen provide a version argument to the command.`,
 			version, err = getVersionFromDotFile()
 			cobra.CheckErr(err)
 			if version == "" {
-				cobra.CheckErr(fmt.Errorf("the current directory does not contain an .hvm file"))
+				cobra.CheckErr(fmt.Errorf("the current directory does not contain an %s file", App.DotFileName))
 			}
 		} else if len(args) > 0 {
 			version = args[0]

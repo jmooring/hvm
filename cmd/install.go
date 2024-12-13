@@ -28,7 +28,7 @@ import (
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
-	Use:   "install [flags] [version]",
+	Use:   "install [version] | [flags]",
 	Short: "Install a default version to use when version management is disabled",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use when version management is disabled in the current directory. It then
@@ -39,7 +39,9 @@ To use this version when version management is disabled in the current
 directory, the cache "default" directory must be in your PATH. If it is not,
 you will be prompted to add it when installation is complete.
 
-To bypass the selection screen provide a version argument to the command.`,
+Bypass the selection menu by specifying a version, or specify "latest" to use
+the latest release.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		version := ""
 		if len(args) > 0 {

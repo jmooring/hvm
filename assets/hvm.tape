@@ -29,12 +29,7 @@ Ctrl+L
 Show
 
 # Commands
-Type "hvm use"
-Sleep 1
-Enter
-Sleep 3
-
-Type "1"
+Type "hvm use latest"
 Sleep 1
 Enter
 Wait+Line@10s /\$/
