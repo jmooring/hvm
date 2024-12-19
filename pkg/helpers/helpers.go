@@ -97,7 +97,7 @@ func IsEmpty(path string) (bool, error) {
 
 // CopyFile copies a file from src to dst, overwriting an existing file if
 // present. Returns an error if src does not exist, or if src is a directory.
-func CopyFile(src string, dst string) error {
+func CopyFile(src, dst string) error {
 	fi, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -140,7 +140,7 @@ func CopyFile(src string, dst string) error {
 // CopyDirectoryContent copies the content of the src directory to the dst
 // directory. Returns an error if src does not exist, or if src is not a
 // directory.
-func CopyDirectoryContent(src string, dst string) error {
+func CopyDirectoryContent(src, dst string) error {
 	fi, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -200,7 +200,6 @@ func CopyDirectoryContent(src string, dst string) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}

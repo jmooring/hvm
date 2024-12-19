@@ -29,7 +29,7 @@ import (
 )
 
 // extractTarGZ extracts a gzipped tarball (src) to the dst directory.
-func extractTarGZ(src string, dst string) error {
+func extractTarGZ(src, dst string) error {
 	f, err := os.Open(src)
 	if err != nil {
 		return err

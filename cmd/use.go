@@ -329,7 +329,7 @@ func (r *repository) selectTag(a *asset, msg string) error {
 		fmt.Scanln(&rs)
 
 		// User pressed return; do nothing.
-		if len(rs) == 0 {
+		if rs == "" {
 			fmt.Println("Canceled.")
 			return nil
 		}
@@ -378,7 +378,7 @@ func (r *repository) fetchDownloadURL(a *asset) error {
 			return fmt.Errorf("unsupported operating system")
 		}
 	}
-	regexp := regexp.MustCompile(pattern)
+	re := regexp.MustCompile(pattern)
 
 	release, _, err := r.client.Repositories.GetReleaseByTag(context.Background(), r.owner, r.name, a.tag)
 	if err != nil {
@@ -387,7 +387,7 @@ func (r *repository) fetchDownloadURL(a *asset) error {
 
 	for _, asset := range release.Assets {
 		archiveURL := asset.GetBrowserDownloadURL()
-		if regexp.MatchString(archiveURL) {
+		if re.MatchString(archiveURL) {
 			a.archiveURL = archiveURL
 			switch {
 			case strings.HasSuffix(a.archiveURL, ".tar.gz"):

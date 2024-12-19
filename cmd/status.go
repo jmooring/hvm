@@ -118,7 +118,7 @@ func status(cmd *cobra.Command) error {
 			for {
 				fmt.Printf("Would you like to get it now? (Y/n): ")
 				fmt.Scanln(&r)
-				if len(r) == 0 || strings.ToLower(string(r[0])) == "y" {
+				if r == "" || strings.EqualFold(string(r[0]), "y") {
 					err = use(version)
 					if err != nil {
 						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
@@ -127,7 +127,7 @@ func status(cmd *cobra.Command) error {
 					fmt.Println()
 					break
 				}
-				if strings.ToLower(string(r[0])) == "n" {
+				if strings.EqualFold(string(r[0]), "n") {
 					err = disable()
 					if err != nil {
 						return err
@@ -191,7 +191,7 @@ func getCacheSize() (int64, error) {
 			if err != nil {
 				return err
 			}
-			size = size + fi.Size()
+			size += fi.Size()
 		}
 
 		return nil

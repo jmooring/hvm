@@ -48,14 +48,14 @@ func reset() error {
 
 	var r string
 	for {
-		fmt.Printf("Are you sure you want to do this? (y/N): ")
+		fmt.Printf("Are you absolutely sure you want to do this? (y/N): ")
 		fmt.Scanln(&r)
-		if len(r) == 0 || strings.ToLower(string(r[0])) == "n" {
+		if r == "" || strings.EqualFold(string(r[0]), "n") {
 			fmt.Println("Canceled.")
 			return nil
 		}
 
-		if strings.ToLower(string(r[0])) == "y" {
+		if strings.EqualFold(string(r[0]), "y") {
 			err := disable()
 			if err != nil {
 				return err

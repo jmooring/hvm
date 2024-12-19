@@ -60,12 +60,12 @@ func clean() error {
 	for {
 		fmt.Printf("Are you sure you want to clean the cache? (y/N): ")
 		fmt.Scanln(&r)
-		if len(r) == 0 || strings.ToLower(string(r[0])) == "n" {
+		if r == "" || strings.EqualFold(string(r[0]), "n") {
 			fmt.Println("Canceled.")
 			return nil
 		}
 
-		if strings.ToLower(string(r[0])) == "y" {
+		if strings.EqualFold(string(r[0]), "y") {
 			d, err := os.ReadDir(App.CacheDirPath)
 			if err != nil {
 				return err

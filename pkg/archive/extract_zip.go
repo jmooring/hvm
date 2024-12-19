@@ -27,7 +27,7 @@ import (
 )
 
 // extractZip extracts a zip file (src) to the dst directory.
-func extractZip(src string, dst string) error {
+func extractZip(src, dst string) error {
 	zrc, err := zip.OpenReader(src)
 	if err != nil {
 		return err
