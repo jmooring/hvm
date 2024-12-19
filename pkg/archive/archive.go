@@ -26,7 +26,7 @@ import (
 
 // Extract extracts an archive (src) to the dst directory. If rm is is true,
 // removes src when complete. Supports gzipped tarballs and zip files.
-func Extract(src string, dst string, rm bool) error {
+func Extract(src, dst string, rm bool) error {
 	switch {
 	case strings.HasSuffix(strings.ToLower(src), ".tar.gz"):
 		err := extractTarGZ(src, dst)

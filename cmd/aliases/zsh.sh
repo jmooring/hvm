@@ -2,7 +2,7 @@
 hugo() {
   hvm_show_status=true
   if hugo_bin=$(hvm status --printExecPathCached); then
-    if [ "${hvm_show_status}" = true ]; then
+    if [ "${hvm_show_status}" = "true" ]; then
       >&2 printf "Hugo version management is enabled in this directory.\\n"
       >&2 printf "Run 'hvm status' for details, or 'hvm disable' to disable.\\n\\n"
     fi

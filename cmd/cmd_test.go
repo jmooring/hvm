@@ -25,55 +25,47 @@ import (
 
 func TestCommand(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts",
+		Setup: setup,
 	})
 }
+
 func TestCommandConfig(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts/config",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts/config",
+		Setup: setup,
 	})
 }
+
 func TestCommandInstall(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts/install",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts/install",
+		Setup: setup,
 	})
 }
+
 func TestCommandRemove(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts/remove",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts/remove",
+		Setup: setup,
 	})
 }
+
 func TestCommandStatus(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts/status",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts/status",
+		Setup: setup,
 	})
 }
+
 func TestCommandUse(t *testing.T) {
 	testscript.Run(t, testscript.Params{
-		Dir: "testscripts/use",
-		Setup: func(env *testscript.Env) error {
-			env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
-			return nil
-		},
+		Dir:   "testscripts/use",
+		Setup: setup,
 	})
+}
+
+func setup(env *testscript.Env) error {
+	env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+	return nil
 }
