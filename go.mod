@@ -1,15 +1,15 @@
 module github.com/jmooring/hvm
 
-go 1.23.1
+go 1.22.0
 
 require (
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/pelletier/go-toml/v2 v2.2.3
+	github.com/pelletier/go-toml/v2 v2.2.2
 	github.com/rogpeppe/go-internal v1.13.1
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/mod v0.22.0
-	golang.org/x/oauth2 v0.24.0
+	golang.org/x/oauth2 v0.25.0
 )
 
 require (
