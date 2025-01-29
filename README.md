@@ -37,7 +37,7 @@ The `hvm install` command installs a default version of Hugo to use when version
 
 ### Step 1 - Install the executable
 
-Download a [prebuilt binary] or install from source:
+Download a [prebuilt binary] or install from source (requires Go 1.22 or later):
 
 ```text
 go install github.com/jmooring/hvm@latest
