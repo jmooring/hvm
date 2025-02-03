@@ -12,7 +12,7 @@ hugo() {
         return 1
       fi
     else
-      if ! hugo_bin=$(which hugo); then
+      if ! hugo_bin=$(whence -p hugo); then
         >&2 printf "Command not found.\\n"
         return 1
       fi
