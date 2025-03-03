@@ -17,7 +17,9 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"os"
+	"runtime"
 	"testing"
 
 	"github.com/rogpeppe/go-internal/testscript"
@@ -67,5 +69,19 @@ func TestCommandUse(t *testing.T) {
 
 func setup(env *testscript.Env) error {
 	env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
+	switch runtime.GOOS {
+	case "darwin":
+		env.Setenv("HOME", "home")
+	case "windows":
+		// User cache and config dirs: we use os.UserCacheDir and os.UserCongfigDir
+		env.Setenv("LocalAppData", "cache")
+		env.Setenv("AppData", "config")
+	case "linux":
+		// User cache and config dirs: we use os.UserCacheDir and os.UserCongfigDir
+		env.Setenv("XDG_CACHE_HOME", env.Getenv("WORK")+"/cache")
+		env.Setenv("XDG_CONFIG_HOME", env.Getenv("WORK")+"/config")
+	default:
+		return fmt.Errorf("unsupported operating system")
+	}
 	return nil
 }

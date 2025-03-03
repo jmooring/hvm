@@ -1,11 +1,6 @@
 # User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
-[darwin] env HOME=home
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
-[linux] env XDG_CACHE_HOME=cache
-[linux] env XDG_CONFIG_HOME=config
-[windows] env LocalAppData=cache
-[windows] env AppData=config
 
 # Test
 env HVM_NUMTAGSTODISPLAY=-1
@@ -16,7 +11,7 @@ stdout 'Select a version to use when version management is disabled: '
 stdout 'Downloading v0\.54\.0\.\.\. done\.\n'
 stdout 'Installation of v0\.54\.0 complete\.\n'
 [darwin] stdout 'Please add home/Library/Caches/hvm/default to the PATH environment variable\.\n'
-[linux] stdout 'Please add cache/hvm/default to the PATH environment variable\.\n'
+[linux] stdout 'Please add .+/cache/hvm/default to the PATH environment variable\.\n'
 [windows] stdout 'Please add cache\\hvm\\default to the PATH environment variable\.\n'
 stdout 'Open a new terminal after making the change\.\n'
 [darwin] exists 'home/Library/Caches/hvm/v0.54.0/hugo'
