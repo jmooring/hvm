@@ -1,6 +1,7 @@
 module github.com/jmooring/hvm
 
 go 1.22.0
+toolchain go1.23.6
 
 require (
 	github.com/google/go-github v17.0.0+incompatible
@@ -9,7 +10,7 @@ require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.19.0
 	golang.org/x/mod v0.23.0
-	golang.org/x/oauth2 v0.26.0
+	golang.org/x/oauth2 v0.27.0
 )
 
 require (
