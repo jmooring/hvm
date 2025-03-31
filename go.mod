@@ -6,7 +6,7 @@ require (
 	github.com/pelletier/go-toml/v2 v2.2.3
 	github.com/rogpeppe/go-internal v1.13.1
 	github.com/spf13/cobra v1.9.1
-	github.com/spf13/viper v1.20.0
+	github.com/spf13/viper v1.20.1
 	golang.org/x/mod v0.24.0
 	golang.org/x/oauth2 v0.28.0
 )
