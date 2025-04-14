@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/google/go-github v17.0.0+incompatible
-	github.com/pelletier/go-toml/v2 v2.2.3
+	github.com/pelletier/go-toml/v2 v2.2.4
 	github.com/rogpeppe/go-internal v1.13.1
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
