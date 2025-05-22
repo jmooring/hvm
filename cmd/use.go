@@ -42,7 +42,7 @@ import (
 var useCmd = &cobra.Command{
 	Use:     "use [version] | [flags]",
 	Aliases: []string{"get"},
-	Short:   "Select a version to use in the current directory",
+	Short:   "Select or specify a version to use in the current directory",
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
