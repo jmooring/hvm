@@ -72,7 +72,7 @@ Available Commands:
   install     Install a default version to use when version management is disabled
   remove      Remove the default version
   status      Display the status
-  use         Select a version to use in the current directory
+  use         Select or specify a version to use in the current directory
   version     Display the hvm version
 
 Flags:
