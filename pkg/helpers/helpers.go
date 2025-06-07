@@ -36,11 +36,8 @@ func IsFile(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if fi.Mode().IsRegular() {
-		return true, nil
-	}
 
-	return false, nil
+	return fi.Mode().IsRegular(), nil
 }
 
 // IsDir reports whether path is a directory, returning an error if path does
@@ -50,11 +47,8 @@ func IsDir(path string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if fi.Mode().IsDir() {
-		return true, nil
-	}
 
-	return false, nil
+	return fi.Mode().IsDir(), nil
 }
 
 // Exists reports whether path exists.
@@ -79,17 +73,11 @@ func IsEmpty(path string) (bool, error) {
 	}
 
 	if fi.IsDir() {
-		f, err := os.Open(path)
+		entries, err := os.ReadDir(path)
 		if err != nil {
 			return false, err
 		}
-		defer f.Close()
-
-		list, err := f.Readdir(0)
-		if err != nil {
-			return false, err
-		}
-		return len(list) == 0, nil
+		return len(entries) == 0, nil
 	}
 
 	return fi.Size() == 0, nil
@@ -276,9 +264,7 @@ func IsInt(i any) bool {
 
 // IsString reports whether i is a string.
 func IsString(i any) bool {
-	if _, ok := i.(string); ok {
-		return true
-	}
+	_, ok := i.(string)
 
-	return false
+	return ok
 }
