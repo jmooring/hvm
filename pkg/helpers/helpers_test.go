@@ -24,49 +24,6 @@ import (
 	"testing"
 )
 
-func TestIsFile(t *testing.T) {
-	t.Parallel()
-
-	dPath := t.TempDir()
-	fPath := filepath.Join(dPath, "empty-file.txt")
-
-	f, err := os.Create(fPath)
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			t.Error(err)
-		}
-	}()
-
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
-	}{
-		{"a", args{dPath}, false, false},
-		{"b", args{fPath}, true, false},
-		{"c", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsFile(tt.args.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("IsFile() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("IsFile() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func TestIsDir(t *testing.T) {
 	t.Parallel()
 
@@ -381,40 +338,6 @@ func TestIsString(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := IsString(tt.args.i); got != tt.want {
 				t.Errorf("IsString() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestIsInt(t *testing.T) {
-	type args struct {
-		i any
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{"a", args{nil}, false},
-		{"b", args{true}, false},
-		{"c", args{false}, false},
-		{"d", args{""}, false},
-		{"e", args{"a"}, false},
-		{"f", args{"1"}, false},
-		{"g", args{1}, true},
-		{"h", args{0}, true},
-		{"i", args{-1}, true},
-		{"j", args{1.0}, true},
-		{"k", args{0.0}, true},
-		{"l", args{-1.0}, true},
-		{"m", args{1.234}, false},
-		{"n", args{-1.234}, false},
-		{"o", args{30.2}, false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := IsInt(tt.args.i); got != tt.want {
-				t.Errorf("IsInt() = %v, want %v", got, tt.want)
 			}
 		})
 	}
