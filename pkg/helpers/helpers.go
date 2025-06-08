@@ -25,7 +25,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // IsDir reports whether path is a directory, returning an error if path does
@@ -114,8 +113,8 @@ func CopyFile(src, dst string) error {
 }
 
 // CopyDirectoryContent copies the content of the src directory to the dst
-// directory. Returns an error if src does not exist, or if src is not a
-// directory.
+// directory, creating dst if necessary and overwriting existing files. Returns
+// an error if src does not exist, or if src is not a directory.
 func CopyDirectoryContent(src, dst string) error {
 	fi, err := os.Stat(src)
 	if err != nil {
@@ -125,59 +124,13 @@ func CopyDirectoryContent(src, dst string) error {
 		return fmt.Errorf("%s is not a directory", src)
 	}
 
-	err = filepath.WalkDir(src, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if path == src {
-			return nil
-		}
+	srcFS := os.DirFS(src)
 
-		target := filepath.Join(dst, strings.TrimPrefix(path, src))
-		err = os.MkdirAll(filepath.Dir(target), 0o777)
-		if err != nil {
-			return err
-		}
-
-		if d.IsDir() {
-			return nil
-		}
-
-		source, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		defer source.Close()
-
-		destination, err := os.Create(target)
-		if err != nil {
-			return err
-		}
-		defer func() {
-			if err := destination.Close(); err != nil {
-				log.Fatal(err)
-			}
-		}()
-
-		_, err = io.Copy(destination, source)
-		if err != nil {
-			return err
-		}
-
-		fi, err := d.Info()
-		if err != nil {
-			return err
-		}
-		srcPerm := fi.Mode().Perm()
-		err = destination.Chmod(srcPerm)
-		if err != nil {
-			return err
-		}
-
-		return nil
-	})
+	err = os.CopyFS(dst, srcFS)
 	if err != nil {
-		return err
+		if !errors.Is(err, fs.ErrExist) {
+			return err
+		}
 	}
 
 	return nil
