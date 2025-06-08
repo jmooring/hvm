@@ -23,15 +23,23 @@ Supported operating systems:
 
 ## How it works
 
-The `hvm use` command allows you to switch between different versions of Hugo in the current directory. It does this by downloading, extracting, and caching the release asset for your operating system and architecture. It also creates an .hvm file in the current directory, which contains the version identifier.
+The `hvm use` command allows you to switch between different versions of Hugo in the current directory. It does this by downloading, extracting, and caching the release asset for your operating system and architecture. It also creates an `.hvm` file in the current directory, which contains the version identifier.
 
 If you do not specify a version of Hugo to use in the current directory, the Hugo executable will be found by searching the PATH environment variable.
 
-To use a different version of Hugo, run the `hvm use` command again and select the desired version. To use the Hugo executable in your system PATH, run the `hvm disable` command.
+To use a different version of Hugo, run the `hvm use` command and select or specify the desired version. To use the Hugo executable in your system PATH, run the `hvm disable` command.
 
 The extracted release assets are cached, so you don't have to download them again each time you switch versions. You can view a list of cached assets, the size of the cache, and the cache location by running the `hvm status` command. You can also clean the cache by running the `hvm clean` command.
 
 The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use hvm as a Hugo installer, even if you don't want to use its version management features.
+
+The `hvm use` and `hvm install` commands typically present a list of available versions. To directly specify a version and bypass this list, include the desired version number or `latest` after the command, as shown in the examples below:
+
+```text
+hvm use v0.147.8
+hvm use 0.147.8
+hvm use latest
+```
 
 ## Installation
 
