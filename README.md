@@ -120,3 +120,15 @@ By default, the `hvm use` and `hvm install` commands display the list of recent 
 [hugo]: https://github.com/gohugoio/hugo/#readme
 [installation instructions]: #installation
 [prebuilt binary]: https://github.com/jmooring/hvm/releases/latest
+
+## In the news
+
+Discover what others are saying about the Hugo Version Manager.
+
+Date|Link
+:--|:--
+2025-06-04|<https://harrycresswell.com/writing/hugo-version-manager/>
+2025-05-23|<https://ahmedjama.com/blog/2025/05/hugo-version-manager/>
+2025-04-07|<https://tsalikis.blog/posts/switching_hugo_versions/>
+2025-03-24|<https://navendu.me/posts/hugo-version-manager/>
+2023-12-18|<https://perplex.desider.at/news/hugo-version-manager/>
