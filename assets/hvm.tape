@@ -4,7 +4,8 @@
 #   sudo snap install ttyd --classic
 #   vhs hvm.tape
 #
-# Then optimize with https://ezgif.com/optimize
+# Then optimize with https://ezgif.com/optimize using the "combined" option
+# with compression level of 35 and fuzz percentage of 2.
 
 # Output
 Output hvm.gif
