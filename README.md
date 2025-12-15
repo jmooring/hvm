@@ -123,7 +123,9 @@ For production workflows utilizing CI/CD (e.g., on Cloudflare Pages, GitHub Page
 1. Check the `.hvm` file into source control
 2. Read the `.hvm` file in your build script to determine which Hugo version to install
 
-This guarantees that your site is always built with the specific Hugo version it was developed for. See this example of a site hosted with GitHub Pages:
+This guarantees that your site is always built with the specific Hugo version it was developed for.
+
+See this example of a site hosted with GitHub Pages:
 <https://github.com/jmooring/hosting-github-pages-hvm>
 
 ## In the news
