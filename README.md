@@ -125,7 +125,7 @@ For production workflows utilizing CI/CD (e.g., on Cloudflare Pages, GitHub Page
 
 This guarantees that your site is always built with the specific Hugo version it was developed for.
 
-See this example of a site hosted with GitHub Pages:
+See this example of a site hosted with GitHub Pages:\
 <https://github.com/jmooring/hosting-github-pages-hvm>
 
 ## In the news
