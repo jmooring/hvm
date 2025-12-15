@@ -118,7 +118,7 @@ By default, the `hvm use` and `hvm install` commands display the list of recent 
 
 ## Continuous integration and deployment (CD/CD)
 
-For production workflows utilizing CI/CD (e.g., on Cloudflare Pages, GitHub Pages, GitLab Pages, Netlify, Render, or Vercel), the Hugo Version Manager enables a reproducible build environment. The simplest and most reliable approach leverages the `.hvm` file:
+For production workflows utilizing CI/CD (e.g., on Cloudflare, GitHub Pages, GitLab Pages, Netlify, Render, or Vercel), the Hugo Version Manager enables a reproducible build environment. The simplest and most reliable approach leverages the `.hvm` file:
 
 1. Check the `.hvm` file into source control
 2. Read the `.hvm` file in your build script to determine which Hugo version to install
