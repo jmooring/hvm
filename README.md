@@ -116,10 +116,15 @@ By default, the `hvm use` and `hvm install` commands display the 30 most recent 
 
 By default, the `hvm use` and `hvm install` commands display the list of recent releases in descending order. To display the list in ascending order, set this value to `true`.
 
-[go]: https://go.dev/doc/install
-[hugo]: https://github.com/gohugoio/hugo/#readme
-[installation instructions]: #installation
-[prebuilt binary]: https://github.com/jmooring/hvm/releases/latest
+## Continuous integration and deployment (CD/CD)
+
+For production workflows utilizing CI/CD (e.g., on Cloudflare Pages, GitHub Pages, GitLab Pages, Netlify, Render, or Vercel), the Hugo Version Manager enables a reproducible build environment. The simplest and most reliable approach leverages the `.hvm` file:
+
+1. Check the `.hvm` file into source control
+2. Read the `.hvm` file in your build script to determine which Hugo version to install
+
+This guarantees that your site is always built with the specific Hugo version it was developed for. See this example of a site hosted with GitHub Pages:
+<https://github.com/jmooring/hosting-github-pages-hvm>
 
 ## In the news
 
