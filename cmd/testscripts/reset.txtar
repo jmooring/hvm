@@ -27,17 +27,17 @@ stdout 'Version management has been disabled in the current directory\.\n'
 n
 -- input-yes.txt --
 y
--- home/Library/Caches/hvm/v0.118.0/hugo --
+-- home/Library/Caches/hvm/v0.153.0/hugo --
 darwin-exec-bytes
 -- home/Library/Application Support/hvm/config.toml --
 numtagstodisplay = 42
 
--- cache/hvm/v0.118.0/hugo --
+-- cache/hvm/v0.153.0/hugo --
 linux-exec-bytes
 -- config/hvm/config.toml --
 numtagstodisplay = 42
 
--- cache\\hvm\\v0.118.0\\hugo.exe --
+-- cache\\hvm\\v0.153.0\\hugo.exe --
 windows-exec-bytes
 -- config\\hvm\\config.toml --
 numtagstodisplay = 42

@@ -3,5 +3,5 @@
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
-exec hvm use v0.138.0
+exec hvm use v0.153.0
 stdout 'Downloading v.* done.\n'

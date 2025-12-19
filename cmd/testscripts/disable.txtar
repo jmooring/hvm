@@ -8,4 +8,4 @@ stdout 'Version management has been disabled in the current directory\.\n'
 ! exists '.hvm'
 
 -- .hvm --
-v0.118.2
+v0.153.0
