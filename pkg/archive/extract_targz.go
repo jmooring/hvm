@@ -80,7 +80,7 @@ func extractTarGZ(src, dst string) error {
 	}
 }
 
-// copyFileFromTarGZ  copies a file within a tar.gz archive to the target path.
+// copyFileFromTarGZ copies a file within a tar.gz archive to the target path.
 func copyFileFromTarGZ(dst string, th *tar.Header, tr *tar.Reader) error {
 	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, os.FileMode(th.Mode))
 	if err != nil {
