@@ -89,7 +89,7 @@ type repository struct {
 // An asset is a GitHub asset for a given release, operating system, and architecture.
 type asset struct {
 	archiveDirPath  string // directory path of the downloaded archive
-	archiveExt      string // extension of the downloaded archive: tar.gz or zip
+	archiveExt      string // extension of the downloaded archive: pkg, tar.gz, or zip
 	archiveFilePath string // file path of the downloaded archive
 	archiveURL      string // download URL for this asset
 	tag             string // user-selected tag associated with the release for this asset
@@ -239,6 +239,7 @@ func (r *repository) fetchTags() error {
 
 	var tagNames []string
 	for _, tag := range tags {
+		// Releases prior to v0.54.0 were not semantically versioned.
 		if semver.Compare(tag.GetName(), "v0.54.0") >= 0 {
 			tagNames = append(tagNames, tag.GetName())
 		}
@@ -347,23 +348,11 @@ func (r *repository) selectTag(a *asset, msg string) error {
 
 // fetchDownloadURL fetches the download URL for the user-selected tag.
 func (r *repository) fetchDownloadURL(a *asset) error {
-	// The archive file name was different with v0.102.3 and earlier.
 	version := a.tag[1:]
 	pattern := ""
-	if semver.Compare(a.tag, "v0.102.3") == 1 {
-		// v0.103.0 and later
-		switch runtime.GOOS {
-		case "darwin":
-			pattern = `hugo_extended_` + version + `_darwin-universal.tar.gz`
-		case "windows":
-			pattern = `hugo_extended_` + version + `_windows-` + runtime.GOARCH + `.zip`
-		case "linux":
-			pattern = `hugo_extended_` + version + `_linux-` + runtime.GOARCH + `.tar.gz`
-		default:
-			return fmt.Errorf("unsupported operating system")
-		}
-	} else {
-		// v0.102.3 and earlier
+	// The archive file names were changed with the release of v0.103.0.
+	if semver.Compare(a.tag, "v0.103.0") == -1 {
+		// prior to v0.103.0
 		switch runtime.GOOS {
 		case "darwin":
 			pattern = `hugo_extended_` + version + `_macOS-64bit.tar.gz`
@@ -374,6 +363,25 @@ func (r *repository) fetchDownloadURL(a *asset) error {
 			if runtime.GOARCH == "arm64" {
 				pattern = `hugo_extended_` + version + `_Linux-ARM64.deb`
 			}
+		default:
+			return fmt.Errorf("unsupported operating system")
+		}
+	} else {
+		// v0.103.0 and later
+		switch runtime.GOOS {
+		case "darwin":
+			// The macOS archive file names were changed with the release of v0.153.0.
+			if semver.Compare(a.tag, "v0.153.0") == -1 {
+				// prior to v0.153.0
+				pattern = `hugo_extended_` + version + `_darwin-universal.tar.gz`
+			} else {
+				// v0.153.0 and later
+				pattern = `hugo_extended_` + version + `_darwin-universal.pkg`
+			}
+		case "windows":
+			pattern = `hugo_extended_` + version + `_windows-` + runtime.GOARCH + `.zip`
+		case "linux":
+			pattern = `hugo_extended_` + version + `_linux-` + runtime.GOARCH + `.tar.gz`
 		default:
 			return fmt.Errorf("unsupported operating system")
 		}
@@ -390,6 +398,8 @@ func (r *repository) fetchDownloadURL(a *asset) error {
 		if re.MatchString(archiveURL) {
 			a.archiveURL = archiveURL
 			switch {
+			case strings.HasSuffix(a.archiveURL, ".pkg"):
+				a.archiveExt = "pkg"
 			case strings.HasSuffix(a.archiveURL, ".tar.gz"):
 				a.archiveExt = "tar.gz"
 			case strings.HasSuffix(a.archiveURL, ".zip"):
