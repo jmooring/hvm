@@ -46,6 +46,7 @@ func extractPkg(src, dst string) error {
 	if err != nil {
 		return err
 	}
+	defer os.RemoveAll(tempDir)
 
 	expansionDir := filepath.Join(tempDir, "expanded")
 
@@ -56,11 +57,6 @@ func extractPkg(src, dst string) error {
 	}
 
 	err = helpers.CopyDirectoryContent(filepath.Join(expansionDir, "Payload"), dst)
-	if err != nil {
-		return err
-	}
-
-	err = os.RemoveAll(tempDir)
 	if err != nil {
 		return err
 	}
