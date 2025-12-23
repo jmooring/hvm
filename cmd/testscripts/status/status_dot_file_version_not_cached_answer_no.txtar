@@ -6,15 +6,15 @@
 stdin input.txt
 exec hvm status
 stdout 'The \.hvm file in the current directory refers to a Hugo\n'
-stdout 'version \(v0\.118\.2\) that is not cached\.\n'
+stdout 'version \(v0\.153\.0\) that is not cached\.\n'
 stdout 'Would you like to get it now\? \(Y/n\): '
 stdout 'Version management has been disabled in the current directory\.\n'
-[darwin] ! exists 'Library/Caches/hvm/default/v0.118.2/hugo'
-[linux] ! exists 'cache/hvm/default/v0.118.2/hugo'
-[windows] ! exists 'cache\\hvm\\default\\v0.118.2\\hugo.exe'
+[darwin] ! exists 'Library/Caches/hvm/default/v0.153.0/hugo'
+[linux] ! exists 'cache/hvm/default/v0.153.0/hugo'
+[windows] ! exists 'cache\\hvm\\default\\v0.153.0\\hugo.exe'
 
 # Files
 -- input.txt --
 n
 -- .hvm --
-v0.118.2
+v0.153.0

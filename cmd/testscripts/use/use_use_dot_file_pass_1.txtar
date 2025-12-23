@@ -4,11 +4,11 @@
 
 # Test
 exec hvm use --useVersionInDotFile
-stdout 'Downloading v0\.118\.2\.\.\. done\.\n'
-[darwin] exists 'home/Library/Caches/hvm/v0.118.2/hugo'
-[linux] exists 'cache/hvm/v0.118.2/hugo'
-[windows] exists 'cache\\hvm\\v0.118.2\\hugo.exe'
+stdout 'Downloading v0\.153\.0\.\.\. done\.\n'
+[darwin] exists 'home/Library/Caches/hvm/v0.153.0/hugo'
+[linux] exists 'cache/hvm/v0.153.0/hugo'
+[windows] exists 'cache\\hvm\\v0.153.0\\hugo.exe'
 
 # Files
 -- .hvm --
-v0.118.2
+v0.153.0

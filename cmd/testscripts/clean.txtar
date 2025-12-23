@@ -8,9 +8,9 @@ exec hvm clean
 stdout 'This will delete cached versions of the Hugo executable\.\n'
 stdout 'Are you sure you want to clean the cache\? \(y/N\): '
 stdout 'Canceled\.\n'
-[darwin] exists home/Library/Caches/hvm/v0.118.0/hugo
-[linux] exists cache/hvm/v0.118.0/hugo
-[windows] exists cache\\hvm\\v0.118.0\\hugo.exe
+[darwin] exists home/Library/Caches/hvm/v0.153.0/hugo
+[linux] exists cache/hvm/v0.153.0/hugo
+[windows] exists cache\\hvm\\v0.153.0\\hugo.exe
 
 
 # Test 2: answer yes
@@ -19,18 +19,18 @@ exec hvm clean
 stdout 'This will delete cached versions of the Hugo executable\.\n'
 stdout 'Are you sure you want to clean the cache\? \(y/N\): '
 stdout 'Cache cleaned\.\n'
-[darwin] ! exists home/Library/Caches/hvm/v0.118.0
-[linux] ! exists cache/hvm/v0.118.0
-[windows] ! exists cache\\hvm\\v0.118.0
+[darwin] ! exists home/Library/Caches/hvm/v0.153.0
+[linux] ! exists cache/hvm/v0.153.0
+[windows] ! exists cache\\hvm\\v0.153.0
 
 # Files
 -- input-no.txt --
 n
 -- input-yes.txt --
 y
--- home/Library/Caches/hvm/v0.118.0/hugo --
+-- home/Library/Caches/hvm/v0.153.0/hugo --
 darwin-exec-bytes
--- cache/hvm/v0.118.0/hugo --
+-- cache/hvm/v0.153.0/hugo --
 linux-exec-bytes
--- cache\\hvm\\v0.118.0\\hugo.exe --
+-- cache\\hvm\\v0.153.0\\hugo.exe --
 windows-exec-bytes

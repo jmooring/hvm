@@ -36,8 +36,8 @@ The `hvm install` command installs a default version of Hugo to use when version
 The `hvm use` and `hvm install` commands typically present a list of available versions. To directly specify a version and bypass this list, include the desired version number or `latest` after the command, as shown in the examples below:
 
 ```text
-hvm use v0.147.8
-hvm use 0.147.8
+hvm use v0.153.0
+hvm use 0.153.0
 hvm use latest
 ```
 

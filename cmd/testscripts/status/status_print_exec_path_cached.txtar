@@ -6,17 +6,17 @@
 exec hvm status --printExecPathCached
 
 # Test 2: dot file exists, exec does not exist
-rm home/Library/Caches/hvm/v0.117.0
-rm cache/hvm/v0.117.0
-rm cache/hvm/v0.117.0
+rm home/Library/Caches/hvm/v0.153.0
+rm cache/hvm/v0.153.0
+rm cache/hvm/v0.153.0
 ! exec hvm status --printExecPathCached
 
 # Files
 -- .hvm --
-v0.117.0
--- home/Library/Caches/hvm/v0.117.0/hugo --
+v0.153.0
+-- home/Library/Caches/hvm/v0.153.0/hugo --
 darwin-exec-bytes
--- cache/hvm/v0.117.0/hugo --
+-- cache/hvm/v0.153.0/hugo --
 linux-exec-bytes
--- cache/hvm/v0.117.0/hugo.exe --
+-- cache/hvm/v0.153.0/hugo.exe --
 windows-exec-bytes
