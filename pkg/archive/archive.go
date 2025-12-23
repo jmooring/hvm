@@ -24,16 +24,24 @@ import (
 	"strings"
 )
 
-// Extract extracts an archive (src) to the dst directory. If rm is is true,
-// removes src when complete. Supports gzipped tarballs and zip files.
+// Extract unpacks an archive (src) into the destination directory (dst).
+// If rm is true, the source archive is deleted after successful extraction.
+// Supports macOS .pkg files, gzipped tarballs (.tar.gz), and .zip files.
 func Extract(src, dst string, rm bool) error {
+	srcLower := strings.ToLower(src)
+
 	switch {
-	case strings.HasSuffix(strings.ToLower(src), ".tar.gz"):
+	case strings.HasSuffix(srcLower, ".pkg"):
+		err := extractPkg(src, dst)
+		if err != nil {
+			return err
+		}
+	case strings.HasSuffix(srcLower, ".tar.gz"):
 		err := extractTarGZ(src, dst)
 		if err != nil {
 			return err
 		}
-	case strings.HasSuffix(strings.ToLower(src), ".zip"):
+	case strings.HasSuffix(srcLower, ".zip"):
 		err := extractZip(src, dst)
 		if err != nil {
 			return err

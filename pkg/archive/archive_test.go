@@ -21,6 +21,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -31,13 +33,16 @@ func TestExtract(t *testing.T) {
 	t.Parallel()
 
 	const (
-		tarGZFileName = "test.tar.gz"
-		zipFileName   = "test.zip"
+		pkgFileName   = "test.pkg"    // test extraction on darwin only
+		tarGZFileName = "test.tar.gz" // test extraction on all operating systems
+		zipFileName   = "test.zip"    // test extraction on all operating systems
 	)
 
 	var (
-		srcDir = t.TempDir()
-		dstDir = t.TempDir()
+		osAll    = []string{"darwin", "linux", "windows"}
+		osDarwin = []string{"darwin"}
+		dstDir   = t.TempDir()
+		srcDir   = t.TempDir()
 	)
 
 	err := helpers.CopyDirectoryContent("testdata", srcDir)
@@ -50,18 +55,26 @@ func TestExtract(t *testing.T) {
 		dst string
 		rm  bool
 	}
+
 	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
+		name     string
+		osMatrix []string
+		args     args
+		wantErr  bool
 	}{
-		{"tarGZKeep", args{filepath.Join(srcDir, tarGZFileName), filepath.Clean(dstDir), false}, false},
-		{"tarGZRemove", args{filepath.Join(srcDir, tarGZFileName), filepath.Clean(dstDir), true}, false},
-		{"zipKeep", args{filepath.Join(srcDir, zipFileName), filepath.Clean(dstDir), false}, false},
-		{"zipRemove", args{filepath.Join(srcDir, zipFileName), filepath.Clean(dstDir), true}, false},
-		{"unknownArchiveFormat", args{"unknown.archive.format", "", false}, true},
+		{"pkgKeep", osDarwin, args{filepath.Join(srcDir, pkgFileName), filepath.Clean(dstDir), false}, false},
+		{"pkgRemove", osDarwin, args{filepath.Join(srcDir, pkgFileName), filepath.Clean(dstDir), true}, false},
+		{"tarGZKeep", osAll, args{filepath.Join(srcDir, tarGZFileName), filepath.Clean(dstDir), false}, false},
+		{"tarGZRemove", osAll, args{filepath.Join(srcDir, tarGZFileName), filepath.Clean(dstDir), true}, false},
+		{"zipKeep", osAll, args{filepath.Join(srcDir, zipFileName), filepath.Clean(dstDir), false}, false},
+		{"zipRemove", osAll, args{filepath.Join(srcDir, zipFileName), filepath.Clean(dstDir), true}, false},
+		{"unknownArchiveFormat", osAll, args{"unknown.archive.format", "", false}, true},
 	}
 	for _, tt := range tests {
+		if !slices.Contains(tt.osMatrix, runtime.GOOS) {
+			continue
+		}
+
 		t.Run(tt.name, func(t *testing.T) {
 			if err := Extract(tt.args.src, tt.args.dst, tt.args.rm); (err != nil) != tt.wantErr {
 				t.Errorf("Extract() error = %v, wantErr %v", err, tt.wantErr)
@@ -107,7 +120,6 @@ func TestExtract(t *testing.T) {
 
 			return nil
 		})
-
 		if err != nil {
 			t.Fatal(err)
 		}
