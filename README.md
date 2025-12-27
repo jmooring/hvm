@@ -134,6 +134,7 @@ Discover what others are saying about the Hugo Version Manager.
 
 Date|Link
 :--|:--
+2025-12-26|<https://www.brycewray.com/posts/2025/12/new-normal-starting-hugo-0.153.x/>
 2025-06-04|<https://harrycresswell.com/writing/hugo-version-manager/>
 2025-05-23|<https://ahmedjama.com/blog/2025/05/hugo-version-manager/>
 2025-04-07|<https://tsalikis.blog/posts/switching_hugo_versions/>
