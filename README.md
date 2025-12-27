@@ -116,7 +116,7 @@ By default, the `hvm use` and `hvm install` commands display the 30 most recent 
 
 By default, the `hvm use` and `hvm install` commands display the list of recent releases in descending order. To display the list in ascending order, set this value to `true`.
 
-## Continuous integration and deployment (CD/CD)
+## Continuous integration and deployment (CI/CD)
 
 For production workflows utilizing CI/CD (e.g., on Cloudflare, GitHub Pages, GitLab Pages, Netlify, Render, or Vercel), the Hugo Version Manager enables a reproducible build environment. The simplest and most reliable approach leverages the `.hvm` file:
 
