@@ -5,7 +5,7 @@
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 
-Hugo Version Manager (hvm) is a tool that helps you download, manage, and switch between different versions of the [Hugo] static site generator. You can also use hvm to install Hugo as a standalone application.
+Hugo Version Manager (hvm) is a tool that helps you download, manage, and switch between different versions of the [Hugo][] static site generator. You can also use hvm to install Hugo as a standalone application.
 
 ![Demonstration](assets/hvm.gif)
 
@@ -45,7 +45,7 @@ hvm use latest
 
 ### Step 1 - Install the executable
 
-Download a [prebuilt binary] or install from source (requires Go 1.24.4 or later):
+Download a [prebuilt binary][] or install from source (requires Go 1.24.4 or later):
 
 ```text
 go install github.com/jmooring/hvm@latest
@@ -141,3 +141,6 @@ Date|Link
 2025-04-07|<https://tsalikis.blog/posts/switching_hugo_versions/>
 2025-03-24|<https://navendu.me/posts/hugo-version-manager/>
 2023-12-18|<https://perplex.desider.at/news/hugo-version-manager/>
+
+[hugo]: https://github.com/gohugoio/hugo/#readme
+[prebuilt binary]: https://github.com/jmooring/hvm/releases/latest
