@@ -22,7 +22,9 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"runtime/debug"
 	"strings"
+	"time"
 
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
@@ -64,10 +66,10 @@ var App application = application{
 var Config configuration
 
 var (
-	buildDate     string = runtime.GOOS
-	commitHash    string
-	version       string = "dev"
-	versionString string = fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
+	buildDate     = time.Now().UTC().Format(time.RFC3339)
+	commitHash    = getShortCommitHash()
+	version       = getDynamicVersion()
+	versionString = fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -169,4 +171,48 @@ func initApp() {
 
 	err = os.MkdirAll(App.CacheDirPath, 0o777)
 	cobra.CheckErr(err)
+}
+
+// getShortCommitHash returns the first seven characters of the VCS revision
+// (Git commit SHA) from the embedded build information. It returns an empty
+// string if the build information is unavailable or the binary was not
+// built within a version control system.
+func getShortCommitHash() string {
+	if info, ok := debug.ReadBuildInfo(); ok {
+		for _, setting := range info.Settings {
+			if setting.Key == "vcs.revision" {
+				hash := setting.Value
+				if len(hash) > 7 {
+					return hash[:7]
+				}
+				return hash
+			}
+		}
+	}
+	return ""
+}
+
+// getDynamicVersion returns the application version from the embedded build
+// information. For tagged releases, it returns the tag (e.g., "v0.9.0"). For
+// development builds, it truncates the Go-generated pseudo-version to its
+// base and suffixes it with "-dev" (e.g., "v0.9.1-dev"). It returns "dev"
+// if the build information is unavailable.
+func getDynamicVersion() string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok || info.Main.Version == "" || info.Main.Version == "(devel)" {
+		return "dev"
+	}
+
+	v := info.Main.Version // e.g., "v0.9.1-0.20230101-abcdef" (Pseudo-version)
+
+	// A pseudo-version always contains a dash and a timestamp-like string.
+	// Examples: v0.9.1-0.2023... or v0.9.1-dev.0.2023...
+	if strings.Contains(v, "-0.") || strings.Contains(v, "-dev.") {
+		// Split at the first dash to get just the "v0.9.1" part
+		parts := strings.Split(v, "-")
+		return parts[0] + "-dev"
+	}
+
+	// If it's a clean tag (v0.9.0), it returns as-is.
+	return v
 }
