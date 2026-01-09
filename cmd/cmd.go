@@ -69,7 +69,7 @@ var (
 	buildDate     = time.Now().UTC().Format(time.RFC3339)
 	commitHash    = getShortCommitHash()
 	version       = getDynamicVersion()
-	versionString = fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
+	versionString = createVersionString()
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -215,4 +215,11 @@ func getDynamicVersion() string {
 
 	// If it's a clean tag (v0.9.0), it returns as-is.
 	return v
+}
+
+// createVersionString returns a space-separated string of application
+// and build metadata, omitting any empty fields.
+func createVersionString() string {
+	v := fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
+	return strings.Join(strings.Fields(v), " ")
 }
