@@ -35,7 +35,6 @@ import (
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
-	"golang.org/x/oauth2"
 )
 
 // useCmd represents the use command
@@ -79,21 +78,21 @@ func init() {
 
 // A repository is a GitHub repository.
 type repository struct {
-	owner     string         // account owner of the GitHub repository
-	name      string         // name of the GitHub repository without the .git extension
-	tags      []string       // repository tags
-	latestTag string         // latest repository tag
-	client    *github.Client // a GitHub API client
+	owner     string         // Owner of the GitHub repository
+	name      string         // Name of the GitHub repository
+	tags      []string       // Repository tags
+	latestTag string         // Latest repository tag
+	client    *github.Client // A GitHub API client
 }
 
 // An asset is a GitHub asset for a given release, operating system, and architecture.
 type asset struct {
-	archiveDirPath  string // directory path of the downloaded archive
-	archiveExt      string // extension of the downloaded archive: pkg, tar.gz, or zip
-	archiveFilePath string // file path of the downloaded archive
-	archiveURL      string // download URL for this asset
-	tag             string // user-selected tag associated with the release for this asset
-	execName        string // name of the executable file
+	archiveDirPath  string // Directory path of the downloaded archive
+	archiveExt      string // Extension of the downloaded archive: pkg, tar.gz, or zip
+	archiveFilePath string // File path of the downloaded archive
+	archiveURL      string // Download URL for this asset
+	tag             string // User-selected tag associated with the release for this asset
+	execName        string // Name of the executable file
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
@@ -150,24 +149,10 @@ func newAsset() *asset {
 
 // newRepository creates a new repository object, returning a pointer to same.
 func newRepository() *repository {
-	var client *github.Client
-
-	if Config.GithubToken == "" {
-		client = github.NewClient(nil)
-	} else {
-		ctx := context.Background()
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: Config.GithubToken},
-		)
-		tc := oauth2.NewClient(ctx, ts)
-
-		client = github.NewClient(tc)
-	}
-
 	r := repository{
-		client:    client,
-		name:      App.RepositoryName,
-		owner:     App.RepositoryOwner,
+		client:    newGitHubClient(),
+		name:      App.ManagedApp.RepositoryName,
+		owner:     App.ManagedApp.RepositoryOwner,
 		latestTag: "",
 	}
 
