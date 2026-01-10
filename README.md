@@ -36,8 +36,8 @@ The `hvm install` command installs a default version of Hugo to use when version
 The `hvm use` and `hvm install` commands typically present a list of available versions. To directly specify a version and bypass this list, include the desired version number or `latest` after the command, as shown in the examples below:
 
 ```text
-hvm use v0.153.0
-hvm use 0.153.0
+hvm use v0.154.4
+hvm use 0.154.4
 hvm use latest
 ```
 
@@ -45,7 +45,7 @@ hvm use latest
 
 ### Step 1 - Install the executable
 
-Download a [prebuilt binary][] or install from source (requires Go 1.24.4 or later):
+Download a [prebuilt binary][] or install from source (requires Go 1.25.5 or later):
 
 ```text
 go install github.com/jmooring/hvm@latest
