@@ -25,6 +25,10 @@ import (
 	"time"
 )
 
+// readBuildInfo is a test seam that allows mocking build info in unit tests.
+// In production, it points to debug.ReadBuildInfo.
+var readBuildInfo = debug.ReadBuildInfo
+
 // These variables are optionally set at build time via ldflags.
 // For example:
 //
@@ -81,7 +85,7 @@ func (i Info) String() string {
 // string if the build information is unavailable or the binary was not
 // built within a version control system.
 func getShortCommitHash() string {
-	if info, ok := debug.ReadBuildInfo(); ok {
+	if info, ok := readBuildInfo(); ok {
 		for _, setting := range info.Settings {
 			if setting.Key == "vcs.revision" {
 				hash := setting.Value
@@ -101,7 +105,7 @@ func getShortCommitHash() string {
 // base and suffixes it with "-dev" (e.g., "v0.9.1-dev"). It returns "dev"
 // if the build information is unavailable.
 func getDynamicVersion() string {
-	info, ok := debug.ReadBuildInfo()
+	info, ok := readBuildInfo()
 	if !ok || info.Main.Version == "" || info.Main.Version == "(devel)" {
 		return "dev"
 	}
