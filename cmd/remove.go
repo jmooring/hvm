@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// removeCmd represents the remove command
+// removeCmd represents the remove command.
 var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Aliases: []string{"uninstall"},
@@ -36,17 +36,19 @@ var removeCmd = &cobra.Command{
 	},
 }
 
+// init registers the remove command with the root command.
 func init() {
 	rootCmd.AddCommand(removeCmd)
 }
 
+// remove removes the default Hugo version installed by the install command.
 func remove() error {
-	exists, err := helpers.Exists(App.DefaultDirPath)
+	exists, err := helpers.Exists(app.DefaultDirPath)
 	if err != nil {
 		return err
 	}
 	if exists {
-		err = os.RemoveAll(App.DefaultDirPath)
+		err = os.RemoveAll(app.DefaultDirPath)
 		if err != nil {
 			return err
 		}

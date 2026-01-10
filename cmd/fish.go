@@ -25,7 +25,7 @@ import (
 //go:embed aliases/fish.sh
 var fishScript string
 
-// fishCmd represents the fish command
+// fishCmd represents the fish command.
 var fishCmd = &cobra.Command{
 	Use:   "fish",
 	Short: "Generate an alias function for fish",
@@ -42,6 +42,7 @@ message, set the "hvm_show_status" variable to "false" in the alias function.`,
 	},
 }
 
+// init registers the fish command with the alias command.
 func init() {
 	aliasCmd.AddCommand(fishCmd)
 }

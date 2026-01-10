@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// aliasCmd represents the alias command
+// aliasCmd represents the alias command.
 var aliasCmd = &cobra.Command{
 	Use:   "alias",
 	Short: "Generate an alias function for the specified shell",
@@ -30,6 +30,7 @@ See each sub-command's help for details on how to use the generated code.`,
 	},
 }
 
+// init registers the alias command with the gen command.
 func init() {
 	genCmd.AddCommand(aliasCmd)
 }

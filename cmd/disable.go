@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// disableCmd represents the disable command
+// disableCmd represents the disable command.
 var disableCmd = &cobra.Command{
 	Use:   "disable",
 	Short: "Disable version management in the current directory",
@@ -35,19 +35,20 @@ var disableCmd = &cobra.Command{
 	},
 }
 
+// init registers the disable command with the root command.
 func init() {
 	rootCmd.AddCommand(disableCmd)
 }
 
 // disable disables version management in the current directory.
 func disable() error {
-	exists, err := helpers.Exists(App.DotFilePath)
+	exists, err := helpers.Exists(app.DotFilePath)
 	if err != nil {
 		return err
 	}
 
 	if exists {
-		err := os.Remove(App.DotFilePath)
+		err := os.Remove(app.DotFilePath)
 		if err != nil {
 			return err
 		}

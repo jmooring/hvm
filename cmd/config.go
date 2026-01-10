@@ -23,7 +23,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// configCmd represents the config command
+// configCmd represents the config command.
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "Display the current configuration",
@@ -34,6 +34,7 @@ var configCmd = &cobra.Command{
 	},
 }
 
+// init registers the config command with the root command.
 func init() {
 	rootCmd.AddCommand(configCmd)
 }
@@ -41,11 +42,11 @@ func init() {
 // displayConfig displays the current configuration and the path to the
 // configuration file.
 func displayConfig() error {
-	t, err := toml.Marshal(Config)
+	t, err := toml.Marshal(config)
 	cobra.CheckErr(err)
 
 	fmt.Println(string(t))
-	fmt.Println("Configuration file:", App.ConfigFilePath)
+	fmt.Println("Configuration file:", app.ConfigFilePath)
 
 	return nil
 }

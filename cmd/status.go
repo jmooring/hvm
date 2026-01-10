@@ -19,18 +19,19 @@ package cmd
 import (
 	"bytes"
 	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/pkg/dotfile"
 	"github.com/jmooring/hvm/pkg/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )
 
-// statusCmd represents the status command
+// statusCmd represents the status command.
 var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Display the status",
@@ -42,13 +43,14 @@ location. The "default" directory created by the "install" command is excluded.`
 	},
 }
 
+// init registers the status command with the root command.
 func init() {
 	rootCmd.AddCommand(statusCmd)
-	statusCmd.Flags().Bool("printExecPath", false, `Based on the version specified in the `+App.DotFileName+` file,
+	statusCmd.Flags().Bool("printExecPath", false, `Based on the version specified in the `+app.DotFileName+` file,
 print the path to Hugo executable, otherwise
 return exit code 1. This path is not verified, and the
 executable may not exist.`)
-	statusCmd.Flags().Bool("printExecPathCached", false, `Based on the version specified in the `+App.DotFileName+` file,
+	statusCmd.Flags().Bool("printExecPathCached", false, `Based on the version specified in the `+app.DotFileName+` file,
 print the path to Hugo executable if cached, otherwise
 return exit code 1.`)
 	statusCmd.MarkFlagsMutuallyExclusive("printExecPath", "printExecPathCached")
@@ -70,12 +72,13 @@ func status(cmd *cobra.Command) error {
 		return err
 	}
 
-	version, err := getVersionFromDotFile()
+	dm := dotfile.NewManager(app.DotFilePath, app.DotFileName, app.Name)
+	version, err := dm.Read()
 	if err != nil {
 		return err
 	}
 
-	execPath := filepath.Join(App.CacheDirPath, version, getExecName())
+	execPath := filepath.Join(app.CacheDirPath, version, cache.ExecName())
 	execPathExists, err := helpers.Exists(execPath)
 	if err != nil {
 		return err
@@ -112,7 +115,7 @@ func status(cmd *cobra.Command) error {
 			fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
 		} else {
 			var r string
-			fmt.Printf("The %s file in the current directory refers to a Hugo\n", App.DotFileName)
+			fmt.Printf("The %s file in the current directory refers to a Hugo\n", app.DotFileName)
 			fmt.Printf("version (%s) that is not cached.\n", version)
 			fmt.Println()
 			for {
@@ -121,8 +124,8 @@ func status(cmd *cobra.Command) error {
 				if r == "" || strings.EqualFold(string(r[0]), "y") {
 					err = use(version)
 					if err != nil {
-						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
-						return fmt.Errorf("the version specified in the %s file (%s) is not available in the repository: %s", App.DotFileName, version, theFix)
+						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", app.Name)
+						return fmt.Errorf("the version specified in the %s file (%s) is not available in the repository: %s", app.DotFileName, version, theFix)
 					}
 					fmt.Println()
 					break
@@ -139,15 +142,15 @@ func status(cmd *cobra.Command) error {
 		}
 	}
 
-	// Get tags; ignore App.DefaultDirName.
-	sd, err := os.ReadDir(App.CacheDirPath)
+	// Get tags; ignore app.DefaultDirName.
+	sd, err := os.ReadDir(app.CacheDirPath)
 	if err != nil {
 		return err
 	}
 
 	var tags []string
 	for _, d := range sd {
-		if d.IsDir() && d.Name() != App.DefaultDirName {
+		if d.IsDir() && d.Name() != app.DefaultDirName {
 			tags = append(tags, d.Name())
 		}
 	}
@@ -160,7 +163,7 @@ func status(cmd *cobra.Command) error {
 	fmt.Println("Cached versions of the Hugo executable:")
 	fmt.Println()
 	semver.Sort(tags)
-	if !Config.SortAscending {
+	if !config.SortAscending {
 		slices.Reverse(tags)
 	}
 	for _, tag := range tags {
@@ -168,75 +171,18 @@ func status(cmd *cobra.Command) error {
 	}
 	fmt.Println()
 
-	size, err := getCacheSize()
+	size, err := cache.Size(app.CacheDirPath, app.DefaultDirName)
 	if err != nil {
 		return err
 	}
 	fmt.Println("Cache size:", size/1000000, "MB")
-	fmt.Println("Cache directory:", App.CacheDirPath)
+	fmt.Println("Cache directory:", app.CacheDirPath)
 
 	return nil
 }
 
-// getCacheSize returns the size of the cache directory, in bytes, excluding
-// the App.DefaultDirName subdirectory.
-func getCacheSize() (int64, error) {
-	var size int64 = 0
-	err := fs.WalkDir(os.DirFS(App.CacheDirPath), ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if !d.IsDir() && !strings.HasPrefix(path, App.DefaultDirName) {
-			fi, err := d.Info()
-			if err != nil {
-				return err
-			}
-			size += fi.Size()
-		}
-
-		return nil
-	})
-	if err != nil {
-		return 0, err
-	}
-
-	return size, nil
-}
-
-// getVersionFromDotFile returns the semver string from the app dot file in the
-// current directory, or an empty string if the file does not exist.
-func getVersionFromDotFile() (string, error) {
-	path := App.DotFilePath
-	exists, err := helpers.Exists(path)
-	if err != nil {
-		return "", err
-	}
-	if !exists {
-		return "", nil
-	}
-
-	f, err := os.Open(path)
-	if err != nil {
-		return "", err
-	}
-	defer f.Close()
-
-	buf := new(bytes.Buffer)
-	_, err = buf.ReadFrom(f)
-	if err != nil {
-		return "", err
-	}
-
-	theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", App.Name)
-
-	dotHvmContent := strings.TrimSpace(buf.String())
-	if dotHvmContent == "" {
-		return "", fmt.Errorf("the %s file in the current directory is empty: %s", App.DotFileName, theFix)
-	}
-
-	if !semver.IsValid(dotHvmContent) {
-		return "", fmt.Errorf("the %s file in the current directory has an invalid format: %s", App.DotFileName, theFix)
-	}
-
-	return (dotHvmContent), nil
+// readBytes reads and trims whitespace from a bytes buffer.
+func readBytes(b *bytes.Buffer) (string, error) {
+	content := strings.TrimSpace(b.String())
+	return content, nil
 }

@@ -17,27 +17,23 @@ limitations under the License.
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-	"regexp"
-	"runtime"
-	"slices"
-	"strconv"
-	"strings"
 
-	"github.com/google/go-github/github"
 	"github.com/jmooring/hvm/pkg/archive"
+	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/pkg/dotfile"
+	gh "github.com/jmooring/hvm/pkg/github"
 	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/pkg/repository"
 	"github.com/spf13/cobra"
-	"golang.org/x/mod/semver"
 )
 
-// useCmd represents the use command
+// useCmd represents the use command.
 var useCmd = &cobra.Command{
 	Use:     "use [version] | [flags]",
 	Aliases: []string{"get"},
@@ -45,7 +41,7 @@ var useCmd = &cobra.Command{
 	Long: `Displays a list of recent Hugo releases, prompting you to select a version
 to use in the current directory. It then downloads, extracts, and caches the
 release asset for your operating system and architecture and writes the version
-tag to an ` + App.DotFileName + ` file.
+tag to an ` + app.DotFileName + ` file.
 
 Bypass the selection menu by specifying a version, or specify "latest" to use
 the latest release.
@@ -57,10 +53,11 @@ the latest release.
 		cobra.CheckErr(err)
 
 		if useVersionInDotFile {
-			version, err = getVersionFromDotFile()
+			dm := dotfile.NewManager(app.DotFilePath, app.DotFileName, app.Name)
+			version, err = dm.Read()
 			cobra.CheckErr(err)
 			if version == "" {
-				cobra.CheckErr(fmt.Errorf("the current directory does not contain an %s file", App.DotFileName))
+				cobra.CheckErr(fmt.Errorf("the current directory does not contain an %s file", app.DotFileName))
 			}
 		} else if len(args) > 0 {
 			version = args[0]
@@ -71,66 +68,56 @@ the latest release.
 	},
 }
 
+// init registers the use command with the root command.
 func init() {
 	rootCmd.AddCommand(useCmd)
-	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+App.DotFileName+" file\nin the current directory")
-}
-
-// A repository is a GitHub repository.
-type repository struct {
-	owner     string         // Owner of the GitHub repository
-	name      string         // Name of the GitHub repository
-	tags      []string       // Repository tags
-	latestTag string         // Latest repository tag
-	client    *github.Client // A GitHub API client
-}
-
-// An asset is a GitHub asset for a given release, operating system, and architecture.
-type asset struct {
-	archiveDirPath  string // Directory path of the downloaded archive
-	archiveExt      string // Extension of the downloaded archive: pkg, tar.gz, or zip
-	archiveFilePath string // File path of the downloaded archive
-	archiveURL      string // Download URL for this asset
-	tag             string // User-selected tag associated with the release for this asset
-	execName        string // Name of the executable file
+	useCmd.Flags().Bool("useVersionInDotFile", false, "Use the version specified by the "+app.DotFileName+" file\nin the current directory")
 }
 
 // use sets the version of the Hugo executable to use in the current directory.
 func use(version string) error {
-	asset := newAsset()
-	repo := newRepository()
+	asset := repository.NewAsset(cache.ExecName())
+
+	client := gh.NewClient(config.GitHubToken)
+	repo, err := repository.NewRepository(app.ManagedApp.RepositoryOwner, app.ManagedApp.RepositoryName, client)
+	if err != nil {
+		return err
+	}
 
 	if version == "" {
 		msg := "Select a version to use in the current directory"
-		err := repo.selectTag(asset, msg)
+		err := repo.SelectTag(asset, msg, config.SortAscending, config.NumTagsToDisplay, func(tag string) (bool, error) {
+			return helpers.Exists(filepath.Join(app.CacheDirPath, tag))
+		})
 		if err != nil {
 			return err
 		}
-		if asset.tag == "" {
+		if asset.Tag == "" {
 			return nil // the user did not select a tag; do nothing
 		}
 	} else {
-		err := repo.getTagFromString(asset, version)
+		err := repo.GetTagFromString(asset, version)
 		if err != nil {
 			return err
 		}
 	}
 
-	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
+	exists, err := helpers.Exists(filepath.Join(app.CacheDirPath, asset.Tag))
 	if err != nil {
 		return err
 	}
 
 	if exists {
-		fmt.Printf("Using %s from cache.\n", asset.tag)
+		fmt.Printf("Using %s from cache.\n", asset.Tag)
 	} else {
-		err := get(asset, repo)
+		err := downloadAndCache(asset, repo)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = asset.createDotFile()
+	dm := dotfile.NewManager(app.DotFilePath, app.DotFileName, app.Name)
+	err = dm.Write(asset.Tag)
 	if err != nil {
 		return err
 	}
@@ -138,272 +125,47 @@ func use(version string) error {
 	return nil
 }
 
-// newAsset creates a new asset object, returning a pointer to same.
-func newAsset() *asset {
-	a := asset{
-		execName: getExecName(),
-	}
-
-	return &a
-}
-
-// newRepository creates a new repository object, returning a pointer to same.
-func newRepository() *repository {
-	r := repository{
-		client:    newGitHubClient(),
-		name:      App.ManagedApp.RepositoryName,
-		owner:     App.ManagedApp.RepositoryOwner,
-		latestTag: "",
-	}
-
-	err := r.fetchTags()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
-
-	return &r
-}
-
-// get downloads and extracts the release asset.
-func get(asset *asset, repo *repository) error {
-	err := repo.fetchDownloadURL(asset)
+// downloadAndCache downloads and extracts the release asset.
+func downloadAndCache(asset *repository.Asset, repo *repository.Repository) error {
+	err := repo.FetchDownloadURL(asset)
 	if err != nil {
 		return err
 	}
 
-	asset.archiveDirPath, err = os.MkdirTemp("", "")
+	asset.ArchiveDirPath, err = os.MkdirTemp("", "")
 	if err != nil {
 		return err
 	}
 	defer func() {
-		err := os.RemoveAll(asset.archiveDirPath)
+		err := os.RemoveAll(asset.ArchiveDirPath)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}()
 
-	err = asset.downloadAsset()
+	err = downloadAsset(asset)
 	if err != nil {
 		return err
 	}
 
-	err = archive.Extract(asset.archiveFilePath, asset.archiveDirPath, true)
+	err = archive.Extract(asset.ArchiveFilePath, asset.ArchiveDirPath, true)
 	if err != nil {
 		return err
 	}
 
-	err = helpers.CopyDirectoryContent(asset.archiveDirPath, filepath.Join(App.CacheDirPath, asset.tag))
+	err = helpers.CopyDirectoryContent(asset.ArchiveDirPath, filepath.Join(app.CacheDirPath, asset.Tag))
 	if err != nil {
 		return err
 	}
 
 	return nil
-}
-
-// fetchTags fetches tags associated with recent releases.
-func (r *repository) fetchTags() error {
-	opts := &github.ListOptions{PerPage: 100}
-
-	var tags []*github.RepositoryTag
-	for {
-		tagsThisPage, resp, err := r.client.Repositories.ListTags(context.Background(), r.owner, r.name, opts)
-		if err != nil {
-			return err
-		}
-		tags = append(tags, tagsThisPage...)
-		if resp.NextPage == 0 {
-			break
-		}
-		opts.Page = resp.NextPage
-	}
-
-	if len(tags) == 0 {
-		return fmt.Errorf("this repository has no tags")
-	}
-
-	var tagNames []string
-	for _, tag := range tags {
-		// Releases prior to v0.54.0 were not semantically versioned.
-		if semver.Compare(tag.GetName(), "v0.54.0") >= 0 {
-			tagNames = append(tagNames, tag.GetName())
-		}
-	}
-
-	r.latestTag = tagNames[0]
-
-	if Config.SortAscending {
-		semver.Sort(tagNames)
-	}
-	r.tags = tagNames
-
-	return nil
-}
-
-// getLatestTag returns the most recent tag from repository.
-func (r *repository) getLatestTag(a *asset) error {
-	if r.latestTag == "" {
-		return fmt.Errorf("no latest release found")
-	}
-	a.tag = r.latestTag
-	return nil
-}
-
-func (r *repository) getTagFromString(a *asset, version string) error {
-	inputVersion := version
-	// fast return for simple cases
-	if version == "latest" {
-		return r.getLatestTag(a)
-	}
-	if !strings.HasPrefix(version, "v") {
-		version = "v" + version
-	}
-	if semver.Compare(version, "") == 0 {
-		return fmt.Errorf("invalid tag: %s", inputVersion)
-	}
-	if !slices.Contains(r.tags, version) {
-		return fmt.Errorf("tag \"%s\" not found in repository", inputVersion)
-	}
-	a.tag = version
-	return nil
-}
-
-// selectTag prompts the user to select a tag from a list of recent tags.
-func (r *repository) selectTag(a *asset, msg string) error {
-	// List tags.
-	fmt.Println()
-
-	n := Config.NumTagsToDisplay
-	if n < 0 {
-		n = 9999
-	}
-
-	tags := r.tags
-	if n <= len(r.tags) {
-		if Config.SortAscending {
-			tags = tags[len(tags)-n:]
-		} else {
-			tags = tags[:n]
-		}
-	}
-
-	for i, tag := range tags {
-		exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, tag))
-		if err != nil {
-			return err
-		}
-		var flag string
-		if exists {
-			flag = "[cached]"
-		}
-		// The tags array is zero-based, but choices are one-based.
-		fmt.Printf("%-25s", fmt.Sprintf("%3d) %s %s", i+1, tag, flag))
-		if (i+1)%3 == 0 {
-			fmt.Print("\n")
-		} else if i == len(tags)-1 {
-			fmt.Print("\n")
-		}
-	}
-
-	// Prompt user.
-	fmt.Println()
-	fmt.Printf("%s: ", msg)
-
-	// Validate response.
-	for a.tag == "" {
-		var rs string
-		fmt.Scanln(&rs)
-
-		// User pressed return; do nothing.
-		if rs == "" {
-			fmt.Println("Canceled.")
-			return nil
-		}
-
-		ri, err := strconv.Atoi(strings.TrimSpace(rs))
-		if err != nil || ri < 1 || ri > len(tags) {
-			fmt.Printf("Please enter a number between 1 and %d, or press Enter to cancel: ", len(tags))
-		} else {
-			a.tag = tags[ri-1]
-		}
-	}
-
-	return nil
-}
-
-// fetchDownloadURL fetches the download URL for the user-selected tag.
-func (r *repository) fetchDownloadURL(a *asset) error {
-	version := a.tag[1:]
-	pattern := ""
-	// The archive file names were changed with the release of v0.103.0.
-	if semver.Compare(a.tag, "v0.103.0") == -1 {
-		// prior to v0.103.0
-		switch runtime.GOOS {
-		case "darwin":
-			pattern = `hugo_extended_` + version + `_macOS-64bit.tar.gz`
-		case "windows":
-			pattern = `hugo_extended_` + version + `_Windows-64bit.zip`
-		case "linux":
-			pattern = `hugo_extended_` + version + `_Linux-64bit.tar.gz`
-			if runtime.GOARCH == "arm64" {
-				pattern = `hugo_extended_` + version + `_Linux-ARM64.deb`
-			}
-		default:
-			return fmt.Errorf("unsupported operating system")
-		}
-	} else {
-		// v0.103.0 and later
-		switch runtime.GOOS {
-		case "darwin":
-			// The macOS archive file names were changed with the release of v0.153.0.
-			if semver.Compare(a.tag, "v0.153.0") == -1 {
-				// prior to v0.153.0
-				pattern = `hugo_extended_` + version + `_darwin-universal.tar.gz`
-			} else {
-				// v0.153.0 and later
-				pattern = `hugo_extended_` + version + `_darwin-universal.pkg`
-			}
-		case "windows":
-			pattern = `hugo_extended_` + version + `_windows-` + runtime.GOARCH + `.zip`
-		case "linux":
-			pattern = `hugo_extended_` + version + `_linux-` + runtime.GOARCH + `.tar.gz`
-		default:
-			return fmt.Errorf("unsupported operating system")
-		}
-	}
-	re := regexp.MustCompile(pattern)
-
-	release, _, err := r.client.Repositories.GetReleaseByTag(context.Background(), r.owner, r.name, a.tag)
-	if err != nil {
-		return err
-	}
-
-	for _, asset := range release.Assets {
-		archiveURL := asset.GetBrowserDownloadURL()
-		if re.MatchString(archiveURL) {
-			a.archiveURL = archiveURL
-			switch {
-			case strings.HasSuffix(a.archiveURL, ".pkg"):
-				a.archiveExt = "pkg"
-			case strings.HasSuffix(a.archiveURL, ".tar.gz"):
-				a.archiveExt = "tar.gz"
-			case strings.HasSuffix(a.archiveURL, ".zip"):
-				a.archiveExt = "zip"
-			default:
-				return fmt.Errorf("unable to determine archive extension")
-			}
-			return nil
-		}
-	}
-
-	return fmt.Errorf("unable to find download for %s %s/%s", a.tag, runtime.GOOS, runtime.GOARCH)
 }
 
 // downloadAsset downloads the release asset.
-func (a *asset) downloadAsset() error {
+func downloadAsset(a *repository.Asset) error {
 	// Create the file.
-	a.archiveFilePath = filepath.Join(a.archiveDirPath, "hugo."+a.archiveExt)
-	out, err := os.Create(a.archiveFilePath)
+	a.ArchiveFilePath = filepath.Join(a.ArchiveDirPath, "hugo."+a.ArchiveExt)
+	out, err := os.Create(a.ArchiveFilePath)
 	if err != nil {
 		return err
 	}
@@ -414,11 +176,11 @@ func (a *asset) downloadAsset() error {
 	}()
 
 	// Get the data.
-	resp, err := http.Get(a.archiveURL)
+	resp, err := http.Get(a.ArchiveURL)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Downloading %s... ", a.tag)
+	fmt.Printf("Downloading %s... ", a.Tag)
 	defer resp.Body.Close()
 
 	// Check server response.
@@ -432,29 +194,6 @@ func (a *asset) downloadAsset() error {
 		return err
 	}
 	fmt.Printf("done.\n")
-
-	return nil
-}
-
-// getExecName returns the name of the Hugo executable file.
-func getExecName() string {
-	if runtime.GOOS == "windows" {
-		return "hugo.exe"
-	}
-	return "hugo"
-}
-
-// getExecPath returns the path of the Hugo executable file.
-func (a *asset) getExecPath() string {
-	return filepath.Join(App.CacheDirPath, a.tag, a.execName)
-}
-
-// createDotFile creates an application dot file in the current directory.
-func (a *asset) createDotFile() error {
-	err := os.WriteFile(App.DotFilePath, []byte(a.tag), 0o644)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

@@ -25,7 +25,7 @@ import (
 //go:embed aliases/powershell.ps1
 var powershellScript string
 
-// powershellCmd represents the powershell command
+// powershellCmd represents the powershell command.
 var powershellCmd = &cobra.Command{
 	Use:   "powershell",
 	Short: "Generate an alias function for powershell",
@@ -48,6 +48,7 @@ message, set the "hvm_show_status" variable to "$false" in the alias function.
 	},
 }
 
+// init registers the powershell command with the alias command.
 func init() {
 	aliasCmd.AddCommand(powershellCmd)
 }

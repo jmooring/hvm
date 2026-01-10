@@ -24,7 +24,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// resetCmd represents the reset command
+// resetCmd represents the reset command.
 var resetCmd = &cobra.Command{
 	Use:    "reset",
 	Hidden: true,
@@ -37,6 +37,7 @@ configuration and cache directories.`,
 	},
 }
 
+// init registers the reset command with the root command.
 func init() {
 	rootCmd.AddCommand(resetCmd)
 }
@@ -60,11 +61,11 @@ func reset() error {
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(App.ConfigDirPath)
+			err = os.RemoveAll(app.ConfigDirPath)
 			if err != nil {
 				return err
 			}
-			err = os.RemoveAll(App.CacheDirPath)
+			err = os.RemoveAll(app.CacheDirPath)
 			if err != nil {
 				return err
 			}

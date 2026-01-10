@@ -29,6 +29,7 @@ import (
 	"github.com/jmooring/hvm/pkg/helpers"
 )
 
+// TestExtract tests the Extract function for various archive formats.
 func TestExtract(t *testing.T) {
 	t.Parallel()
 

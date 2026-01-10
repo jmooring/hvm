@@ -19,14 +19,16 @@ package cmd
 import (
 	"fmt"
 	"testing"
+
+	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/pkg/repository"
 )
 
-func newMockRepo() *repository {
-	r := repository{
-		tags:      []string{"v1.2.3", "v1.2.2", "v1.2.1"},
-		latestTag: "v1.2.3",
-	}
-	return &r
+// newMockRepo creates a mock repository for testing with predefined tags.
+func newMockRepo() *repository.Repository {
+	r := &repository.Repository{}
+	r.SetTagsForTesting([]string{"v1.2.3", "v1.2.2", "v1.2.1"}, "v1.2.3")
+	return r
 }
 
 var testCases = []struct {
@@ -55,17 +57,18 @@ var testCases = []struct {
 	{"1.2.3.4", ""},
 }
 
+// TestGetTagFromString tests the GetTagFromString repository method.
 func TestGetTagFromString(t *testing.T) {
 	// mock needed elements and sort config
-	Config.SortAscending = false
+	config.SortAscending = false
 	repo := newMockRepo()
-	asset := newAsset()
+	asset := repository.NewAsset(cache.ExecName())
 	for _, tc := range testCases {
 		t.Run(fmt.Sprintf("[%s] ShouldBe [%s]", tc.given, tc.want), func(t *testing.T) {
-			asset.tag = ""
-			err := repo.getTagFromString(asset, tc.given)
-			if asset.tag != tc.want {
-				t.Fatalf("given(%s) -> calculated(%s) -> want(%s) : %s", tc.given, asset.tag, tc.want, err)
+			asset.Tag = ""
+			err := repo.GetTagFromString(asset, tc.given)
+			if asset.Tag != tc.want {
+				t.Fatalf("given(%s) -> calculated(%s) -> want(%s) : %s", tc.given, asset.Tag, tc.want, err)
 			}
 		})
 	}
