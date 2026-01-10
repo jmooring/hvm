@@ -17,7 +17,11 @@ limitations under the License.
 package archive
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bytes"
+	"compress/gzip"
+	"io"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -141,5 +145,95 @@ func TestExtract(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func TestExtractTarGZ_ZipSlip(t *testing.T) {
+	t.Parallel()
+
+	tarPath := filepath.Join(t.TempDir(), "slip.tar.gz")
+	dstDir := t.TempDir()
+
+	f, err := os.Create(tarPath)
+	if err != nil {
+		t.Fatalf("create tar: %v", err)
+	}
+	gw := gzip.NewWriter(f)
+	tw := tar.NewWriter(gw)
+
+	header := &tar.Header{Name: "../evil.txt", Mode: 0o644, Size: int64(len("oops"))}
+	if err := tw.WriteHeader(header); err != nil {
+		t.Fatalf("write header: %v", err)
+	}
+	if _, err := tw.Write([]byte("oops")); err != nil {
+		t.Fatalf("write body: %v", err)
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatalf("close tar: %v", err)
+	}
+	if err := gw.Close(); err != nil {
+		t.Fatalf("close gzip: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close file: %v", err)
+	}
+
+	if err := extractTarGZ(tarPath, dstDir); err == nil {
+		t.Fatal("expected zip slip error for tar.gz")
+	}
+}
+
+func TestExtractTarGZ_InvalidGzip(t *testing.T) {
+	t.Parallel()
+
+	tarPath := filepath.Join(t.TempDir(), "invalid.tar.gz")
+	dstDir := t.TempDir()
+
+	if err := os.WriteFile(tarPath, []byte("not-a-gzip"), 0o644); err != nil {
+		t.Fatalf("write file: %v", err)
+	}
+
+	if err := extractTarGZ(tarPath, dstDir); err == nil {
+		t.Fatal("expected error for invalid gzip")
+	}
+}
+
+func TestExtractZip_ZipSlip(t *testing.T) {
+	t.Parallel()
+
+	zipPath := filepath.Join(t.TempDir(), "slip.zip")
+	dstDir := t.TempDir()
+
+	f, err := os.Create(zipPath)
+	if err != nil {
+		t.Fatalf("create zip: %v", err)
+	}
+	zw := zip.NewWriter(f)
+
+	w, err := zw.Create("../evil.txt")
+	if err != nil {
+		t.Fatalf("create entry: %v", err)
+	}
+	if _, err := io.WriteString(w, "oops"); err != nil {
+		t.Fatalf("write entry: %v", err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatalf("close zip: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close file: %v", err)
+	}
+
+	if err := extractZip(zipPath, dstDir); err == nil {
+		t.Fatal("expected zip slip error for zip")
+	}
+}
+
+func TestExtract_MissingFile(t *testing.T) {
+	t.Parallel()
+
+	missing := filepath.Join(t.TempDir(), "missing.tar.gz")
+	if err := Extract(missing, t.TempDir(), false); err == nil {
+		t.Fatal("expected error for missing archive")
 	}
 }
