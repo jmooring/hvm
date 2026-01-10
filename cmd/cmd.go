@@ -34,33 +34,47 @@ import (
 // An application contains details about the application. Some are constants, while
 // others depend on the user environment.
 type application struct {
-	CacheDirPath    string // path to the application cache directory
-	ConfigDirPath   string // path to the application configuration directory
-	ConfigFilePath  string // path to the application configuration file
-	DefaultDirName  string // name of the "default" directory within the application cache directory
-	DefaultDirPath  string // path to the "default" directory within the application cache directory
-	DotFileName     string // name of the dot file written to the current directory (e.g., .hvm)
-	DotFilePath     string // path to the dot file
-	Name            string // name of the application
-	RepositoryName  string // name of the GitHub repository without the .git extension
-	RepositoryOwner string // account owner of the GitHub repository
-	WorkingDir      string // current working directory
+	CacheDirPath    string     // Path to the application cache directory
+	ConfigDirPath   string     // Path to the application configuration directory
+	ConfigFilePath  string     // Path to the application configuration file
+	DefaultDirName  string     // Name of the "default" directory within the application cache directory
+	DefaultDirPath  string     // Path to the "default" directory within the application cache directory
+	DotFileName     string     // Name of the dot file written to the current directory (e.g., .hvm)
+	DotFilePath     string     // Path to the dot file
+	ManagedApp      managedApp // Details about the application being managed
+	Name            string     // Name of the application
+	RepositoryName  string     // Name of the GitHub repository
+	RepositoryOwner string     // Owner of the GitHub repository
+	UpdateURL       string     // URL to update the application
+	WorkingDir      string     // Current working directory
+}
+
+// A managedApp contains details about the external application being managed,
+// such as its source repository location.
+type managedApp struct {
+	RepositoryName  string // Name of the GitHub repository
+	RepositoryOwner string // Owner of the GitHub repository
 }
 
 // A configuration contains the current configuration parameters from environment
 // variables, the configuration file, or default values, in that order.
 type configuration struct {
-	GithubToken      string `toml:"githubToken"`      // a GitHub personal access token
-	NumTagsToDisplay int    `toml:"numTagsToDisplay"` // number of tags to display when using the "use" and "install" commands
-	SortAscending    bool   `toml:"sortAscending"`    // displays tags list in ascending order
+	GitHubToken      string `toml:"githubToken"`      // A GitHub personal access token
+	NumTagsToDisplay int    `toml:"numTagsToDisplay"` // Number of tags to display when using the "use" and "install" commands
+	SortAscending    bool   `toml:"sortAscending"`    // Whether to display the tags in ascending order
 }
 
 var App application = application{
-	DefaultDirName:  "default",
-	DotFileName:     ".hvm",
+	DefaultDirName: "default",
+	DotFileName:    ".hvm",
+	ManagedApp: managedApp{
+		RepositoryName:  "hugo",
+		RepositoryOwner: "gohugoio",
+	},
 	Name:            "hvm",
-	RepositoryName:  "hugo",
-	RepositoryOwner: "gohugoio",
+	RepositoryName:  "hvm",
+	RepositoryOwner: "jmooring",
+	UpdateURL:       "https://github.com/jmooring/hvm/releases/latest",
 }
 
 var Config configuration
