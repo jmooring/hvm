@@ -213,6 +213,8 @@ func (r *Repository) SelectTag(a *Asset, msg string, sortAscending bool, numTags
 
 // FetchDownloadURL fetches the download URL for the user-selected tag.
 // cacheLookupFn is used to check if a cached version exists.
+//
+//gocyclo:ignore
 func (r *Repository) FetchDownloadURL(a *Asset) error {
 	version := a.Tag[1:]
 	pattern := ""
