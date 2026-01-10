@@ -21,12 +21,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
-	"runtime/debug"
 	"strings"
-	"time"
 
 	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -64,7 +62,7 @@ type configuration struct {
 	SortAscending    bool   `toml:"sortAscending"`    // Whether to display the tags in ascending order
 }
 
-var App application = application{
+var app application = application{
 	DefaultDirName: "default",
 	DotFileName:    ".hvm",
 	ManagedApp: managedApp{
@@ -77,22 +75,19 @@ var App application = application{
 	UpdateURL:       "https://github.com/jmooring/hvm/releases/latest",
 }
 
-var Config configuration
+var config configuration
 
-var (
-	buildDate     = time.Now().UTC().Format(time.RFC3339)
-	commitHash    = getShortCommitHash()
-	version       = getDynamicVersion()
-	versionString = createVersionString()
-)
+var versionInfo = version.NewInfo(app.Name)
 
-// rootCmd represents the base command when called without any subcommands
+var versionString = versionInfo.String()
+
+// rootCmd represents the base command when called without any subcommands.
 var rootCmd = &cobra.Command{
-	Use:   App.Name,
+	Use:   app.Name,
 	Short: "Hugo Version Manager",
-	Long: `Hugo Version Manager (` + App.Name + `) is a tool that helps you download, manage, and switch
+	Long: `Hugo Version Manager (` + app.Name + `) is a tool that helps you download, manage, and switch
 between different versions of the Hugo static site generator. You can also use
-` + App.Name + ` to install Hugo as a standalone application.`,
+` + app.Name + ` to install Hugo as a standalone application.`,
 	Version: versionString,
 }
 
@@ -105,11 +100,12 @@ func Execute() {
 	}
 }
 
+// init initializes the root command and sets up flags.
 func init() {
 	cobra.OnInitialize(initConfig, initApp)
 
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display help")
-	rootCmd.Flags().BoolP("version", "v", false, "Display the "+App.Name+" version")
+	rootCmd.Flags().BoolP("version", "v", false, "Display the "+app.Name+" version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf("%s\n", versionString))
 }
 
@@ -123,11 +119,11 @@ func initConfig() {
 	// Create config directory.
 	userConfigDir, err := os.UserConfigDir()
 	cobra.CheckErr(err)
-	err = os.MkdirAll(filepath.Join(userConfigDir, App.Name), 0o777)
+	err = os.MkdirAll(filepath.Join(userConfigDir, app.Name), 0o777)
 	cobra.CheckErr(err)
 
 	// Define config file.
-	viper.AddConfigPath(filepath.Join(userConfigDir, App.Name))
+	viper.AddConfigPath(filepath.Join(userConfigDir, app.Name))
 	viper.SetConfigName("config")
 	viper.SetConfigType("toml")
 
@@ -144,7 +140,7 @@ func initConfig() {
 	}
 
 	// Get config values from env vars.
-	viper.SetEnvPrefix(strings.ToUpper(App.Name))
+	viper.SetEnvPrefix(strings.ToUpper(app.Name))
 	viper.AutomaticEnv()
 
 	// Validate config values.
@@ -160,7 +156,7 @@ func initConfig() {
 	}
 
 	// Unmarshal the config to the Config struct.
-	err = viper.Unmarshal(&Config)
+	err = viper.Unmarshal(&config)
 	cobra.CheckErr(err)
 }
 
@@ -176,64 +172,13 @@ func initApp() {
 	wd, err := os.Getwd()
 	cobra.CheckErr(err)
 
-	App.CacheDirPath = filepath.Join(userCacheDir, App.Name)
-	App.ConfigDirPath = filepath.Join(userConfigDir, App.Name)
-	App.ConfigFilePath = viper.ConfigFileUsed()
-	App.DefaultDirPath = filepath.Join(userCacheDir, App.Name, App.DefaultDirName)
-	App.DotFilePath = filepath.Join(wd, App.DotFileName)
-	App.WorkingDir = wd
+	app.CacheDirPath = filepath.Join(userCacheDir, app.Name)
+	app.ConfigDirPath = filepath.Join(userConfigDir, app.Name)
+	app.ConfigFilePath = viper.ConfigFileUsed()
+	app.DefaultDirPath = filepath.Join(userCacheDir, app.Name, app.DefaultDirName)
+	app.DotFilePath = filepath.Join(wd, app.DotFileName)
+	app.WorkingDir = wd
 
-	err = os.MkdirAll(App.CacheDirPath, 0o777)
+	err = os.MkdirAll(app.CacheDirPath, 0o777)
 	cobra.CheckErr(err)
-}
-
-// getShortCommitHash returns the first seven characters of the VCS revision
-// (Git commit SHA) from the embedded build information. It returns an empty
-// string if the build information is unavailable or the binary was not
-// built within a version control system.
-func getShortCommitHash() string {
-	if info, ok := debug.ReadBuildInfo(); ok {
-		for _, setting := range info.Settings {
-			if setting.Key == "vcs.revision" {
-				hash := setting.Value
-				if len(hash) > 7 {
-					return hash[:7]
-				}
-				return hash
-			}
-		}
-	}
-	return ""
-}
-
-// getDynamicVersion returns the application version from the embedded build
-// information. For tagged releases, it returns the tag (e.g., "v0.9.0"). For
-// development builds, it truncates the Go-generated pseudo-version to its
-// base and suffixes it with "-dev" (e.g., "v0.9.1-dev"). It returns "dev"
-// if the build information is unavailable.
-func getDynamicVersion() string {
-	info, ok := debug.ReadBuildInfo()
-	if !ok || info.Main.Version == "" || info.Main.Version == "(devel)" {
-		return "dev"
-	}
-
-	v := info.Main.Version // e.g., "v0.9.1-0.20230101-abcdef" (Pseudo-version)
-
-	// A pseudo-version always contains a dash and a timestamp-like string.
-	// Examples: v0.9.1-0.2023... or v0.9.1-dev.0.2023...
-	if strings.Contains(v, "-0.") || strings.Contains(v, "-dev.") {
-		// Split at the first dash to get just the "v0.9.1" part
-		parts := strings.Split(v, "-")
-		return parts[0] + "-dev"
-	}
-
-	// If it's a clean tag (v0.9.0), it returns as-is.
-	return v
-}
-
-// createVersionString returns a space-separated string of application
-// and build metadata, omitting any empty fields.
-func createVersionString() string {
-	v := fmt.Sprintf("%s %s %s/%s %s %s", App.Name, version, runtime.GOOS, runtime.GOARCH, commitHash, buildDate)
-	return strings.Join(strings.Fields(v), " ")
 }

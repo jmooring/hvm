@@ -19,7 +19,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// genCmd represents the gen command
+// genCmd represents the gen command.
 var genCmd = &cobra.Command{
 	Use:   "gen",
 	Short: "Generate various files",
@@ -29,6 +29,7 @@ var genCmd = &cobra.Command{
 	},
 }
 
+// init registers the gen command with the root command.
 func init() {
 	rootCmd.AddCommand(genCmd)
 }

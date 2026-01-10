@@ -25,6 +25,7 @@ import (
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
+// TestCommand runs testscripts for the main command set.
 func TestCommand(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts",
@@ -32,6 +33,7 @@ func TestCommand(t *testing.T) {
 	})
 }
 
+// TestCommandConfig runs testscripts for the config command.
 func TestCommandConfig(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts/config",
@@ -39,6 +41,7 @@ func TestCommandConfig(t *testing.T) {
 	})
 }
 
+// TestCommandInstall runs testscripts for the install command.
 func TestCommandInstall(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts/install",
@@ -46,6 +49,7 @@ func TestCommandInstall(t *testing.T) {
 	})
 }
 
+// TestCommandRemove runs testscripts for the remove command.
 func TestCommandRemove(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts/remove",
@@ -53,6 +57,7 @@ func TestCommandRemove(t *testing.T) {
 	})
 }
 
+// TestCommandStatus runs testscripts for the status command.
 func TestCommandStatus(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts/status",
@@ -60,6 +65,7 @@ func TestCommandStatus(t *testing.T) {
 	})
 }
 
+// TestCommandUse runs testscripts for the use command.
 func TestCommandUse(t *testing.T) {
 	testscript.Run(t, testscript.Params{
 		Dir:   "testscripts/use",
@@ -67,6 +73,7 @@ func TestCommandUse(t *testing.T) {
 	})
 }
 
+// setup initializes the test environment with necessary environment variables.
 func setup(env *testscript.Env) error {
 	env.Setenv("HVM_GITHUBTOKEN", os.Getenv("HVM_GITHUBTOKEN"))
 	switch runtime.GOOS {

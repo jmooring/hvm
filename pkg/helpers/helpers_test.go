@@ -24,6 +24,7 @@ import (
 	"testing"
 )
 
+// TestIsDir tests the IsDir function.
 func TestIsDir(t *testing.T) {
 	t.Parallel()
 
@@ -68,6 +69,7 @@ func TestIsDir(t *testing.T) {
 	}
 }
 
+// TestExists tests the Exists function.
 func TestExists(t *testing.T) {
 	t.Parallel()
 
@@ -111,6 +113,7 @@ func TestExists(t *testing.T) {
 	}
 }
 
+// TestIsEmpty tests the IsEmpty function.
 func TestIsEmpty(t *testing.T) {
 	t.Parallel()
 
@@ -164,6 +167,7 @@ func TestIsEmpty(t *testing.T) {
 	}
 }
 
+// TestCopyFile tests the CopyFile function.
 func TestCopyFile(t *testing.T) {
 	t.Parallel()
 
@@ -215,6 +219,7 @@ func TestCopyFile(t *testing.T) {
 	}
 }
 
+// TestCopyDirectoryContent tests the CopyDirectoryContent function.
 func TestCopyDirectoryContent(t *testing.T) {
 	t.Parallel()
 
@@ -273,6 +278,7 @@ func TestCopyDirectoryContent(t *testing.T) {
 	}
 }
 
+// TestRemoveDirectoryContent tests the RemoveDirectoryContent function.
 func TestRemoveDirectoryContent(t *testing.T) {
 	t.Parallel()
 
@@ -316,6 +322,7 @@ func TestRemoveDirectoryContent(t *testing.T) {
 	}
 }
 
+// TestIsString tests the IsString function.
 func TestIsString(t *testing.T) {
 	type args struct {
 		i any

@@ -25,7 +25,7 @@ import (
 //go:embed aliases/bash.sh
 var bashScript string
 
-// bashCmd represents the bash command
+// bashCmd represents the bash command.
 var bashCmd = &cobra.Command{
 	Use:   "bash",
 	Short: "Generate an alias function for bash",
@@ -42,6 +42,7 @@ message, set the "hvm_show_status" variable to "false" in the alias function.`,
 	},
 }
 
+// init registers the bash command with the alias command.
 func init() {
 	aliasCmd.AddCommand(bashCmd)
 }

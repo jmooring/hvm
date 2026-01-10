@@ -19,6 +19,7 @@ import (
 	cmd "github.com/jmooring/hvm/cmd"
 )
 
+// main is the entry point for the hvm application.
 func main() {
 	cmd.Execute()
 }

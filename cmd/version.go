@@ -19,71 +19,49 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"log"
 
-	"github.com/google/go-github/github"
+	gh "github.com/jmooring/hvm/pkg/github"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
-	"golang.org/x/oauth2"
 )
 
-// versionCmd represents the version command
+// versionCmd represents the version command.
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "Display the " + App.Name + " version and check for a newer release",
-	Long:  "Display the " + App.Name + " version and check for a newer release",
+	Short: "Display the " + app.Name + " version and check for a newer release",
+	Long:  "Display the " + app.Name + " version and check for a newer release",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := displayVersion()
 		cobra.CheckErr(err)
 	},
 }
 
+// init registers the version command with the root command.
 func init() {
 	rootCmd.AddCommand(versionCmd)
 }
 
+// displayVersion prints the current version and checks for updates.
 func displayVersion() error {
 	fmt.Println(versionString)
 
 	latestVersion, err := getLatestHVMVersion(context.Background())
 	if err != nil {
-		log.Fatalf("Error: %v", err)
+		fmt.Printf("Warning: %v\n", err)
+		return nil
 	}
 
-	if semver.Compare(latestVersion, version) == 1 {
+	if semver.Compare(latestVersion, versionInfo.Version) == 1 {
 		fmt.Println()
-		fmt.Printf("A newer version of %s is available: %s\n", App.Name, latestVersion)
-		fmt.Printf("Download the latest release here: %s\n", App.UpdateURL)
+		fmt.Printf("A newer version of %s is available: %s\n", app.Name, latestVersion)
+		fmt.Printf("Download the latest release here: %s\n", app.UpdateURL)
 	}
 
 	return nil
 }
 
+// getLatestHVMVersion fetches the latest hvm release version from GitHub.
 func getLatestHVMVersion(ctx context.Context) (string, error) {
-	client := newGitHubClient()
-
-	release, _, err := client.Repositories.GetLatestRelease(ctx, App.RepositoryOwner, App.RepositoryName)
-	if err != nil {
-		return "", fmt.Errorf("failed to fetch latest release: %w", err)
-	}
-
-	if release.TagName == nil {
-		return "", fmt.Errorf("release found, but tag name is nil")
-	}
-
-	return *release.TagName, nil
-}
-
-func newGitHubClient() *github.Client {
-	if Config.GitHubToken == "" {
-		return github.NewClient(nil)
-	} else {
-		ctx := context.Background()
-		ts := oauth2.StaticTokenSource(
-			&oauth2.Token{AccessToken: Config.GitHubToken},
-		)
-		tc := oauth2.NewClient(ctx, ts)
-
-		return github.NewClient(tc)
-	}
+	client := gh.NewClient(config.GitHubToken)
+	return gh.GetLatestRelease(ctx, client, app.RepositoryOwner, app.RepositoryName)
 }

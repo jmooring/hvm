@@ -22,10 +22,11 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/jmooring/hvm/pkg/cache"
 	"github.com/spf13/cobra"
 )
 
-// cleanCmd represents the clean command
+// cleanCmd represents the clean command.
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the cache",
@@ -37,6 +38,7 @@ command.`,
 	},
 }
 
+// init registers the clean command with the root command.
 func init() {
 	rootCmd.AddCommand(cleanCmd)
 }
@@ -44,7 +46,7 @@ func init() {
 // clean cleans the cache, excluding the version installed with the "install"
 // command.
 func clean() error {
-	cacheSize, err := getCacheSize()
+	cacheSize, err := cache.Size(app.CacheDirPath, app.DefaultDirName)
 	if err != nil {
 		return err
 	}
@@ -66,14 +68,14 @@ func clean() error {
 		}
 
 		if strings.EqualFold(string(r[0]), "y") {
-			d, err := os.ReadDir(App.CacheDirPath)
+			d, err := os.ReadDir(app.CacheDirPath)
 			if err != nil {
 				return err
 			}
 
 			for _, f := range d {
-				if f.Name() != App.DefaultDirName {
-					err := os.RemoveAll(filepath.Join(App.CacheDirPath, f.Name()))
+				if f.Name() != app.DefaultDirName {
+					err := os.RemoveAll(filepath.Join(app.CacheDirPath, f.Name()))
 					if err != nil {
 						return err
 					}

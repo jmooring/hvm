@@ -25,7 +25,7 @@ import (
 //go:embed aliases/zsh.sh
 var zshScript string
 
-// zshCmd represents the zsh command
+// zshCmd represents the zsh command.
 var zshCmd = &cobra.Command{
 	Use:   "zsh",
 	Short: "Generate an alias function for zsh",
@@ -42,6 +42,7 @@ message, set the "hvm_show_status" variable to "false" in the alias function.`,
 	},
 }
 
+// init registers the zsh command with the alias command.
 func init() {
 	aliasCmd.AddCommand(zshCmd)
 }

@@ -22,11 +22,14 @@ import (
 	"path/filepath"
 	"slices"
 
+	"github.com/jmooring/hvm/pkg/cache"
+	gh "github.com/jmooring/hvm/pkg/github"
 	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
-// installCmd represents the install command
+// installCmd represents the install command.
 var installCmd = &cobra.Command{
 	Use:   "install [version] | [flags]",
 	Short: "Install a default version to use when version management is disabled",
@@ -52,6 +55,7 @@ the latest release.
 	},
 }
 
+// init registers the install command with the root command.
 func init() {
 	rootCmd.AddCommand(installCmd)
 }
@@ -59,47 +63,54 @@ func init() {
 // install sets the version of the Hugo executable to use when version
 // management is disabled in the current directory.
 func install(version string) error {
-	asset := newAsset()
-	repo := newRepository()
+	asset := repository.NewAsset(cache.ExecName())
+
+	client := gh.NewClient(config.GitHubToken)
+	repo, err := repository.NewRepository(app.ManagedApp.RepositoryOwner, app.ManagedApp.RepositoryName, client)
+	if err != nil {
+		return err
+	}
 
 	if version == "" {
 		msg := "Select a version to use when version management is disabled"
-		err := repo.selectTag(asset, msg)
+		err := repo.SelectTag(asset, msg, config.SortAscending, config.NumTagsToDisplay, func(tag string) (bool, error) {
+			return helpers.Exists(filepath.Join(app.CacheDirPath, tag))
+		})
 		if err != nil {
 			return err
 		}
-		if asset.tag == "" {
+		if asset.Tag == "" {
 			return nil // the user did not select a tag; do nothing
 		}
 	} else {
-		err := repo.getTagFromString(asset, version)
+		err := repo.GetTagFromString(asset, version)
 		if err != nil {
 			return err
 		}
 	}
 
-	exists, err := helpers.Exists(filepath.Join(App.CacheDirPath, asset.tag))
+	exists, err := helpers.Exists(filepath.Join(app.CacheDirPath, asset.Tag))
 	if err != nil {
 		return err
 	}
 
 	if !exists {
-		err := get(asset, repo)
+		err := downloadAndCache(asset, repo)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = helpers.CopyFile(asset.getExecPath(), filepath.Join(App.CacheDirPath, App.DefaultDirName, asset.execName))
+	err = helpers.CopyFile(asset.ExecPath(app.CacheDirPath), filepath.Join(app.CacheDirPath, app.DefaultDirName, asset.ExecName))
 	if err != nil {
 		return err
 	}
 
-	fmt.Println("Installation of", asset.tag, "complete.")
+	fmt.Println("Installation of", asset.Tag, "complete.")
 
-	if !slices.Contains(filepath.SplitList(os.Getenv("PATH")), App.DefaultDirPath) {
+	if !slices.Contains(filepath.SplitList(os.Getenv("PATH")), app.DefaultDirPath) {
 		fmt.Println()
-		fmt.Printf("Please add %s to the PATH environment variable.\n", App.DefaultDirPath)
+		fmt.Printf("Please add %s to the PATH environment variable.\n", app.DefaultDirPath)
 		fmt.Println("Open a new terminal after making the change.")
 
 	}
