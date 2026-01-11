@@ -3,9 +3,9 @@ module github.com/jmooring/hvm
 go 1.25.5
 
 require (
-	github.com/google/go-github v17.0.0+incompatible
+	github.com/google/go-github/v81 v81.0.0
 	github.com/pelletier/go-toml/v2 v2.2.4
-	github.com/rogpeppe/go-internal v1.13.1
+	github.com/rogpeppe/go-internal v1.14.1
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/viper v1.21.0
 	golang.org/x/mod v0.32.0

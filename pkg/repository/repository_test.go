@@ -9,7 +9,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v81/github"
 )
 
 func TestNewRepository_FetchTagsAndLatest(t *testing.T) {
