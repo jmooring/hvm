@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"testing"
 
-	githubv17 "github.com/google/go-github/github"
+	githubv81 "github.com/google/go-github/v81/github"
 	gh "github.com/jmooring/hvm/pkg/github"
 )
 
@@ -23,7 +23,7 @@ func TestGetLatestRelease(t *testing.T) {
 	}))
 	defer ts.Close()
 
-	client := githubv17.NewClient(ts.Client())
+	client := githubv81.NewClient(ts.Client())
 	baseURL, _ := url.Parse(ts.URL + "/")
 	client.BaseURL = baseURL
 

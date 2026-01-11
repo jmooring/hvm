@@ -25,7 +25,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/google/go-github/github"
+	"github.com/google/go-github/v81/github"
 	"golang.org/x/mod/semver"
 )
 
