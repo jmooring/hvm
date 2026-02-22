@@ -5,11 +5,11 @@
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
 [![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 
-Hugo Version Manager (hvm) is a tool that helps you download, manage, and switch between different versions of the [Hugo][] static site generator. You can also use hvm to install Hugo as a standalone application.
+Hugo Version Manager (`hvm`) is a tool that helps you download, manage, and switch between different versions of the [Hugo][] static site generator. You can also use `hvm` to install Hugo as a standalone application.
 
 ![Demonstration](assets/hvm.webp)
 
-You can use hvm to:
+You can use `hvm` to:
 
 - Download and manage multiple versions of Hugo
 - Switch between different versions of Hugo in the current directory
@@ -31,7 +31,7 @@ To use a different version of Hugo, run the `hvm use` command and select or spec
 
 The extracted release assets are cached, so you don't have to download them again each time you switch versions. You can view a list of cached assets, the size of the cache, and the cache location by running the `hvm status` command. You can also clean the cache by running the `hvm clean` command.
 
-The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use hvm as a Hugo installer, even if you don't want to use its version management features.
+The `hvm install` command installs a default version of Hugo to use when version management is disabled in the current directory. This means that you can use `hvm` as a Hugo installer, even if you don't want to use its version management features.
 
 The `hvm use` and `hvm install` commands typically present a list of available versions. To directly specify a version and bypass this list, include the desired version number or `latest` after the command, as shown in the examples below:
 
@@ -45,7 +45,7 @@ hvm use latest
 
 ### Step 1 - Install the executable
 
-Download a [prebuilt binary][] or install from source (requires Go 1.25.5 or later):
+Download a [prebuilt binary][] or install from source (requires Go 1.26.0 or later):
 
 ```text
 go install github.com/jmooring/hvm@latest
@@ -104,9 +104,9 @@ An environment variable takes precedence over the values set in the configuratio
 
 **gitHubToken** (string)
 
-GitHub limits the number of requests that can be made to its API per hour to 60 for unauthenticated clients. If you exceed this limit, hvm will display a message indicating when the limit will be reset. This is typically within minutes.
+GitHub limits the number of requests that can be made to its API per hour to 60 for unauthenticated clients. If you exceed this limit, `hvm` will display a message indicating when the limit will be reset. This is typically within minutes.
 
-If you regularly exceed this limit, you can create a GitHub personal access token with read-only public repository access. With a personal access token, GitHub limits API requests to 5,000 per hour.
+If you regularly exceed this limit, you can create a GitHub personal access token with public repository (`public_repo`) scope. With a personal access token, GitHub limits API requests to 5,000 per hour. The corresponding environment variables are `HVM_GITHUB_TOKEN` and `HVM_GITHUBTOKEN`; if both are set, HVM_GITHUB_TOKEN takes precedence.
 
 **numTagsToDisplay** (int, default `30`)
 
