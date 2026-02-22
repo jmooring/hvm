@@ -141,6 +141,9 @@ func initConfig() {
 
 	// Get config values from env vars.
 	viper.SetEnvPrefix(strings.ToUpper(app.Name))
+	if val := os.Getenv("HVM_GITHUB_TOKEN"); val != "" {
+		viper.Set("githubToken", val)
+	}
 	viper.AutomaticEnv()
 
 	// Validate config values.
