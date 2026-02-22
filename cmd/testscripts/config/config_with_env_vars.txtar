@@ -1,16 +1,30 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
+# Test legacy variable
 env HVM_GITHUBTOKEN=my-token
 env HVM_NUMTAGSTODISPLAY=67
 env HVM_SORTASCENDING=false
-
-# Test
 exec hvm config
 stdout 'githubToken = ''my-token''\n'
 stdout 'numTagsToDisplay = 67\n'
 stdout 'sortAscending = false\n'
+
+# Test new variable
+# We overwrite the environment for this step to check the underscored version
+env HVM_GITHUBTOKEN=''
+env HVM_GITHUB_TOKEN=my-new-token
+exec hvm config
+stdout 'githubToken = ''my-new-token''\n'
+
+# Test Precedence (Underscored wins over legacy)
+env HVM_GITHUBTOKEN=legacy-token
+env HVM_GITHUB_TOKEN=priority-token
+exec hvm config
+stdout 'githubToken = ''priority-token'''
+
+# Verify Paths
 [darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
 [linux] stdout 'Configuration file: .+/config/hvm/config\.toml\n'
 [windows] stdout 'Configuration file: .+\\config\\hvm\\config\.toml\n'
