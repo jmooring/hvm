@@ -21,9 +21,9 @@ Set Padding 36
 Set Width 1300
 Set TypingSpeed 75ms
 
-# Set prompt and clean cache
+# Reset hvm configuration and remove its cache
 Hide
-Type "hvm clean"
+Type "hvm reset"
 Enter
 Type "y"
 Enter
