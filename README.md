@@ -19,7 +19,7 @@ Supported operating systems:
 
 - Darwin (amd64, arm64)
 - Linux (amd64, arm64)
-- Windows (amd64)
+- Windows (amd64, arm64)
 
 ## How it works
 
