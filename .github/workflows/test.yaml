@@ -14,6 +14,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
+
       - name: Install Go
         uses: actions/setup-go@v5
         with:
@@ -23,9 +24,32 @@ jobs:
           cache-dependency-path: |
             **/go.sum
             **/go.mod
-      - name: Install hvm
-        run: go install
+
+      - name: Build check
+        run: go build -o /dev/null ./main.go
+
       - name: Test
         env:
           HVM_GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: go test ./...
+        run: go test -v -coverprofile coverage.out ./...
+
+      - name: Generate Coverage Report
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          go tool cover -func=coverage.out > coverage.txt
+          # Extract the total percentage (e.g., 85.4%)
+          PERCENT=$(grep total: coverage.txt | awk '{print $3}' | sed 's/%//')
+          echo "PERCENTAGE=$PERCENT" >> $GITHUB_ENV
+
+      - name: Update Badge
+        if: matrix.os == 'ubuntu-latest'
+        uses: schneegans/dynamic-badges-action@v1.7.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: 3f9305867fe4d1e2dade602c9c66dde0
+          filename: hvm-coverage.json
+          label: Coverage
+          message: ${{ env.PERCENTAGE }}%
+          valColorRange: ${{ env.PERCENTAGE }}
+          maxColorRange: 100
+          minColorRange: 0
