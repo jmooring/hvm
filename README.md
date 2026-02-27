@@ -1,10 +1,11 @@
 # Hugo Version Manager
 
 [![test status](https://github.com/jmooring/hvm/actions/workflows/test.yaml/badge.svg)](https://github.com/jmooring/hvm/actions/workflows/test.yaml)
+[![test coverage](https://img.shields.io/endpoint?logo=github&label=coverage&url=https://gist.githubusercontent.com/jmooring/3f9305867fe4d1e2dade602c9c66dde0/raw/hvm-coverage.json)](https://github.com/jmooring/hvm/actions/workflows/test.yaml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
+[![license](https://img.shields.io/github/license/jmooring/hvm)](https://github.com/jmooring/hvm/blob/main/LICENSE)
 [![latest release](https://img.shields.io/github/v/release/jmooring/hvm?logo=github)](https://github.com/jmooring/hvm/releases/latest)
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
-![Coverage](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/jmooring/3f9305867fe4d1e2dade602c9c66dde0/raw/hvm-coverage.json)
 
 Hugo Version Manager (`hvm`) is a tool that helps you download, manage, and switch between different versions of the [Hugo][] static site generator. You can also use `hvm` to install Hugo as a standalone application.
 
