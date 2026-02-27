@@ -17,7 +17,6 @@ limitations under the License.
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -179,10 +178,4 @@ func status(cmd *cobra.Command) error {
 	fmt.Println("Cache directory:", app.CacheDirPath)
 
 	return nil
-}
-
-// readBytes reads and trims whitespace from a bytes buffer.
-func readBytes(b *bytes.Buffer) (string, error) {
-	content := strings.TrimSpace(b.String())
-	return content, nil
 }
