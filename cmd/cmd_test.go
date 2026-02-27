@@ -25,6 +25,19 @@ import (
 	"github.com/rogpeppe/go-internal/testscript"
 )
 
+// TestMain provides the entry point for the test binary, allowing testscript
+// to intercept calls to the "hvm" command. This enables native Go code
+// coverage collection for CLI logic and ensures a fresh command state (flag
+// reset) for each script execution.
+func TestMain(m *testing.M) {
+	testscript.Main(m, map[string]func(){
+		"hvm": func() {
+			rootCmd.ResetFlags()
+			Execute()
+		},
+	})
+}
+
 // TestCommand runs testscripts for the main command set.
 func TestCommand(t *testing.T) {
 	testscript.Run(t, testscript.Params{
