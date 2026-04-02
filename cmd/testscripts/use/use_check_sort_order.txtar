@@ -1,12 +1,12 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test 1
 env HVM_NUMTAGSTODISPLAY=-1
 env HVM_SORTASCENDING=true
-exec hvm use
 stdin input.txt
+exec hvm use
 stdout '\D1\) v0\.54\.0'
 
 env HVM_NUMTAGSTODISPLAY=-1

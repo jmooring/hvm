@@ -1,4 +1,4 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
@@ -6,7 +6,7 @@
 env HVM_NUMTAGSTODISPLAY=12
 stdin input.txt
 exec hvm use
-stdout 'Please enter a number between 1 and 12, or press Enter'
+stdout 'Please enter a number between 1 and 12, or Enter'
 
 # Files
 -- input.txt --

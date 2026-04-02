@@ -1,14 +1,14 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
 exec hvm use --useVersionInDotFile
-stdout 'Downloading v0\.153\.0\.\.\. done\.\n'
-[darwin] exists 'home/Library/Caches/hvm/v0.153.0/hugo'
-[linux] exists 'cache/hvm/v0.153.0/hugo'
-[windows] exists 'cache\\hvm\\v0.153.0\\hugo.exe'
+stdout 'Downloading v0\.153\.0/extended\.\.\. done\.\n'
+[darwin] exists 'home/Library/Caches/hvm/v0.153.0/extended/hugo'
+[linux] exists 'cache/hvm/v0.153.0/extended/hugo'
+[windows] exists 'cache\\hvm\\v0.153.0\\extended\\hugo.exe'
 
 # Files
 -- .hvm --
-v0.153.0
+v0.153.0/extended

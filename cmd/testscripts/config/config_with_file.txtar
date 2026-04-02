@@ -1,11 +1,13 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
 exec hvm config
+stdout 'defaultEdition = ''extended''\n'
 stdout 'githubToken = ''.*''\n'
 stdout 'numTagsToDisplay = 42\n'
+stdout 'promptForEdition = false\n'
 stdout 'sortAscending = false\n'
 [darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
 [linux] stdout 'Configuration file: .+/config/hvm/config\.toml\n'
@@ -13,14 +15,20 @@ stdout 'sortAscending = false\n'
 
 # Files
 -- home/Library/Application Support/hvm/config.toml --
+defaultEdition = 'extended'
 githubToken = 'my-token'
 numtagstodisplay = 42
+promptForEdition = false
 sortAscending = false
 -- config/hvm/config.toml --
+defaultEdition = 'extended'
 githubToken = 'my-token'
 numtagstodisplay = 42
+promptForEdition = false
 sortAscending = false
--- config\\hvm\\config.toml --
+-- config\hvm\config.toml --
+defaultEdition = 'extended'
 githubToken = 'my-token'
 numtagstodisplay = 42
+promptForEdition = false
 sortAscending = false

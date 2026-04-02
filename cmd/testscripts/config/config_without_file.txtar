@@ -1,11 +1,13 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
 exec hvm config
+stdout 'defaultEdition = ''standard''\n'
 stdout 'githubToken = ''.*''\n'
 stdout 'numTagsToDisplay = 30\n'
+stdout 'promptForEdition = true\n'
 stdout 'sortAscending = false\n'
 [darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
 [linux] stdout 'Configuration file: .+/config/hvm/config\.toml\n'

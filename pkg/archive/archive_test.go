@@ -141,8 +141,10 @@ func TestExtract(t *testing.T) {
 		}
 
 		// Clear the destination directory before the next test.
-		err = helpers.RemoveDirectoryContent(dstDir)
-		if err != nil {
+		if err := os.RemoveAll(dstDir); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.MkdirAll(dstDir, 0o777); err != nil {
 			t.Fatal(err)
 		}
 	}

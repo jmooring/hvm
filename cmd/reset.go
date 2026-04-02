@@ -19,7 +19,6 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -28,8 +27,8 @@ import (
 var resetCmd = &cobra.Command{
 	Use:    "reset",
 	Hidden: true,
-	Short:  "Clean cache, disable version management, and remove default version",
-	Long: `Disable version management in the current directory, and remove the
+	Short:  "Disable version management and remove the configuration and cache directories",
+	Long: `Disable version management for the current directory, and remove the
 configuration and cache directories.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := reset()
@@ -42,35 +41,28 @@ func init() {
 	rootCmd.AddCommand(resetCmd)
 }
 
-// reset disables version management in the current directory, and removes the
+// reset disables version management for the current directory, and removes the
 // configuration and cache directories.
 func reset() error {
 	fmt.Println("This will reset the configuration and remove the cache directory.")
 
-	var r string
-	for {
-		fmt.Printf("Are you absolutely sure you want to do this? (y/N): ")
-		fmt.Scanln(&r)
-		if r == "" || strings.EqualFold(string(r[0]), "n") {
-			fmt.Println("Canceled.")
-			return nil
-		}
-
-		if strings.EqualFold(string(r[0]), "y") {
-			err := disable()
-			if err != nil {
-				return err
-			}
-			err = os.RemoveAll(app.ConfigDirPath)
-			if err != nil {
-				return err
-			}
-			err = os.RemoveAll(app.CacheDirPath)
-			if err != nil {
-				return err
-			}
-
-			return nil
-		}
+	if !promptYesNo("Are you absolutely sure you want to do this?", false) {
+		fmt.Println("Canceled.")
+		return nil
 	}
+
+	err := disable()
+	if err != nil {
+		return err
+	}
+	err = os.RemoveAll(app.ConfigDirPath)
+	if err != nil {
+		return err
+	}
+	err = os.RemoveAll(app.CacheDirPath)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

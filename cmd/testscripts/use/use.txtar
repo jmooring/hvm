@@ -1,4 +1,4 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
@@ -7,14 +7,16 @@ env HVM_NUMTAGSTODISPLAY=-1
 env HVM_SORTASCENDING=true
 stdin input.txt
 exec hvm use
-stdout 'Select a version to use in the current directory: '
-stdout 'Downloading v0\.54\.0\.\.\.\ done.'
+stdout 'Select a version to use for the current directory \(Enter to cancel\): '
+stdout 'Select an edition \(Enter to cancel\): '
+stdout 'Downloading v0\.54\.0/extended\.\.\.\ done.'
 exec hvm status
-stdout 'The current directory is configured to use Hugo v0\.54\.0\.\n'
-[darwin] exists 'home/Library/Caches/hvm/v0.54.0/hugo'
-[linux] exists 'cache/hvm/v0.54.0/hugo'
-[windows] exists 'cache\\hvm\\v0.54.0\\hugo.exe'
+stdout 'The current directory is configured to use Hugo v0\.54\.0/extended\.\n'
+[darwin] exists 'home/Library/Caches/hvm/v0.54.0/extended/hugo'
+[linux] exists 'cache/hvm/v0.54.0/extended/hugo'
+[windows] exists 'cache\\hvm\\v0.54.0\\extended\\hugo.exe'
 
 # Files
 -- input.txt --
 1
+2

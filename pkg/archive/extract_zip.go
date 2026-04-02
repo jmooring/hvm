@@ -49,12 +49,15 @@ func extractZip(src, dst string) error {
 			continue
 		}
 
-		err := os.MkdirAll(filepath.Dir(target), 0o777)
+		err = os.MkdirAll(filepath.Dir(target), 0o777)
 		if err != nil {
 			return err
 		}
 
-		copyFileFromZip(f, target)
+		err = copyFileFromZip(f, target)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

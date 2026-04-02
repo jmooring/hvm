@@ -1,8 +1,8 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
-exec hvm install latest
+exec hvm install latest/extended
 stdout 'Downloading v.* done.\n'
 stdout 'Installation of v.* complete.\n'

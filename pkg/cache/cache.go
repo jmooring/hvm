@@ -18,11 +18,76 @@ limitations under the License.
 package cache
 
 import (
+	"encoding/json"
+	"errors"
 	"io/fs"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 )
+
+// SchemaVersion is the current cache directory schema version.
+const SchemaVersion = 1
+
+// SchemaFileName is the name of the cache schema version file stored at the
+// root of the cache directory.
+const SchemaFileName = "schema.json"
+
+// TagListFileName is the name of the cached release tag list file stored at
+// the root of the cache directory.
+const TagListFileName = "releases.json"
+
+// Schema represents the cache schema version file stored at the root of the
+// cache directory.
+type Schema struct {
+	SchemaVersion int `json:"schemaVersion"`
+}
+
+// EnsureSchema verifies that the cache schema file exists and matches the
+// current schema version. If not, all versioned cache directories (except
+// defaultDirName) are removed and a new schema file is written.
+// Returns the number of directories removed; 0 means the schema was already
+// current or the cache contained no versioned directories.
+func EnsureSchema(cacheDirPath, defaultDirName string) (int, error) {
+	schemaPath := filepath.Join(cacheDirPath, SchemaFileName)
+	data, err := os.ReadFile(schemaPath)
+	if err != nil && !errors.Is(err, fs.ErrNotExist) {
+		return 0, err
+	}
+	if err == nil {
+		var s Schema
+		if json.Unmarshal(data, &s) == nil && s.SchemaVersion == SchemaVersion {
+			return 0, nil
+		}
+	}
+
+	// Schema absent or version mismatch: remove versioned cache directories.
+	entries, err := os.ReadDir(cacheDirPath)
+	if err != nil {
+		return 0, err
+	}
+	removed := 0
+	for _, e := range entries {
+		if !e.IsDir() || e.Name() == defaultDirName {
+			continue
+		}
+		if err := os.RemoveAll(filepath.Join(cacheDirPath, e.Name())); err != nil {
+			return removed, err
+		}
+		removed++
+	}
+
+	data, err = json.Marshal(Schema{SchemaVersion: SchemaVersion})
+	if err != nil {
+		return removed, err
+	}
+	if err := os.WriteFile(schemaPath, data, 0o644); err != nil {
+		return removed, err
+	}
+
+	return removed, nil
+}
 
 // ExecName returns the name of the executable file based on the OS.
 func ExecName() string {
@@ -40,7 +105,7 @@ func Size(cachePath, excludeDir string) (int64, error) {
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && !strings.HasPrefix(path, excludeDir) {
+		if !d.IsDir() && !strings.HasPrefix(path, excludeDir) && path != SchemaFileName && path != TagListFileName {
 			fi, err := d.Info()
 			if err != nil {
 				return err

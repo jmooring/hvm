@@ -1,4 +1,4 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
@@ -8,9 +8,9 @@ exec hvm clean
 stdout 'This will delete cached versions of the Hugo executable\.\n'
 stdout 'Are you sure you want to clean the cache\? \(y/N\): '
 stdout 'Canceled\.\n'
-[darwin] exists home/Library/Caches/hvm/v0.153.0/hugo
-[linux] exists cache/hvm/v0.153.0/hugo
-[windows] exists cache\\hvm\\v0.153.0\\hugo.exe
+[darwin] exists home/Library/Caches/hvm/v0.153.0/extended/hugo
+[linux] exists cache/hvm/v0.153.0/extended/hugo
+[windows] exists cache\\hvm\\v0.153.0\\extended\\hugo.exe
 
 
 # Test 2: answer yes
@@ -22,15 +22,24 @@ stdout 'Cache cleaned\.\n'
 [darwin] ! exists home/Library/Caches/hvm/v0.153.0
 [linux] ! exists cache/hvm/v0.153.0
 [windows] ! exists cache\\hvm\\v0.153.0
+[darwin] exists home/Library/Caches/hvm/schema.json
+[linux] exists cache/hvm/schema.json
+[windows] exists cache\\hvm\\schema.json
 
 # Files
 -- input-no.txt --
 n
 -- input-yes.txt --
 y
--- home/Library/Caches/hvm/v0.153.0/hugo --
+-- home/Library/Caches/hvm/schema.json --
+{"schemaVersion":1}
+-- home/Library/Caches/hvm/v0.153.0/extended/hugo --
 darwin-exec-bytes
--- cache/hvm/v0.153.0/hugo --
+-- cache/hvm/schema.json --
+{"schemaVersion":1}
+-- cache/hvm/v0.153.0/extended/hugo --
 linux-exec-bytes
--- cache\\hvm\\v0.153.0\\hugo.exe --
+-- cache\\hvm\\schema.json --
+{"schemaVersion":1}
+-- cache\\hvm\\v0.153.0\\extended\\hugo.exe --
 windows-exec-bytes

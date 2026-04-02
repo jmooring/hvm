@@ -28,8 +28,10 @@ import (
 var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Aliases: []string{"uninstall"},
-	Short:   "Remove the default version",
-	Long:    "Remove the default version used when version management is disabled.",
+	Short:   "Remove the version/edition used when version management is disabled",
+	Long: `Remove the version/edition used when version management is disabled
+for the current directory.
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := remove()
 		cobra.CheckErr(err)
@@ -41,7 +43,8 @@ func init() {
 	rootCmd.AddCommand(removeCmd)
 }
 
-// remove removes the default Hugo version installed by the install command.
+// remove removes the version/edition used when version management is disabled
+// for the current directory.
 func remove() error {
 	exists, err := helpers.Exists(app.DefaultDirPath)
 	if err != nil {

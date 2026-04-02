@@ -1,4 +1,4 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
@@ -8,15 +8,18 @@ exec hvm status --printExecPathCached
 # Test 2: dot file exists, exec does not exist
 rm home/Library/Caches/hvm/v0.153.0
 rm cache/hvm/v0.153.0
-rm cache/hvm/v0.153.0
 ! exec hvm status --printExecPathCached
 
 # Files
 -- .hvm --
-v0.153.0
--- home/Library/Caches/hvm/v0.153.0/hugo --
+v0.153.0/extended
+-- home/Library/Caches/hvm/schema.json --
+{"schemaVersion":1}
+-- home/Library/Caches/hvm/v0.153.0/extended/hugo --
 darwin-exec-bytes
--- cache/hvm/v0.153.0/hugo --
+-- cache/hvm/schema.json --
+{"schemaVersion":1}
+-- cache/hvm/v0.153.0/extended/hugo --
 linux-exec-bytes
--- cache/hvm/v0.153.0/hugo.exe --
+-- cache/hvm/v0.153.0/extended/hugo.exe --
 windows-exec-bytes

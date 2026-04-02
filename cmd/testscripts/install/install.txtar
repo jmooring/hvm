@@ -1,4 +1,4 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
@@ -7,20 +7,22 @@ env HVM_NUMTAGSTODISPLAY=-1
 env HVM_SORTASCENDING=true
 stdin input.txt
 exec hvm install
-stdout 'Select a version to use when version management is disabled: '
-stdout 'Downloading v0\.54\.0\.\.\. done\.\n'
-stdout 'Installation of v0\.54\.0 complete\.\n'
+stdout 'Select a version to install \(Enter to cancel\): '
+stdout 'Select an edition \(Enter to cancel\): '
+stdout 'Downloading v0\.54\.0/extended\.\.\. done\.\n'
+stdout 'Installation of v0\.54\.0/extended complete\.\n'
 [darwin] stdout 'Please add home/Library/Caches/hvm/default to the PATH environment variable\.\n'
 [linux] stdout 'Please add .+/cache/hvm/default to the PATH environment variable\.\n'
 [windows] stdout 'Please add cache\\hvm\\default to the PATH environment variable\.\n'
 stdout 'Open a new terminal after making the change\.\n'
-[darwin] exists 'home/Library/Caches/hvm/v0.54.0/hugo'
+[darwin] exists 'home/Library/Caches/hvm/v0.54.0/extended/hugo'
 [darwin] exists 'home/Library/Caches/hvm/default/hugo'
-[linux] exists 'cache/hvm/v0.54.0/hugo'
+[linux] exists 'cache/hvm/v0.54.0/extended/hugo'
 [linux] exists 'cache/hvm/default/hugo'
-[windows] exists 'cache\\hvm\\v0.54.0\\hugo.exe'
+[windows] exists 'cache\\hvm\\v0.54.0\\extended\\hugo.exe'
 [windows] exists 'cache\\hvm\\default\\hugo.exe'
 
 # Files
 -- input.txt --
 1
+2

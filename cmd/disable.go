@@ -27,8 +27,8 @@ import (
 // disableCmd represents the disable command.
 var disableCmd = &cobra.Command{
 	Use:   "disable",
-	Short: "Disable version management in the current directory",
-	Long:  "Disable version management in the current directory.",
+	Short: "Disable version management for the current directory",
+	Long:  "Disable version management for the current directory.",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := disable()
 		cobra.CheckErr(err)
@@ -40,7 +40,7 @@ func init() {
 	rootCmd.AddCommand(disableCmd)
 }
 
-// disable disables version management in the current directory.
+// disable disables version management for the current directory.
 func disable() error {
 	exists, err := helpers.Exists(app.DotFilePath)
 	if err != nil {
@@ -54,7 +54,7 @@ func disable() error {
 		}
 	}
 
-	fmt.Println("Version management has been disabled in the current directory.")
+	fmt.Println("Version management has been disabled for the current directory.")
 
 	return nil
 }

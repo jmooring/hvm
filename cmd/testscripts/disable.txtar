@@ -1,10 +1,10 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
 exec hvm disable
-stdout 'Version management has been disabled in the current directory\.\n'
+stdout 'Version management has been disabled for the current directory\.\n'
 ! exists '.hvm'
 
 -- .hvm --

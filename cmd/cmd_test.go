@@ -93,11 +93,11 @@ func setup(env *testscript.Env) error {
 	case "darwin":
 		env.Setenv("HOME", "home")
 	case "windows":
-		// User cache and config dirs: we use os.UserCacheDir and os.UserCongfigDir
+		// User cache and config dirs: we use os.UserCacheDir and os.UserConfigDir
 		env.Setenv("LocalAppData", "cache")
 		env.Setenv("AppData", "config")
 	case "linux":
-		// User cache and config dirs: we use os.UserCacheDir and os.UserCongfigDir
+		// User cache and config dirs: we use os.UserCacheDir and os.UserConfigDir
 		env.Setenv("XDG_CACHE_HOME", env.Getenv("WORK")+"/cache")
 		env.Setenv("XDG_CONFIG_HOME", env.Getenv("WORK")+"/config")
 	default:
