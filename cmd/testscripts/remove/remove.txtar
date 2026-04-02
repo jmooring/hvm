@@ -1,11 +1,11 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
 exec hvm remove
 stdout 'Default version removed\.\n'
-[darwin] ! exists 'Library/Caches/hvm/default'
+[darwin] ! exists 'home/Library/Caches/hvm/default'
 [linux] ! exists 'cache/hvm/default'
 [windows] ! exists 'cache/hvm/default'
 

@@ -24,51 +24,6 @@ import (
 	"testing"
 )
 
-// TestIsDir tests the IsDir function.
-func TestIsDir(t *testing.T) {
-	t.Parallel()
-
-	dPath := t.TempDir()
-	fPath := filepath.Join(dPath, "exists.txt")
-
-	f, err := os.Create(fPath)
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			t.Error(err)
-		}
-	}()
-
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
-	}{
-		{"a", args{dPath}, true, false},
-		{"b", args{fPath}, false, false},
-		{"c", args{filepath.Join(dPath, "does-not-exist.txt")}, false, true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsDir(tt.args.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("IsDir() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("IsDir() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 // TestExists tests the Exists function.
 func TestExists(t *testing.T) {
 	t.Parallel()
@@ -108,60 +63,6 @@ func TestExists(t *testing.T) {
 			}
 			if got != tt.want {
 				t.Errorf("Exists() got = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-// TestIsEmpty tests the IsEmpty function.
-func TestIsEmpty(t *testing.T) {
-	t.Parallel()
-
-	dPathEmpty := t.TempDir()
-	fPathEmpty := filepath.Join(t.TempDir(), "empty-file.txt")
-
-	f, err := os.Create(fPathEmpty)
-	if err != nil {
-		t.Error(err)
-	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			t.Error(err)
-		}
-	}()
-
-	dPathNotEmpty := t.TempDir()
-	fPathNotEmpty := filepath.Join(dPathNotEmpty, "not-empty-file.txt")
-
-	err = os.WriteFile(fPathNotEmpty, []byte("not empty"), 0o644)
-	if err != nil {
-		t.Error(err)
-	}
-
-	type args struct {
-		path string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    bool
-		wantErr bool
-	}{
-		{"a", args{dPathEmpty}, true, false},
-		{"b", args{fPathEmpty}, true, false},
-		{"c", args{dPathNotEmpty}, false, false},
-		{"d", args{fPathNotEmpty}, false, false},
-		{"e", args{filepath.Join(t.TempDir(), "does-not-exist.txt")}, false, true},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := IsEmpty(tt.args.path)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("IsEmpty() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("IsEmpty() = %v, want %v", got, tt.want)
 			}
 		})
 	}
@@ -278,47 +179,38 @@ func TestCopyDirectoryContent(t *testing.T) {
 	}
 }
 
-// TestRemoveDirectoryContent tests the RemoveDirectoryContent function.
-func TestRemoveDirectoryContent(t *testing.T) {
+// TestJoinWithConjunction tests the JoinWithConjunction function.
+func TestJoinWithConjunction(t *testing.T) {
 	t.Parallel()
 
-	doesNotExist := "does-not-exist"
-	isFile := "testdata/f1.txt"
-
-	// Create a directory and stuff it with content.
-	dir := t.TempDir()
-	err := CopyDirectoryContent("testdata", dir)
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	type args struct {
-		dir string
+		items       []string
+		conjunction string
 	}
 	tests := []struct {
 		name    string
 		args    args
+		want    string
 		wantErr bool
 	}{
-		{"a", args{doesNotExist}, true},
-		{"b", args{isFile}, true},
-		{"c", args{dir}, false},
+		{"blank conjunction", args{[]string{"a"}, ""}, "", true},
+		{"zero values", args{[]string{}, "or"}, "", false},
+		{"one value", args{[]string{"a"}, "or"}, "a", false},
+		{"two values", args{[]string{"a", "b"}, "or"}, "a or b", false},
+		{"three values", args{[]string{"a", "b", "c"}, "or"}, "a, b, or c", false},
+		{"four values", args{[]string{"a", "b", "c", "d"}, "and"}, "a, b, c, and d", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := RemoveDirectoryContent(tt.args.dir); (err != nil) != tt.wantErr {
-				t.Errorf("RemoveDirectoryContent() error = %v, wantErr %v", err, tt.wantErr)
+			got, err := JoinWithConjunction(tt.args.items, tt.args.conjunction)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("JoinWithConjunction() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("JoinWithConjunction() = %q, want %q", got, tt.want)
 			}
 		})
-	}
-
-	// Test C cleared the directory; verify.
-	empty, err := IsEmpty(dir)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if !empty {
-		t.Error("the directory was not emptied")
 	}
 }
 

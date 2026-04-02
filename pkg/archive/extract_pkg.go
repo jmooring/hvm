@@ -17,7 +17,9 @@ limitations under the License.
 package archive
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -59,7 +61,7 @@ func extractPkg(src, dst string) error {
 	payloadDir := filepath.Join(expansionDir, "Payload")
 	info, err := os.Stat(payloadDir)
 	if err != nil {
-		if os.IsNotExist(err) {
+		if errors.Is(err, fs.ErrNotExist) {
 			return fmt.Errorf("expanded pkg does not contain a Payload directory at expected location: %s", payloadDir)
 		}
 		return err

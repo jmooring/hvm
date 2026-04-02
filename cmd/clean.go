@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/jmooring/hvm/pkg/cache"
 	"github.com/spf13/cobra"
@@ -30,7 +29,7 @@ import (
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Clean the cache",
-	Long: `Clean the cache, excluding the version installed with the "install"
+	Long: `Clean the cache, excluding the version/edition installed with the "install"
 command.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := clean()
@@ -58,32 +57,25 @@ func clean() error {
 
 	fmt.Println("This will delete cached versions of the Hugo executable.")
 
-	var r string
-	for {
-		fmt.Printf("Are you sure you want to clean the cache? (y/N): ")
-		fmt.Scanln(&r)
-		if r == "" || strings.EqualFold(string(r[0]), "n") {
-			fmt.Println("Canceled.")
-			return nil
-		}
+	if !promptYesNo("Are you sure you want to clean the cache?", false) {
+		fmt.Println("Canceled.")
+		return nil
+	}
 
-		if strings.EqualFold(string(r[0]), "y") {
-			d, err := os.ReadDir(app.CacheDirPath)
+	d, err := os.ReadDir(app.CacheDirPath)
+	if err != nil {
+		return err
+	}
+
+	for _, f := range d {
+		if f.Name() != app.DefaultDirName && f.Name() != cache.TagListFileName && f.Name() != cache.SchemaFileName {
+			err := os.RemoveAll(filepath.Join(app.CacheDirPath, f.Name()))
 			if err != nil {
 				return err
 			}
-
-			for _, f := range d {
-				if f.Name() != app.DefaultDirName {
-					err := os.RemoveAll(filepath.Join(app.CacheDirPath, f.Name()))
-					if err != nil {
-						return err
-					}
-				}
-			}
-			fmt.Println("Cache cleaned.")
-
-			return nil
 		}
 	}
+	fmt.Println("Cache cleaned.")
+
+	return nil
 }

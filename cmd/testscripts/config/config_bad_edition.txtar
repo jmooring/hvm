@@ -4,12 +4,12 @@
 
 # Test
 ! exec hvm config
-stderr 'Error: configuration: numTagsToDisplay must be a non-zero integer: see .+config.toml\n'
+stderr 'Error: configuration: defaultEdition "bogus" is invalid, must be one of standard, withdeploy, extended, or extended_withdeploy: see .+config\.toml\n'
 
 # Files
 -- home/Library/Application Support/hvm/config.toml --
-numtagstodisplay = "x"
+defaultEdition = 'bogus'
 -- config/hvm/config.toml --
-numtagstodisplay = "x"
--- config\\hvm\\config.toml --
-numtagstodisplay = "x"
+defaultEdition = 'bogus'
+-- config\hvm\config.toml --
+defaultEdition = 'bogus'

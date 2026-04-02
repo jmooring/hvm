@@ -1,19 +1,20 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 exec hvm
 
 stdout 'Hugo Version Manager \(hvm\) is a tool that helps you download, manage, and switch\n'
-stdout 'between different versions of the Hugo static site generator. You can also use\n'
-stdout 'hvm to install Hugo as a standalone application\.\n'
+stdout 'between different versions and editions of the Hugo static site generator\.\n'
+stdout 'You can also use hvm to install Hugo as a standalone application\.\n'
 stdout 'clean\s+Clean the cache\n'
 stdout 'completion\s+Generate the autocompletion script for the specified shell\n'
 stdout 'config\s+Display the current configuration\n'
-stdout 'disable\s+Disable version management in the current directory\n'
+stdout 'disable\s+Disable version management for the current directory\n'
 stdout 'gen\s+Generate various files\n'
 stdout 'help\s+Help about any command\n'
-stdout 'install\s+Install a default version to use when version management is disabled\n'
+stdout 'install\s+Install a version/edition to use when version management is disabled\n'
+stdout 'remove\s+Remove the version/edition used when version management is disabled\n'
 stdout 'status\s+Display the status\n'
-stdout 'use\s+Select or specify a version to use in the current directory\n'
+stdout 'use\s+Select or specify a version/edition for the current directory\n'
 stdout 'version\s+Display the hvm version and check for a newer release\n'

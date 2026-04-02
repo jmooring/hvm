@@ -19,7 +19,9 @@ package github
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/go-github/v81/github"
 	"golang.org/x/oauth2"
@@ -45,7 +47,7 @@ func NewClient(token string) *github.Client {
 func GetLatestRelease(ctx context.Context, client *github.Client, owner, repo string) (string, error) {
 	release, _, err := client.Repositories.GetLatestRelease(ctx, owner, repo)
 	if err != nil {
-		return "", fmt.Errorf("failed to fetch latest release: %w", err)
+		return "", fmt.Errorf("%s", ErrReason(err))
 	}
 
 	if release.TagName == nil {
@@ -53,4 +55,19 @@ func GetLatestRelease(ctx context.Context, client *github.Client, owner, repo st
 	}
 
 	return *release.TagName, nil
+}
+
+// ErrReason returns a human-readable reason for a GitHub API error,
+// including the rate limit reset time (local timezone) for rate limit errors.
+func ErrReason(err error) string {
+	var rle *github.RateLimitError
+	if errors.As(err, &rle) {
+		reset := rle.Rate.Reset.Time.In(time.Local)
+		return fmt.Sprintf("GitHub API rate limit exceeded (resets at %s)", reset.Format("15:04:05 MST"))
+	}
+	var ere *github.ErrorResponse
+	if errors.As(err, &ere) {
+		return fmt.Sprintf("GitHub API error %d: %s", ere.Response.StatusCode, ere.Message)
+	}
+	return "unable to reach GitHub"
 }

@@ -22,28 +22,35 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/jmooring/hvm/pkg/cache"
-	gh "github.com/jmooring/hvm/pkg/github"
 	"github.com/jmooring/hvm/pkg/helpers"
-	"github.com/jmooring/hvm/pkg/repository"
 	"github.com/spf13/cobra"
 )
 
 // installCmd represents the install command.
 var installCmd = &cobra.Command{
 	Use:   "install [version] | [flags]",
-	Short: "Install a default version to use when version management is disabled",
-	Long: `Displays a list of recent Hugo releases, prompting you to select a version
-to use when version management is disabled in the current directory. It then
-downloads, extracts, and caches the release asset for your operating system and
-architecture, placing a copy in the cache "default" directory.
+	Short: "Install a version/edition to use when version management is disabled",
+	Long: `Displays a list of recent Hugo releases, prompting you to select a
+version/edition to use when version management is disabled for the current
+directory. It then downloads, extracts, and caches the release asset for your
+operating system and architecture, placing a copy in the "default" cache
+directory.
 
-To use this version when version management is disabled in the current
-directory, the cache "default" directory must be in your PATH. If it is not,
-you will be prompted to add it when installation is complete.
+To use this version/edition when version management is disabled for the current
+directory, the "default" cache directory must be in your PATH environment
+variable. If it is not, you will be prompted to add it when installation is
+complete.
 
-Bypass the selection menu by specifying a version, or specify "latest" to use
-the latest release.
+Bypass the selection menu by specifying a version or version/edition:
+
+  ` + app.Name + ` install v0.159.1
+  ` + app.Name + ` install v0.159.1/standard
+
+  ` + app.Name + ` install 0.159.1
+  ` + app.Name + ` install 0.159.1/standard
+
+  ` + app.Name + ` install latest
+  ` + app.Name + ` install latest/standard
 `,
 	Run: func(cmd *cobra.Command, args []string) {
 		version := ""
@@ -60,42 +67,24 @@ func init() {
 	rootCmd.AddCommand(installCmd)
 }
 
-// install sets the version of the Hugo executable to use when version
-// management is disabled in the current directory.
+// install sets the version/edition to use when version management is disabled
+// for the current directory.
 func install(version string) error {
-	asset := repository.NewAsset(cache.ExecName())
-
-	client := gh.NewClient(config.GitHubToken)
-	repo, err := repository.NewRepository(app.ManagedApp.RepositoryOwner, app.ManagedApp.RepositoryName, client)
+	asset, err := resolveAsset(version, "Select a version to install", "Select an edition")
 	if err != nil {
 		return err
 	}
-
-	if version == "" {
-		msg := "Select a version to use when version management is disabled"
-		err := repo.SelectTag(asset, msg, config.SortAscending, config.NumTagsToDisplay, func(tag string) (bool, error) {
-			return helpers.Exists(filepath.Join(app.CacheDirPath, tag))
-		})
-		if err != nil {
-			return err
-		}
-		if asset.Tag == "" {
-			return nil // the user did not select a tag; do nothing
-		}
-	} else {
-		err := repo.GetTagFromString(asset, version)
-		if err != nil {
-			return err
-		}
+	if asset == nil {
+		return nil // user cancelled
 	}
 
-	exists, err := helpers.Exists(filepath.Join(app.CacheDirPath, asset.Tag))
+	exists, err := helpers.Exists(filepath.Join(app.CacheDirPath, asset.Tag, asset.Edition))
 	if err != nil {
 		return err
 	}
 
 	if !exists {
-		err := downloadAndCache(asset, repo)
+		err := downloadAndCache(asset)
 		if err != nil {
 			return err
 		}
@@ -106,13 +95,12 @@ func install(version string) error {
 		return err
 	}
 
-	fmt.Println("Installation of", asset.Tag, "complete.")
+	fmt.Printf("Installation of %s/%s complete.\n", asset.Tag, asset.Edition)
 
 	if !slices.Contains(filepath.SplitList(os.Getenv("PATH")), app.DefaultDirPath) {
 		fmt.Println()
 		fmt.Printf("Please add %s to the PATH environment variable.\n", app.DefaultDirPath)
 		fmt.Println("Open a new terminal after making the change.")
-
 	}
 
 	return nil

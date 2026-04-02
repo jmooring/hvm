@@ -19,7 +19,9 @@ limitations under the License.
 package archive
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"strings"
 )
@@ -52,7 +54,7 @@ func Extract(src, dst string, rm bool) error {
 
 	if rm {
 		err := os.Remove(src)
-		if err != nil {
+		if err != nil && !errors.Is(err, fs.ErrNotExist) {
 			return err
 		}
 	}

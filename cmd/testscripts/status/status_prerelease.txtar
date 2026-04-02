@@ -1,0 +1,34 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+
+# Test 1: dot file has pre-release version/edition, exec is cached
+exec hvm status
+stdout 'The current directory is configured to use Hugo v0\.160\.0-beta\.1/extended\.\n'
+stdout 'Cached versions of the Hugo executable:\n'
+stdout 'v0\.160\.0-beta\.1/extended\n'
+exec hvm status --printExecPath
+[darwin] stdout 'home/Library/Caches/hvm/v0.160.0-beta.1/extended/hugo'
+[linux] stdout 'cache/hvm/v0.160.0-beta.1/extended/hugo'
+[windows] stdout 'cache\\hvm\\v0.160.0-beta.1\\extended\\hugo.exe'
+exec hvm status --printExecPathCached
+
+# Test 2: exec removed — printExecPathCached fails; printExecPath still succeeds
+rm home/Library/Caches/hvm/v0.160.0-beta.1
+rm cache/hvm/v0.160.0-beta.1
+exec hvm status --printExecPath
+! exec hvm status --printExecPathCached
+
+# Files
+-- .hvm --
+v0.160.0-beta.1/extended
+-- home/Library/Caches/hvm/schema.json --
+{"schemaVersion":1}
+-- home/Library/Caches/hvm/v0.160.0-beta.1/extended/hugo --
+darwin-exec-bytes
+-- cache/hvm/schema.json --
+{"schemaVersion":1}
+-- cache/hvm/v0.160.0-beta.1/extended/hugo --
+linux-exec-bytes
+-- cache/hvm/v0.160.0-beta.1/extended/hugo.exe --
+windows-exec-bytes

@@ -1,0 +1,37 @@
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
+[darwin] mkdir "$HOME/Library/Caches"
+[darwin] mkdir "$HOME/Library/Application Support"
+
+# Test 1: no schema.json, old-format versioned dirs present — any command
+# triggers migration; old dirs are removed and a warning is printed to stderr
+exec hvm status
+stderr 'Info: cache migrated to new format: 2 old cached version\(s\) removed\n'
+stdout 'Version management is disabled for the current directory\.\n'
+stdout 'The cache is empty\.\n'
+[darwin] ! exists home/Library/Caches/hvm/v0.152.0
+[darwin] ! exists home/Library/Caches/hvm/v0.153.0
+[darwin] exists home/Library/Caches/hvm/schema.json
+[linux] ! exists cache/hvm/v0.152.0
+[linux] ! exists cache/hvm/v0.153.0
+[linux] exists cache/hvm/schema.json
+[windows] ! exists cache\\hvm\\v0.152.0
+[windows] ! exists cache\\hvm\\v0.153.0
+[windows] exists cache\\hvm\\schema.json
+
+# Test 2: schema.json now present and current — no migration on next run
+exec hvm status
+! stderr 'Info: cache migrated'
+
+# Files
+-- home/Library/Caches/hvm/v0.152.0/extended/hugo --
+darwin-exec-bytes
+-- home/Library/Caches/hvm/v0.153.0/extended/hugo --
+darwin-exec-bytes
+-- cache/hvm/v0.152.0/extended/hugo --
+linux-exec-bytes
+-- cache/hvm/v0.153.0/extended/hugo --
+linux-exec-bytes
+-- cache/hvm/v0.152.0/extended/hugo.exe --
+windows-exec-bytes
+-- cache/hvm/v0.153.0/extended/hugo.exe --
+windows-exec-bytes

@@ -39,8 +39,8 @@ Instructions:
 4. Save the file and exit Notepad
 5. Refresh the current session: . $profile
 
-The alias function displays a brief status message each time it is called, if
-version management is enabled in the current directory. To disable this
+The alias function displays a brief status message each time it is called if
+version management is enabled for the current directory. To disable this
 message, set the "hvm_show_status" variable to "$false" in the alias function.
 `,
 	Run: func(cmd *cobra.Command, args []string) {

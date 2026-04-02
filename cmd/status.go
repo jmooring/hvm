@@ -71,13 +71,23 @@ func status(cmd *cobra.Command) error {
 		return err
 	}
 
-	dm := dotfile.NewManager(app.DotFilePath, app.DotFileName, app.Name)
-	version, err := dm.Read()
+	dm := dotfile.NewManager(app.DotFilePath, app.DotFileName, app.Name, config.DefaultEdition)
+	buildID, err := dm.Read()
 	if err != nil {
 		return err
 	}
 
-	execPath := filepath.Join(app.CacheDirPath, version, cache.ExecName())
+	// buildID is "version/edition" (e.g. "v0.160.0/extended") or empty.
+	var version, edition string
+	if buildID != "" {
+		parts := strings.SplitN(buildID, "/", 2)
+		version = parts[0]
+		if len(parts) == 2 {
+			edition = parts[1]
+		}
+	}
+
+	execPath := filepath.Join(app.CacheDirPath, version, edition, cache.ExecName())
 	execPathExists, err := helpers.Exists(execPath)
 	if err != nil {
 		return err
@@ -85,7 +95,7 @@ func status(cmd *cobra.Command) error {
 
 	// Prints exec path, else exit code 1.
 	if printExecPath {
-		if version == "" {
+		if buildID == "" {
 			os.Exit(1)
 		} else {
 			fmt.Println(execPath)
@@ -95,7 +105,7 @@ func status(cmd *cobra.Command) error {
 
 	// Prints the exec path if the exec is cached, else exit code 1.
 	if printExecPathCached {
-		if version == "" {
+		if buildID == "" {
 			os.Exit(1)
 		} else {
 			if execPathExists {
@@ -107,66 +117,77 @@ func status(cmd *cobra.Command) error {
 		}
 	}
 
-	if version == "" {
-		fmt.Println("Version management is disabled in the current directory.")
+	if buildID == "" {
+		fmt.Println("Version management is disabled for the current directory.")
 	} else {
 		if execPathExists {
-			fmt.Printf("The current directory is configured to use Hugo %s.\n", version)
+			fmt.Printf("The current directory is configured to use Hugo %s.\n", buildID)
 		} else {
-			var r string
 			fmt.Printf("The %s file in the current directory refers to a Hugo\n", app.DotFileName)
-			fmt.Printf("version (%s) that is not cached.\n", version)
+			fmt.Printf("version (%s) that is not cached.\n", buildID)
 			fmt.Println()
-			for {
-				fmt.Printf("Would you like to get it now? (Y/n): ")
-				fmt.Scanln(&r)
-				if r == "" || strings.EqualFold(string(r[0]), "y") {
-					err = use(version)
-					if err != nil {
-						theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", app.Name)
-						return fmt.Errorf("the version specified in the %s file (%s) is not available in the repository: %s", app.DotFileName, version, theFix)
-					}
-					fmt.Println()
-					break
+			if promptYesNo("Would you like to get it now?", true) {
+				err = use(buildID)
+				if err != nil {
+					theFix := fmt.Sprintf("run \"%[1]s use\" to select a version, or \"%[1]s disable\" to remove the file", app.Name)
+					return fmt.Errorf("unable to get %s (%s): %w: %s", app.DotFileName, buildID, err, theFix)
 				}
-				if strings.EqualFold(string(r[0]), "n") {
-					err = disable()
-					if err != nil {
-						return err
-					}
-					fmt.Println()
-					break
+			} else {
+				err = disable()
+				if err != nil {
+					return err
 				}
 			}
+			fmt.Println()
 		}
 	}
 
-	// Get tags; ignore app.DefaultDirName.
+	// Get tag/edition entries; ignore app.DefaultDirName.
+	// Each entry is a tag directory whose subdirectories are editions.
 	sd, err := os.ReadDir(app.CacheDirPath)
 	if err != nil {
 		return err
 	}
 
-	var tags []string
+	var buildIDs []string
 	for _, d := range sd {
-		if d.IsDir() && d.Name() != app.DefaultDirName {
-			tags = append(tags, d.Name())
+		if !d.IsDir() || d.Name() == app.DefaultDirName {
+			continue
+		}
+		tag := d.Name()
+		// List edition subdirectories within this tag directory.
+		editionDirs, err := os.ReadDir(filepath.Join(app.CacheDirPath, tag))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Warning: could not read cache directory %s: %s\n", tag, err)
+			continue
+		}
+		for _, ed := range editionDirs {
+			if ed.IsDir() {
+				buildIDs = append(buildIDs, tag+"/"+ed.Name())
+			}
 		}
 	}
 
-	if len(tags) == 0 {
+	if len(buildIDs) == 0 {
 		fmt.Println("The cache is empty.")
 		return nil
 	}
 
 	fmt.Println("Cached versions of the Hugo executable:")
 	fmt.Println()
-	semver.Sort(tags)
+	slices.SortStableFunc(buildIDs, func(a, b string) int {
+		aTag, aEd, _ := strings.Cut(a, "/")
+		bTag, bEd, _ := strings.Cut(b, "/")
+		if c := semver.Compare(aTag, bTag); c != 0 {
+			return c
+		}
+		return strings.Compare(aEd, bEd)
+	})
 	if !config.SortAscending {
-		slices.Reverse(tags)
+		slices.Reverse(buildIDs)
 	}
-	for _, tag := range tags {
-		fmt.Println(tag)
+	for _, id := range buildIDs {
+		fmt.Println(id)
 	}
 	fmt.Println()
 

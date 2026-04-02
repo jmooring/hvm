@@ -29,7 +29,7 @@ import (
 var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Display the " + app.Name + " version and check for a newer release",
-	Long:  "Display the " + app.Name + " version and check for a newer release",
+	Long:  "Display the " + app.Name + " version and check for a newer release.",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := displayVersion()
 		cobra.CheckErr(err)

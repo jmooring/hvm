@@ -3,5 +3,5 @@
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
-! exec hvm use v0.1.2
-stderr 'Error: tag "v0\.1\.2" not found in repository\n'
+! exec hvm install v0.153.0/bogus
+stderr 'Error: edition "bogus" is invalid'

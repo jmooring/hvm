@@ -3,12 +3,16 @@
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test legacy variable
+env HVM_DEFAULTEDITION=extended
 env HVM_GITHUBTOKEN=my-token
 env HVM_NUMTAGSTODISPLAY=67
+env HVM_PROMPTFOREDITION=false
 env HVM_SORTASCENDING=false
 exec hvm config
+stdout 'defaultEdition = ''extended''\n'
 stdout 'githubToken = ''my-token''\n'
 stdout 'numTagsToDisplay = 67\n'
+stdout 'promptForEdition = false\n'
 stdout 'sortAscending = false\n'
 
 # Test new variable

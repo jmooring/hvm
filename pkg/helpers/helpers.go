@@ -22,57 +22,34 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
-// IsDir reports whether path is a directory, returning an error if path does
-// not exist.
-func IsDir(path string) (bool, error) {
-	fi, err := os.Stat(path)
+// CopyDirectoryContent replaces dst with the contents of src, removing dst
+// first if it exists and creating it fresh. Returns an error if src does not
+// exist or if src is not a directory.
+func CopyDirectoryContent(src, dst string) error {
+	fi, err := os.Stat(src)
 	if err != nil {
-		return false, err
+		return err
+	}
+	if !fi.IsDir() {
+		return fmt.Errorf("%s is not a directory", src)
 	}
 
-	return fi.Mode().IsDir(), nil
-}
-
-// Exists reports whether path exists.
-func Exists(path string) (bool, error) {
-	_, err := os.Stat(path)
-	if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
-	}
+	err = os.RemoveAll(dst)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	return true, nil
-}
-
-// IsEmpty reports if the given file or directory is empty, returning an error
-// if path does not exist.
-func IsEmpty(path string) (bool, error) {
-	fi, err := os.Stat(path)
-	if err != nil {
-		return false, err
-	}
-
-	if fi.IsDir() {
-		entries, err := os.ReadDir(path)
-		if err != nil {
-			return false, err
-		}
-		return len(entries) == 0, nil
-	}
-
-	return fi.Size() == 0, nil
+	return os.CopyFS(dst, os.DirFS(src))
 }
 
 // CopyFile copies a file from src to dst, overwriting an existing file if
 // present. Returns an error if src does not exist, or if src is a directory.
-func CopyFile(src, dst string) error {
+func CopyFile(src, dst string) (retErr error) {
 	fi, err := os.Stat(src)
 	if err != nil {
 		return err
@@ -97,12 +74,14 @@ func CopyFile(src, dst string) error {
 		return err
 	}
 	defer func() {
-		if err := d.Close(); err != nil {
-			log.Fatal(err)
+		if err := d.Close(); err != nil && retErr == nil {
+			retErr = err
 		}
 	}()
 
-	os.Chmod(dst, fi.Mode())
+	if err := os.Chmod(dst, fi.Mode()); err != nil {
+		return err
+	}
 
 	_, err = io.Copy(d, s)
 	if err != nil {
@@ -112,55 +91,17 @@ func CopyFile(src, dst string) error {
 	return nil
 }
 
-// CopyDirectoryContent copies the content of the src directory to the dst
-// directory, creating dst if necessary and overwriting existing files. Returns
-// an error if src does not exist, or if src is not a directory.
-func CopyDirectoryContent(src, dst string) error {
-	fi, err := os.Stat(src)
+// Exists reports whether path exists.
+func Exists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if errors.Is(err, fs.ErrNotExist) {
+		return false, nil
+	}
 	if err != nil {
-		return err
-	}
-	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", src)
+		return false, err
 	}
 
-	srcFS := os.DirFS(src)
-
-	err = os.CopyFS(dst, srcFS)
-	if err != nil {
-		if !errors.Is(err, fs.ErrExist) {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// RemoveDirectoryContent removes all content from dir, preserving the
-// directory itself. Returns an error if dir does not exist, or if dir is not a
-// directory.
-func RemoveDirectoryContent(dir string) error {
-	fi, err := os.Stat(dir)
-	if err != nil {
-		return err
-	}
-	if !fi.IsDir() {
-		return fmt.Errorf("%s is not a directory", dir)
-	}
-
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-
-	for _, e := range entries {
-		err = os.RemoveAll(filepath.Join(dir, e.Name()))
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return true, nil
 }
 
 // IsString reports whether i is a string.
@@ -168,4 +109,25 @@ func IsString(i any) bool {
 	_, ok := i.(string)
 
 	return ok
+}
+
+// JoinWithConjunction joins a slice of strings into a human-readable list,
+// separating items with commas and prefixing the last item with conjunction
+// (e.g., "and" or "or"). Returns an empty string for an empty slice, the
+// single value for a one-element slice, and two values joined by the
+// conjunction without commas. Returns an error if conjunction is blank.
+func JoinWithConjunction(items []string, conjunction string) (string, error) {
+	if conjunction == "" {
+		return "", fmt.Errorf("conjunction must not be blank")
+	}
+	switch len(items) {
+	case 0:
+		return "", nil
+	case 1:
+		return items[0], nil
+	case 2:
+		return items[0] + " " + conjunction + " " + items[1], nil
+	default:
+		return strings.Join(items[:len(items)-1], ", ") + ", " + conjunction + " " + items[len(items)-1], nil
+	}
 }

@@ -1,43 +1,46 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test 1: dot file exists, cache not empty
 exec hvm status
-stdout 'The current directory is configured to use Hugo v0\.153\.0\.\n'
+stdout 'The current directory is configured to use Hugo v0\.153\.0/extended\.\n'
 stdout 'Cached versions of the Hugo executable:\n'
-stdout 'v0\.153\.0\n'
+stdout 'v0\.153\.0/extended\n'
 exec hvm status --printExecPath
-[darwin] stdout 'home/Library/Caches/hvm/v0.153.0/hugo'
-[linux] stdout 'cache/hvm/v0.153.0/hugo'
-[windows] stdout 'cache\\hvm\\v0.153.0\\hugo.exe'
+[darwin] stdout 'home/Library/Caches/hvm/v0.153.0/extended/hugo'
+[linux] stdout 'cache/hvm/v0.153.0/extended/hugo'
+[windows] stdout 'cache\\hvm\\v0.153.0\\extended\\hugo.exe'
 exec hvm status --printExecPathCached
 
 # Test 2: dot file does not exist, cache not empty
 rm .hvm
 exec hvm status
-stdout 'Version management is disabled in the current directory\.\n'
+stdout 'Version management is disabled for the current directory\.\n'
 stdout 'Cached versions of the Hugo executable:\n'
-stdout 'v0\.153\.0\n'
+stdout 'v0\.153\.0/extended\n'
 ! exec hvm status --printExecPath
 ! exec hvm status --printExecPathCached
 
 # Test 3: dot file does not exist, cache empty
 rm home/Library/Caches/hvm/v0.153.0
 rm cache/hvm/v0.153.0
-rm cache/hvm/v0.153.0
 exec hvm status
-stdout 'Version management is disabled in the current directory\.\n'
+stdout 'Version management is disabled for the current directory\.\n'
 stdout 'The cache is empty\.\n'
 ! exec hvm status --printExecPath
 ! exec hvm status --printExecPathCached
 
 # Files
 -- .hvm --
-v0.153.0
--- home/Library/Caches/hvm/v0.153.0/hugo --
+v0.153.0/extended
+-- home/Library/Caches/hvm/schema.json --
+{"schemaVersion":1}
+-- home/Library/Caches/hvm/v0.153.0/extended/hugo --
 darwin-exec-bytes
--- cache/hvm/v0.153.0/hugo --
+-- cache/hvm/schema.json --
+{"schemaVersion":1}
+-- cache/hvm/v0.153.0/extended/hugo --
 linux-exec-bytes
--- cache/hvm/v0.153.0/hugo.exe --
+-- cache/hvm/v0.153.0/extended/hugo.exe --
 windows-exec-bytes

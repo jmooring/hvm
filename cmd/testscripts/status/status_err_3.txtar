@@ -1,9 +1,12 @@
-# User cache and config dirs (we use os.UserCacheDir and os.UserCongfigDir)
+# User cache and config dirs (we use os.UserCacheDir and os.UserConfigDir)
 [darwin] mkdir "$HOME/Library/Caches"
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
+stdin input.txt
 ! exec hvm status
-stderr 'Error: the version specified in the \.hvm file \(v\d+\.\d+\.\d+\) is not available in the repository: run "hvm use" to select a version, or "hvm disable" to remove the file\n'
+stderr 'Error: unable to get \.hvm \(v\d+\.\d+\.\d+/\w+\): .+: run "hvm use" to select a version, or "hvm disable" to remove the file\n'
+-- input.txt --
+y
 -- .hvm --
-v9.999.9
+v9.999.9/extended
