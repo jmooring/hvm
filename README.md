@@ -110,7 +110,7 @@ If a configuration value is set in multiple places, environment variables take p
 
 **defaultEdition** (`string`)
 
-The edition `hvm use` and `hvm install` select when you omit the edition and no selection prompt appears. The default is `standard`.
+The edition `hvm use` and `hvm install` select when `promptForEdition` is `false` or when you omit the edition during direct selection. The default is `standard`.
 
 **gitHubToken** (`string`)
 
@@ -124,7 +124,7 @@ By default, the `hvm use` and `hvm install` commands display the 30 most recent 
 
 **promptForEdition** (`bool`)
 
-Whether `hvm use` and `hvm install` prompt for an edition when you omit the edition from the command. Setting this to `false` instructs `hvm` to select the `defaultEdition` instead. The default is `true`.
+Whether `hvm use` and `hvm install` show the edition selection menu during interactive selection or when you omit the edition during direct selection. Setting this to `false` instructs `hvm` to select the `defaultEdition` instead. The default is `true`.
 
 **sortAscending** (`bool`)
 
