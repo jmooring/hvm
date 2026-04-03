@@ -110,7 +110,7 @@ If a configuration value is set in multiple places, environment variables take p
 
 **defaultEdition** (`string`)
 
-The Hugo edition to use or install when one is not explicitly specified. The default is `standard`.
+The edition `hvm use` and `hvm install` select when you omit the edition and no selection prompt appears. The default is `standard`.
 
 **gitHubToken** (`string`)
 
@@ -124,7 +124,7 @@ By default, the `hvm use` and `hvm install` commands display the 30 most recent 
 
 **promptForEdition** (`bool`)
 
-By default, the `hvm use` and `hvm install` commands prompt you to specify an edition as well as a version. To always use the `defaultEdition` instead of prompting for the edition, set this value to `false`. The default is `true`.
+Whether `hvm use` and `hvm install` prompt for an edition when you omit the edition from the command. Setting this to `false` instructs `hvm` to select the `defaultEdition` instead. The default is `true`.
 
 **sortAscending** (`bool`)
 
