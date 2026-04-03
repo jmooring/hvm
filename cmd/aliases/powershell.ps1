@@ -4,8 +4,8 @@ function Hugo-Override {
   Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPathCached)
   If ($hugo_bin) {
     If ($hvm_show_status) {
-      echo "Hugo version management is enabled in this directory."
-      echo "Run 'hvm status' for details, or 'hvm disable' to disable.`n"
+      Write-Host "Hugo version management is enabled in this directory."
+      Write-Host "Run 'hvm status' for details, or 'hvm disable' to disable.`n"
     }
     & "$hugo_bin" $args
   } Else {
@@ -20,7 +20,7 @@ function Hugo-Override {
       If ($hugo_bin) {
         & "$hugo_bin" $args
       } Else {
-        echo "Command not found"
+        Write-Error "Command not found"
       }
     }
   }
