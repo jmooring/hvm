@@ -1,28 +1,30 @@
 # Hugo Version Manager: override path to the hugo executable.
 function Hugo-Override {
-  Set-Variable -Name "hvm_show_status" -Value $true
-  Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPathCached)
-  If ($hugo_bin) {
-    If ($hvm_show_status) {
-      Write-Host "Hugo version management is enabled in this directory."
-      Write-Host "Run 'hvm status' for details, or 'hvm disable' to disable.`n"
+    $hvm_show_status = $true
+    $HVMBin = hvm status --printExecPathCached 2>$null
+    if ($HVMBin) {
+        if ($hvm_show_status) {
+            $InformationPreference = 'Continue'
+            Write-Host "Hugo version management is enabled in this directory."
+            Write-Host "Run 'hvm status' for details, or 'hvm disable' to disable.`n"
+        }
+    } else {
+        $HVMBin = hvm status --printExecPath 2>$null
+        if ($HVMBin) {
+            hvm use --useVersionInDotFile
+            if ($LASTEXITCODE -ne 0) { return }
+        } else {
+            $HugoCommand = Get-Command -Name hugo.exe -ErrorAction SilentlyContinue -CommandType Application
+            if ($HugoCommand) {
+                $HVMBin = $HugoCommand.Definition
+            }
+        }
     }
-    & "$hugo_bin" $args
-  } Else {
-    Set-Variable -Name "hugo_bin" -Value $(hvm status --printExecPath)
-    If ($hugo_bin) {
-      hvm use --useVersionInDotFile
-      if ($lastexitcode) {
-        return
-      }
-    } Else {
-      Set-Variable -Name "hugo_bin" -Value $((gcm hugo.exe).Path 2> $null)
-      If ($hugo_bin) {
-        & "$hugo_bin" $args
-      } Else {
-        Write-Error "Command not found"
-      }
+    if ($HVMBin) {
+        & $HVMBin @args
+    } else {
+        $global:LASTEXITCODE = 1
+        Write-Error "Command not found." -ErrorAction Continue
     }
-  }
 }
-Set-Alias hugo Hugo-Override
+Set-Alias -Name hugo -Value Hugo-Override -Force
