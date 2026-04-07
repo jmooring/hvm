@@ -1,4 +1,6 @@
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -13,10 +15,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
           check-latest: true
@@ -31,4 +33,4 @@ jobs:
       - name: Test
         env:
           HVM_GITHUBTOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: go test -v -coverprofile coverage.out ./...
+        run: go test -v ./...
