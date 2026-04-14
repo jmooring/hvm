@@ -261,7 +261,7 @@ func initConfig() {
 	// Set default values.
 	viper.SetDefault("defaultEdition", "standard")
 	viper.SetDefault("githubToken", "")
-	viper.SetDefault("numTagsToDisplay", 30)
+	viper.SetDefault("numTagsToDisplay", 32)
 	viper.SetDefault("promptForEdition", true)
 	viper.SetDefault("sortAscending", false)
 

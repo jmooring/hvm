@@ -6,7 +6,7 @@
 exec hvm config
 stdout 'defaultEdition = ''standard''\n'
 stdout 'githubToken = ''.*''\n'
-stdout 'numTagsToDisplay = 30\n'
+stdout 'numTagsToDisplay = 32\n'
 stdout 'promptForEdition = true\n'
 stdout 'sortAscending = false\n'
 [darwin] stdout 'Configuration file: .+/home/Library/Application Support/hvm/config\.toml\n'
