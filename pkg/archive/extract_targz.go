@@ -66,7 +66,7 @@ func extractTarGZ(src, dst string) error {
 		switch th.Typeflag {
 		case tar.TypeDir:
 			if _, err := os.Stat(target); err != nil {
-				if err := os.MkdirAll(target, 0o777); err != nil {
+				if err := os.MkdirAll(target, 0o755); err != nil {
 					return err
 				}
 			}

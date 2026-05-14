@@ -105,7 +105,7 @@ func Size(cachePath, excludeDir string) (int64, error) {
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && !strings.HasPrefix(path, excludeDir) && path != SchemaFileName && path != TagListFileName {
+		if !d.IsDir() && path != excludeDir && !strings.HasPrefix(path, excludeDir+"/") && path != SchemaFileName && path != TagListFileName {
 			fi, err := d.Info()
 			if err != nil {
 				return err
