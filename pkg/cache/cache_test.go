@@ -48,7 +48,8 @@ func TestSize(t *testing.T) {
 	write(t, filepath.Join(base, "default", "hugo"), 10)
 	write(t, filepath.Join(base, "default", "nested", "file"), 7)
 
-	// Path that starts with exclude prefix should be excluded
+	// Path whose name starts with the exclude prefix but is a different
+	// directory should be included, not excluded.
 	write(t, filepath.Join(base, "default123", "file"), 9)
 
 	size, err := Size(base, "default")
@@ -56,9 +57,9 @@ func TestSize(t *testing.T) {
 		t.Fatalf("Size() error: %v", err)
 	}
 
-	// Included: 20 + 5 + 3 = 28
-	// Excluded: 10 + 7 + 9
-	if want := int64(28); size != want {
+	// Included: 20 + 5 + 3 + 9 = 37
+	// Excluded: 10 + 7
+	if want := int64(37); size != want {
 		t.Fatalf("Size(): want %d got %d", want, size)
 	}
 }
