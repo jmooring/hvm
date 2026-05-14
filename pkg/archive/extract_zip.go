@@ -20,7 +20,6 @@ import (
 	"archive/zip"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -35,11 +34,11 @@ func extractZip(src, dst string) error {
 	defer zrc.Close()
 
 	for _, f := range zrc.File {
-		if strings.Contains(f.Name, "..") {
+		target := filepath.Join(dst, f.Name)
+		rel, relErr := filepath.Rel(dst, target)
+		if relErr != nil || strings.HasPrefix(rel, "..") {
 			return fmt.Errorf("detected unsafe file in archive (zip slip)")
 		}
-
-		target := filepath.Join(dst, f.Name)
 
 		if f.FileInfo().IsDir() {
 			err = os.MkdirAll(target, 0o777)
@@ -64,7 +63,7 @@ func extractZip(src, dst string) error {
 }
 
 // copyFileFromZip copies a file within a zip archive to the target path.
-func copyFileFromZip(z *zip.File, dst string) error {
+func copyFileFromZip(z *zip.File, dst string) (retErr error) {
 	zrc, err := z.Open()
 	if err != nil {
 		return err
@@ -76,14 +75,17 @@ func copyFileFromZip(z *zip.File, dst string) error {
 		return err
 	}
 	defer func() {
-		if err := df.Close(); err != nil {
-			log.Fatal(err)
+		if cerr := df.Close(); cerr != nil && retErr == nil {
+			retErr = cerr
 		}
 	}()
 
-	_, err = io.Copy(df, zrc)
-	if err != nil {
+	lr := &io.LimitedReader{R: zrc, N: maxExtractBytes + 1}
+	if _, err = io.Copy(df, lr); err != nil {
 		return err
+	}
+	if lr.N == 0 {
+		return fmt.Errorf("archive entry exceeds size limit of %d bytes", maxExtractBytes)
 	}
 
 	return nil

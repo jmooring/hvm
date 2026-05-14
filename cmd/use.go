@@ -17,11 +17,16 @@ limitations under the License.
 package cmd
 
 import (
+	"bufio"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/jmooring/hvm/pkg/archive"
@@ -127,9 +132,24 @@ func downloadAndCache(asset *repository.Asset) error {
 		}
 	}()
 
-	err = downloadAsset(asset)
+	client := newHTTPClient()
+
+	digest, err := downloadAsset(asset, client)
 	if err != nil {
 		return err
+	}
+
+	if asset.ChecksumsURL != "" {
+		archiveFilename := path.Base(asset.ArchiveURL)
+		expected, err := fetchExpectedChecksum(client, asset.ChecksumsURL, archiveFilename)
+		if err != nil {
+			return err
+		}
+		if digest != expected {
+			return fmt.Errorf("checksum mismatch for %s: got %s, expected %s", archiveFilename, digest, expected)
+		}
+	} else {
+		fmt.Fprintf(os.Stderr, "Warning: no checksums file found for %s; skipping integrity check\n", asset.Tag)
 	}
 
 	err = archive.Extract(asset.ArchiveFilePath, asset.ArchiveDirPath, true)
@@ -145,28 +165,11 @@ func downloadAndCache(asset *repository.Asset) error {
 	return nil
 }
 
-// downloadAsset downloads the release asset.
-func downloadAsset(a *repository.Asset) (retErr error) {
-	// Create the file.
-	a.ArchiveFilePath = filepath.Join(a.ArchiveDirPath, "hugo."+a.ArchiveExt)
-	out, err := os.Create(a.ArchiveFilePath)
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if err := out.Close(); err != nil && retErr == nil {
-			retErr = err
-		}
-	}()
-
-	// Get the data. Use a client with a connection/header timeout but no
-	// overall timeout — Hugo release assets are large and streaming must
-	// not be interrupted once it starts. Clone http.DefaultTransport so
-	// that proxy settings, TLS configuration, and HTTP/2 support are
-	// preserved. Use a comma-ok assertion in case DefaultTransport has
-	// been replaced by a different RoundTripper; in that case fall back
-	// to a transport with the same baseline settings as DefaultTransport
-	// so that proxied/corporate environments still work.
+// newHTTPClient returns an HTTP client with a connection/header timeout but no
+// overall timeout — Hugo release assets are large and streaming must not be
+// interrupted once it starts. It clones http.DefaultTransport so that proxy
+// settings, TLS configuration, and HTTP/2 support are preserved.
+func newHTTPClient() *http.Client {
 	var transport *http.Transport
 	if dt, ok := http.DefaultTransport.(*http.Transport); ok {
 		transport = dt.Clone()
@@ -181,25 +184,69 @@ func downloadAsset(a *repository.Asset) (retErr error) {
 		}
 	}
 	transport.ResponseHeaderTimeout = 30 * time.Second
-	client := &http.Client{Transport: transport}
+	return &http.Client{Transport: transport}
+}
+
+// downloadAsset downloads the release asset and returns its SHA-256 hex digest.
+func downloadAsset(a *repository.Asset, client *http.Client) (digest string, retErr error) {
+	// Create the file.
+	a.ArchiveFilePath = filepath.Join(a.ArchiveDirPath, "hugo."+a.ArchiveExt)
+	out, err := os.Create(a.ArchiveFilePath)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := out.Close(); err != nil && retErr == nil {
+			retErr = err
+		}
+	}()
+
 	resp, err := client.Get(a.ArchiveURL)
 	if err != nil {
-		return err
+		return "", err
 	}
 	fmt.Printf("Downloading %s/%s... ", a.Tag, a.Edition)
 	defer resp.Body.Close()
 
 	// Check server response.
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("bad status: %s", resp.Status)
+		return "", fmt.Errorf("bad status: %s", resp.Status)
 	}
 
-	// Write the body to file.
-	_, err = io.Copy(out, resp.Body)
+	// Write the body to file, computing SHA-256 as we go.
+	h := sha256.New()
+	_, err = io.Copy(out, io.TeeReader(resp.Body, h))
 	if err != nil {
-		return err
+		return "", err
 	}
 	fmt.Printf("done.\n")
 
-	return nil
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// fetchExpectedChecksum downloads the checksums file and returns the expected
+// SHA-256 hex digest for the named archive file.
+func fetchExpectedChecksum(client *http.Client, checksumsURL, archiveFilename string) (string, error) {
+	resp, err := client.Get(checksumsURL)
+	if err != nil {
+		return "", fmt.Errorf("downloading checksums file: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("downloading checksums file: bad status: %s", resp.Status)
+	}
+
+	scanner := bufio.NewScanner(resp.Body)
+	for scanner.Scan() {
+		fields := strings.Fields(scanner.Text())
+		if len(fields) == 2 && fields[1] == archiveFilename {
+			return fields[0], nil
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		return "", fmt.Errorf("reading checksums file: %w", err)
+	}
+
+	return "", fmt.Errorf("no checksum found for %s in checksums file", archiveFilename)
 }

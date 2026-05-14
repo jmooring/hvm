@@ -26,6 +26,10 @@ import (
 	"strings"
 )
 
+// maxExtractBytes is the maximum number of bytes that may be written from a
+// single archive entry. This guards against decompression bombs.
+const maxExtractBytes = 500 << 20 // 500 MB
+
 // Extract unpacks an archive (src) into the destination directory (dst).
 // If rm is true, the source archive is deleted after successful extraction.
 // Supports macOS .pkg files, gzipped tarballs (.tar.gz), and .zip files.

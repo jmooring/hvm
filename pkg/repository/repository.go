@@ -49,13 +49,15 @@ var ValidEditions = []string{"standard", "withdeploy", "extended", "extended_wit
 
 // Asset represents a GitHub release asset for a given release, OS, and architecture.
 type Asset struct {
-	ArchiveDirPath  string // Directory path of the downloaded archive
-	ArchiveExt      string // Extension of the downloaded archive: pkg, tar.gz, or zip
-	ArchiveFilePath string // File path of the downloaded archive
-	ArchiveURL      string // Download URL for this asset
-	Edition         string // Edition of the release asset (e.g. standard, extended)
-	Tag             string // User-selected tag associated with the release for this asset
-	ExecName        string // Name of the executable file
+	ArchiveDirPath  string            // Directory path of the downloaded archive
+	ArchiveExt      string            // Extension of the downloaded archive: pkg, tar.gz, or zip
+	ArchiveFilePath string            // File path of the downloaded archive
+	ArchiveURL      string            // Download URL for this asset
+	ChecksumsURL    string            // Download URL for the specific checksums file to verify this asset
+	ChecksumsURLs   map[string]string // All checksums files for this release, keyed by filename
+	Edition         string            // Edition of the release asset (e.g. standard, extended)
+	Tag             string            // User-selected tag associated with the release for this asset
+	ExecName        string            // Name of the executable file
 }
 
 // NewRepository creates a new Repository instance and fetches releases.
@@ -289,13 +291,20 @@ func (r *Repository) FetchEditions(a *Asset) (map[string]string, error) {
 	}
 
 	editions := map[string]string{}
+	checksumsURLs := map[string]string{}
 	for _, asset := range release.Assets {
 		url := asset.GetBrowserDownloadURL()
+		base := url[strings.LastIndex(url, "/")+1:]
+		if strings.HasSuffix(base, "_checksums.txt") {
+			checksumsURLs[base] = url
+			continue
+		}
 		edition, ok := parseEdition(a.Tag, url)
 		if ok {
 			editions[edition] = url
 		}
 	}
+	a.ChecksumsURLs = checksumsURLs
 
 	if len(editions) == 0 {
 		return nil, fmt.Errorf("no downloads found for %s %s/%s", a.Tag, runtime.GOOS, runtime.GOARCH)
@@ -412,6 +421,23 @@ func (a *Asset) SetURLFromEditions(editions map[string]string) error {
 		a.ArchiveExt = "zip"
 	default:
 		return fmt.Errorf("unrecognised archive extension in URL: %s", url)
+	}
+	// Resolve the checksums file for this specific archive. Old Hugo releases
+	// (e.g. v0.54.0–v0.55.0) use per-edition files such as
+	// hugo_extended_<ver>_checksums.txt; modern releases use a single unified
+	// hugo_<ver>_checksums.txt that covers all editions.
+	if len(a.ChecksumsURLs) > 0 {
+		version := a.Tag[1:]
+		archiveName := url[strings.LastIndex(url, "/")+1:]
+		if idx := strings.Index(archiveName, "_"+version+"_"); idx > 0 {
+			prefix := archiveName[:idx]
+			if u, ok := a.ChecksumsURLs[prefix+"_"+version+"_checksums.txt"]; ok {
+				a.ChecksumsURL = u
+			}
+		}
+		if a.ChecksumsURL == "" {
+			a.ChecksumsURL = a.ChecksumsURLs["hugo_"+version+"_checksums.txt"]
+		}
 	}
 	return nil
 }
