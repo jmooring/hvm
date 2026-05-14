@@ -50,7 +50,7 @@ hvm use latest/standard
 
 ### Step 1 - Install the executable
 
-Download a [prebuilt binary][] or install from source (requires Go 1.26.0 or later):
+Download a [prebuilt binary][] or install from source (requires Go 1.26.3 or later):
 
 ```text
 go install github.com/jmooring/hvm@latest
