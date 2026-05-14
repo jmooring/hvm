@@ -1,6 +1,6 @@
 module github.com/jmooring/hvm
 
-go 1.26.0
+go 1.26.3
 
 require (
 	github.com/google/go-github/v81 v81.0.0
