@@ -18,6 +18,9 @@ package cmd
 
 import (
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/jmooring/hvm/pkg/cache"
@@ -70,5 +73,97 @@ func TestGetTagFromString(t *testing.T) {
 				t.Fatalf("given(%s) -> calculated(%s) -> want(%s) : %s", tc.given, asset.Tag, tc.want, err)
 			}
 		})
+	}
+}
+
+// TestFetchExpectedChecksum_Found verifies that the expected hash is returned
+// when the archive filename is present in the checksums file.
+func TestFetchExpectedChecksum_Found(t *testing.T) {
+	const filename = "hugo_0.153.0_linux-amd64.tar.gz"
+	const wantHash = "abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890"
+	body := wantHash + "  " + filename + "\n" +
+		"0000000000000000000000000000000000000000000000000000000000000000  other.tar.gz\n"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(body))
+	}))
+	defer ts.Close()
+
+	got, err := fetchExpectedChecksum(&http.Client{}, ts.URL, filename)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != wantHash {
+		t.Fatalf("want %q got %q", wantHash, got)
+	}
+}
+
+// TestFetchExpectedChecksum_NotFound verifies that an error is returned when
+// the archive filename is absent from the checksums file.
+func TestFetchExpectedChecksum_NotFound(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("abcdef1234567890  other.tar.gz\n"))
+	}))
+	defer ts.Close()
+
+	_, err := fetchExpectedChecksum(&http.Client{}, ts.URL, "hugo_0.153.0_linux-amd64.tar.gz")
+	if err == nil {
+		t.Fatal("expected error for filename not present in checksums file")
+	}
+}
+
+// TestFetchExpectedChecksum_BadStatus verifies that an error is returned when
+// the checksums server responds with a non-200 status.
+func TestFetchExpectedChecksum_BadStatus(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusNotFound)
+	}))
+	defer ts.Close()
+
+	_, err := fetchExpectedChecksum(&http.Client{}, ts.URL, "hugo_0.153.0_linux-amd64.tar.gz")
+	if err == nil {
+		t.Fatal("expected error for HTTP error response")
+	}
+}
+
+// TestDownloadAndCache_ChecksumMismatch verifies that downloadAndCache returns
+// a checksum mismatch error when the downloaded archive's SHA-256 digest does
+// not match the value in the checksums file. The function should return before
+// attempting extraction, so no real archive is required.
+func TestDownloadAndCache_ChecksumMismatch(t *testing.T) {
+	const archiveFile = "hugo_0.153.0_linux-amd64.tar.gz"
+	const wrongHash = "0000000000000000000000000000000000000000000000000000000000000000"
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Path {
+		case "/" + archiveFile:
+			w.WriteHeader(http.StatusOK)
+			_, _ = w.Write([]byte("fake archive content"))
+		case "/checksums":
+			w.WriteHeader(http.StatusOK)
+			// Deliberately wrong hash — real digest of "fake archive content" is not all zeros.
+			_, _ = w.Write([]byte(wrongHash + "  " + archiveFile + "\n"))
+		default:
+			w.WriteHeader(http.StatusNotFound)
+		}
+	}))
+	defer ts.Close()
+
+	asset := &repository.Asset{
+		ArchiveURL:   ts.URL + "/" + archiveFile,
+		ChecksumsURL: ts.URL + "/checksums",
+		ArchiveExt:   "tar.gz",
+		Tag:          "v0.153.0",
+		Edition:      "standard",
+	}
+
+	err := downloadAndCache(asset)
+	if err == nil {
+		t.Fatal("expected checksum mismatch error, got nil")
+	}
+	if !strings.Contains(err.Error(), "checksum mismatch") {
+		t.Fatalf("want 'checksum mismatch' error, got: %v", err)
 	}
 }

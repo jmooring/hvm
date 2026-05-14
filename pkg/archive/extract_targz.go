@@ -22,7 +22,6 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -58,11 +57,11 @@ func extractTarGZ(src, dst string) error {
 			continue
 		}
 
-		if strings.Contains(th.Name, "..") {
+		target := filepath.Join(dst, th.Name)
+		rel, relErr := filepath.Rel(dst, target)
+		if relErr != nil || strings.HasPrefix(rel, "..") {
 			return fmt.Errorf("detected unsafe file in archive (zip slip)")
 		}
-
-		target := filepath.Join(dst, th.Name)
 
 		switch th.Typeflag {
 		case tar.TypeDir:
@@ -81,19 +80,23 @@ func extractTarGZ(src, dst string) error {
 }
 
 // copyFileFromTarGZ copies a file within a tar.gz archive to the target path.
-func copyFileFromTarGZ(dst string, th *tar.Header, tr *tar.Reader) error {
+func copyFileFromTarGZ(dst string, th *tar.Header, tr *tar.Reader) (retErr error) {
 	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, os.FileMode(th.Mode))
 	if err != nil {
 		return err
 	}
 	defer func() {
-		if err := df.Close(); err != nil {
-			log.Fatal(err)
+		if cerr := df.Close(); cerr != nil && retErr == nil {
+			retErr = cerr
 		}
 	}()
 
-	if _, err := io.Copy(df, tr); err != nil {
+	lr := &io.LimitedReader{R: tr, N: maxExtractBytes + 1}
+	if _, err := io.Copy(df, lr); err != nil {
 		return err
+	}
+	if lr.N == 0 {
+		return fmt.Errorf("archive entry exceeds size limit of %d bytes", maxExtractBytes)
 	}
 
 	return nil
