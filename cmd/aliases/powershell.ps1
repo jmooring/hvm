@@ -14,7 +14,7 @@ function Hugo-Override {
             hvm use --useVersionInDotFile
             if ($LASTEXITCODE -ne 0) { return }
         } else {
-            $HugoCommand = Get-Command -Name hugo.exe -ErrorAction SilentlyContinue -CommandType Application
+            $HugoCommand = Get-Command -Name hugo.exe -ErrorAction SilentlyContinue -CommandType Application -TotalCount 1
             if ($HugoCommand) {
                 $HVMBin = $HugoCommand.Definition
             }
