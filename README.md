@@ -1,7 +1,6 @@
 # Hugo Version Manager
 
 [![test status](https://github.com/jmooring/hvm/actions/workflows/test.yaml/badge.svg)](https://github.com/jmooring/hvm/actions/workflows/test.yaml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/jmooring/hvm)](https://goreportcard.com/report/github.com/jmooring/hvm)
 [![license](https://img.shields.io/github/license/jmooring/hvm)](https://github.com/jmooring/hvm/blob/main/LICENSE)
 [![latest release](https://img.shields.io/github/v/release/jmooring/hvm?logo=github&v=1)](https://github.com/jmooring/hvm/releases/latest)
 [![GitHub sponsors](https://img.shields.io/github/sponsors/jmooring?logo=github&label=sponsors)](https://github.com/sponsors/jmooring)
