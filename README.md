@@ -118,7 +118,7 @@ If you regularly exceed this limit, you can create a GitHub personal access toke
 
 **numTagsToDisplay** (`int`)
 
-By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned. The default is `30`.
+By default, the `hvm use` and `hvm install` commands display the 30 most recent releases. To display all releases since v0.54.0, set the value to `-1`. Releases before v0.54.0 were not semantically versioned. The default is `32`.
 
 **promptForEdition** (`bool`)
 
