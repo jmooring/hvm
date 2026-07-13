@@ -1,5 +1,5 @@
 .hvm
-/assets/hvm.gif
 /dist
+/doc/hvm.gif
 coverage.out
 coverage.txt
