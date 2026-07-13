@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/cache"
 )
 
 func TestSaveAndLoadTagCache(t *testing.T) {

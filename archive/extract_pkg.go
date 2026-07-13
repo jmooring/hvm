@@ -25,7 +25,7 @@ import (
 	"path/filepath"
 	"runtime"
 
-	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/helpers"
 )
 
 // extractPkg unpacks the contents of a macOS .pkg file (src) to the dst

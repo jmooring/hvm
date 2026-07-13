@@ -26,11 +26,11 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jmooring/hvm/pkg/cache"
-	gh "github.com/jmooring/hvm/pkg/github"
-	"github.com/jmooring/hvm/pkg/helpers"
-	"github.com/jmooring/hvm/pkg/repository"
-	"github.com/jmooring/hvm/pkg/version"
+	"github.com/jmooring/hvm/cache"
+	gh "github.com/jmooring/hvm/github"
+	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/repository"
+	"github.com/jmooring/hvm/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

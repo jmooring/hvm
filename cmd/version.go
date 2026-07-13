@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	gh "github.com/jmooring/hvm/pkg/github"
+	gh "github.com/jmooring/hvm/github"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )

@@ -22,7 +22,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/helpers"
 	"github.com/spf13/cobra"
 )
 

@@ -29,10 +29,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jmooring/hvm/pkg/archive"
-	"github.com/jmooring/hvm/pkg/dotfile"
-	"github.com/jmooring/hvm/pkg/helpers"
-	"github.com/jmooring/hvm/pkg/repository"
+	"github.com/jmooring/hvm/archive"
+	"github.com/jmooring/hvm/dotfile"
+	"github.com/jmooring/hvm/helpers"
+	"github.com/jmooring/hvm/repository"
 	"github.com/spf13/cobra"
 )
 

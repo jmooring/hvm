@@ -23,9 +23,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jmooring/hvm/pkg/cache"
-	"github.com/jmooring/hvm/pkg/dotfile"
-	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/cache"
+	"github.com/jmooring/hvm/dotfile"
+	"github.com/jmooring/hvm/helpers"
 	"github.com/spf13/cobra"
 	"golang.org/x/mod/semver"
 )

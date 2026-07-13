@@ -24,7 +24,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/cache"
 )
 
 // errCorruptCache is returned by loadTagCache when the cache file exists but
