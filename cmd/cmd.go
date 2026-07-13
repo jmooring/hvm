@@ -63,11 +63,11 @@ type managedApp struct {
 // A configuration contains the current configuration parameters from environment
 // variables, the configuration file, or default values, in that order.
 type configuration struct {
-	DefaultEdition   string `toml:"defaultEdition"`   // Default edition of the hugo executable to "use" or "install"
-	GitHubToken      string `toml:"githubToken"`      // A GitHub personal access token
-	NumTagsToDisplay int    `toml:"numTagsToDisplay"` // Number of tags to display when using the "use" and "install" commands
-	PromptForEdition bool   `toml:"promptForEdition"` // Whether to prompt the user to select an edition when using the "use" or "install" commands
-	SortAscending    bool   `toml:"sortAscending"`    // Whether to display the tags in ascending order
+	DefaultEdition   string `mapstructure:"defaultEdition"   toml:"defaultEdition"`   // Default edition of the hugo executable to "use" or "install"
+	GitHubToken      string `mapstructure:"githubToken"      toml:"githubToken"`      // A GitHub personal access token
+	NumTagsToDisplay int    `mapstructure:"numTagsToDisplay" toml:"numTagsToDisplay"` // Number of tags to display when using the "use" and "install" commands
+	PromptForEdition bool   `mapstructure:"promptForEdition" toml:"promptForEdition"` // Whether to prompt the user to select an edition when using the "use" or "install" commands
+	SortAscending    bool   `mapstructure:"sortAscending"    toml:"sortAscending"`    // Whether to display the tags in ascending order
 }
 
 // orderedAvailableEditions returns the subset of repository.ValidEditions that are
