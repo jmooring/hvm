@@ -21,7 +21,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/jmooring/hvm/pkg/cache"
+	"github.com/jmooring/hvm/cache"
 	"github.com/spf13/cobra"
 )
 

@@ -30,7 +30,7 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/jmooring/hvm/pkg/repository"
+	"github.com/jmooring/hvm/repository"
 	"golang.org/x/mod/semver"
 )
 

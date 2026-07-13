@@ -23,8 +23,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmooring/hvm/pkg/cache"
-	"github.com/jmooring/hvm/pkg/repository"
+	"github.com/jmooring/hvm/cache"
+	"github.com/jmooring/hvm/repository"
 )
 
 // newMockRepo creates a mock repository for testing with predefined tags.

@@ -32,9 +32,9 @@ var readBuildInfo = debug.ReadBuildInfo
 // These variables are optionally set at build time via ldflags.
 // For example:
 //
-//	-X github.com/jmooring/hvm/pkg/version.Version=v1.2.3
-//	-X github.com/jmooring/hvm/pkg/version.CommitHash=abcdef7
-//	-X github.com/jmooring/hvm/pkg/version.BuildDate=2026-01-09T00:00:00Z
+//	-X github.com/jmooring/hvm/version.Version=v1.2.3
+//	-X github.com/jmooring/hvm/version.CommitHash=abcdef7
+//	-X github.com/jmooring/hvm/version.BuildDate=2026-01-09T00:00:00Z
 var (
 	Version    string
 	CommitHash string

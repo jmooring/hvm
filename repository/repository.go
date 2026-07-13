@@ -29,8 +29,8 @@ import (
 	"strings"
 
 	"github.com/google/go-github/v81/github"
-	"github.com/jmooring/hvm/pkg/cache"
-	gh "github.com/jmooring/hvm/pkg/github"
+	"github.com/jmooring/hvm/cache"
+	gh "github.com/jmooring/hvm/github"
 	"golang.org/x/mod/semver"
 )
 

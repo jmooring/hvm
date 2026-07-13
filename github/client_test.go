@@ -27,7 +27,7 @@ import (
 	"time"
 
 	githubv81 "github.com/google/go-github/v81/github"
-	gh "github.com/jmooring/hvm/pkg/github"
+	gh "github.com/jmooring/hvm/github"
 )
 
 func TestGetLatestRelease(t *testing.T) {

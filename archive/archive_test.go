@@ -30,7 +30,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jmooring/hvm/pkg/helpers"
+	"github.com/jmooring/hvm/helpers"
 )
 
 // TestExtract tests the Extract function for various archive formats.
