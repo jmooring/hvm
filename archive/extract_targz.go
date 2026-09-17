@@ -24,7 +24,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // extractTarGZ extracts a gzipped tarball (src) to the dst directory.
@@ -57,11 +56,10 @@ func extractTarGZ(src, dst string) error {
 			continue
 		}
 
-		target := filepath.Join(dst, th.Name)
-		rel, relErr := filepath.Rel(dst, target)
-		if relErr != nil || strings.HasPrefix(rel, "..") {
-			return fmt.Errorf("detected unsafe file in archive (zip slip)")
+		if !filepath.IsLocal(th.Name) {
+			return fmt.Errorf("detected unsafe file in archive (zip slip): %s", th.Name)
 		}
+		target := filepath.Join(dst, th.Name)
 
 		switch th.Typeflag {
 		case tar.TypeDir:
@@ -81,7 +79,7 @@ func extractTarGZ(src, dst string) error {
 
 // copyFileFromTarGZ copies a file within a tar.gz archive to the target path.
 func copyFileFromTarGZ(dst string, th *tar.Header, tr *tar.Reader) (retErr error) {
-	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, os.FileMode(th.Mode))
+	df, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_RDWR, os.FileMode(th.Mode))
 	if err != nil {
 		return err
 	}

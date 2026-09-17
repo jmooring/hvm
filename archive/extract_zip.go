@@ -22,7 +22,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 // extractZip extracts a zip file (src) to the dst directory.
@@ -34,11 +33,10 @@ func extractZip(src, dst string) error {
 	defer zrc.Close()
 
 	for _, f := range zrc.File {
-		target := filepath.Join(dst, f.Name)
-		rel, relErr := filepath.Rel(dst, target)
-		if relErr != nil || strings.HasPrefix(rel, "..") {
-			return fmt.Errorf("detected unsafe file in archive (zip slip)")
+		if !filepath.IsLocal(f.Name) {
+			return fmt.Errorf("detected unsafe file in archive (zip slip): %s", f.Name)
 		}
+		target := filepath.Join(dst, f.Name)
 
 		if f.FileInfo().IsDir() {
 			err = os.MkdirAll(target, 0o755)
@@ -70,7 +68,7 @@ func copyFileFromZip(z *zip.File, dst string) (retErr error) {
 	}
 	defer zrc.Close()
 
-	df, err := os.OpenFile(dst, os.O_CREATE|os.O_RDWR, z.Mode())
+	df, err := os.OpenFile(dst, os.O_CREATE|os.O_TRUNC|os.O_RDWR, z.Mode())
 	if err != nil {
 		return err
 	}
