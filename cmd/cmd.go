@@ -254,6 +254,8 @@ func init() {
 	rootCmd.PersistentFlags().BoolP("help", "h", false, "Display help")
 	rootCmd.Flags().BoolP("version", "v", false, "Display the "+app.Name+" version")
 	rootCmd.SetVersionTemplate(fmt.Sprintf("%s\n", versionString))
+	// No subcommand takes a filesystem path, so never fall back to filename completion.
+	rootCmd.CompletionOptions.SetDefaultShellCompDirective(cobra.ShellCompDirectiveNoFileComp)
 }
 
 // initConfig reads in config file and ENV variables if set.
