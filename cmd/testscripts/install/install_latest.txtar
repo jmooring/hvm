@@ -3,6 +3,6 @@
 [darwin] mkdir "$HOME/Library/Application Support"
 
 # Test
-exec hvm install latest/extended
+exec hvm install latest/withdeploy
 stdout 'Downloading v.* done.\n'
 stdout 'Installation of v.* complete.\n'
